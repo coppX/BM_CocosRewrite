@@ -25,11 +25,14 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 15
+        "__id__": 17
+      },
+      {
+        "__id__": 20
       }
     ],
     "_prefab": {
-      "__id__": 18
+      "__id__": 22
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -110,11 +113,14 @@
       },
       {
         "__id__": 13
+      },
+      {
+        "__id__": 14
       }
     ],
     "removedComponents": [
       {
-        "__id__": 14
+        "__id__": 16
       }
     ]
   },
@@ -151,8 +157,14 @@
     "__prefab": {
       "__id__": 8
     },
-    "_graph": null,
-    "graph": null,
+    "_graph": {
+      "__uuid__": "e3268b95-930a-400c-9d50-13e2baeb6c05",
+      "__expectedType__": "cc.animation.AnimationGraph"
+    },
+    "graph": {
+      "__uuid__": "e3268b95-930a-400c-9d50-13e2baeb6c05",
+      "__expectedType__": "cc.animation.AnimationGraph"
+    },
     "_id": ""
   },
   {
@@ -185,9 +197,9 @@
     ],
     "value": {
       "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
-      "z": 0
+      "x": -4.93,
+      "y": -1.625,
+      "z": 3.076
     }
   },
   {
@@ -222,6 +234,25 @@
     }
   },
   {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 15
+    },
+    "propertyPath": [
+      "_graph"
+    ],
+    "value": {
+      "__uuid__": "e3268b95-930a-400c-9d50-13e2baeb6c05",
+      "__expectedType__": "cc.animation.AnimationGraph"
+    }
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "aetU//jp9FEL3blj/RKBUq"
+    ]
+  },
+  {
     "__type__": "cc.TargetInfo",
     "localID": [
       "182GRtTIBU+b8DeHw+eTTR"
@@ -237,12 +268,12 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 16
+      "__id__": 18
     },
     "_materials": [],
     "_visFlags": 0,
     "bakeSettings": {
-      "__id__": 17
+      "__id__": 19
     },
     "_mesh": null,
     "_shadowCastingMode": 0,
@@ -279,6 +310,33 @@
     "_bakeToLightProbe": true,
     "_reflectionProbeType": 0,
     "_bakeToReflectionProbe": true
+  },
+  {
+    "__type__": "b017cKbSdNLXpLgavpdukFs",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 21
+    },
+    "damage": 10,
+    "dropChance": 0.5,
+    "dropAmount": 2,
+    "knockbackAngleVariance": 0,
+    "dropChanceMultiplier": 1,
+    "damageMultiplier": 1,
+    "hpMultiplier": 1,
+    "isLeftMinion": false,
+    "attackPoint": null,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "a5RiAvH+VOJrUufFkHEtLa"
   },
   {
     "__type__": "cc.PrefabInfo",

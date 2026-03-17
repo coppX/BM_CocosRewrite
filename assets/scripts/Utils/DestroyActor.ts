@@ -1,7 +1,7 @@
-import { _decorator, Component } from 'cc';
+import { _decorator, Component, CCInteger } from 'cc';
 import { EventCenter } from '../Core/EventCenter';
 import { EventName } from '../Core/EventName';
-import { GlobalVariables } from '../Core/GlobalVariables';
+import { GlobalVariables, Stage } from '../Core/GlobalVariables';
 import { GameManager } from '../Managers/GameManager';
 const { ccclass, property } = _decorator;
 
@@ -17,8 +17,8 @@ export class DestroyActor extends Component {
     @property
     public detectionRadius: number = 1;
 
-    @property({ type: GlobalVariables.Stage })
-    public triggerStage: GlobalVariables.Stage = GlobalVariables.Stage.Basic;
+    @property(CCInteger)
+    public triggerStage: number = GlobalVariables.Stage.Basic;
 
     @property
     public checkInterval: number = 0.5;
@@ -27,11 +27,11 @@ export class DestroyActor extends Component {
     private _checkTimer: number = 0;
 
     protected start(): void {
-        EventCenter.Instance.addListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade, this);
+        EventCenter.Instance.AddEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade.bind(this));
     }
 
     protected onDisable(): void {
-        EventCenter.Instance.removeListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade, this);
+        EventCenter.Instance.RemoveEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade.bind(this));
     }
 
     protected update(dt: number): void {
@@ -53,7 +53,7 @@ export class DestroyActor extends Component {
         // EventCenter.Instance.eventTrigger(EventName.GameOver);
     }
 
-    private onMapLevelUpgrade(stage: GlobalVariables.Stage): void {
+    private onMapLevelUpgrade(stage: Stage): void {
         if (stage === this.triggerStage) {
             this._enableCheckCollision = true;
         }

@@ -1,7 +1,7 @@
-import { _decorator, Component, Camera, tween } from 'cc';
+import { _decorator, Component, Camera, tween, CCInteger } from 'cc';
 import { EventCenter } from '../Core/EventCenter';
 import { EventName } from '../Core/EventName';
-import { GlobalVariables } from '../Core/GlobalVariables';
+import { GlobalVariables, Stage } from '../Core/GlobalVariables';
 const { ccclass, property } = _decorator;
 
 /**
@@ -16,15 +16,15 @@ export class CameraZoom extends Component {
     @property
     public targetSizeScale: number = 1.2;
 
-    @property({ type: [GlobalVariables.Stage] })
-    public targetStage: GlobalVariables.Stage[] = [];
+    @property({ type: [CCInteger] })
+    public targetStage: number[] = [];
 
     private _hasStartedZoom: boolean = false;
     private _baseSize: number = 0;
-    private _finishedStages: GlobalVariables.Stage[] = [];
+    private _finishedStages: number[] = [];
 
     protected onLoad(): void {
-        EventCenter.Instance.addListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade, this);
+        EventCenter.Instance.AddEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade.bind(this));
 
         if (this.controlledCamera) {
             this._baseSize = this.controlledCamera.orthoHeight;
@@ -32,10 +32,10 @@ export class CameraZoom extends Component {
     }
 
     protected onDisable(): void {
-        EventCenter.Instance.removeListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade, this);
+        EventCenter.Instance.RemoveEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade.bind(this));
     }
 
-    private onMapLevelUpgrade(stage: GlobalVariables.Stage): void {
+    private onMapLevelUpgrade(stage: Stage): void {
         this._finishedStages.push(stage);
 
         // 检查所有目标阶段是否都完成

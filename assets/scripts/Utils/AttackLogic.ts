@@ -11,8 +11,8 @@ export class AttackLogic extends Component {
     @property
     public attackRange: number = 10;
 
-    @property
-    public targetTag: string = 'Enemy';
+    // @property
+    // public targetTag: string = 'Enemy';
 
     @property
     public canAttack: boolean = true;

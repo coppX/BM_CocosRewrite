@@ -1,4 +1,5 @@
 import { _decorator, Component } from 'cc';
+import { AttackLogic } from '../Utils/AttackLogic';
 const { ccclass } = _decorator;
 
 /**
@@ -7,11 +8,11 @@ const { ccclass } = _decorator;
  */
 @ccclass('LoaAnimEvent')
 export class LoaAnimEvent extends Component {
-    private _attackLogic: Component | null = null;
+    private _attackLogic: AttackLogic | null = null;
 
     protected start(): void {
-        // TODO: 获取父节点的AttackLogic组件
-        // this._attackLogic = this.node.parent?.getComponent('AttackLogic');
+        // 获取父节点的AttackLogic组件
+        this._attackLogic = this.node.parent?.getComponent(AttackLogic) || null;
     }
 
     /**
@@ -19,9 +20,9 @@ export class LoaAnimEvent extends Component {
      * 在动画编辑器中配置此方法为帧事件
      */
     public onAnimFire(): void {
-        // TODO: 调用AttackLogic的TryAttackOnce方法
-        // if (this._attackLogic) {
-        //     (this._attackLogic as any).tryAttackOnce();
-        // }
+        // 调用AttackLogic的TryAttackOnce方法
+        if (this._attackLogic) {
+            this._attackLogic.tryAttackOnce();
+        }
     }
 }

@@ -35,12 +35,12 @@ export class Bow extends Weapon {
 
     protected onEnable(): void {
         super.onEnable();
-        EventCenter.Instance.addListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade, this);
+        EventCenter.Instance.AddEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade.bind(this));
     }
 
     protected onDisable(): void {
         super.onDisable();
-        EventCenter.Instance.removeListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade, this);
+        EventCenter.Instance.RemoveEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade.bind(this));
     }
 
     public onAttackAnimEvent(): void {

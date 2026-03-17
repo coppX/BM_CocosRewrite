@@ -1,6 +1,6 @@
 import { _decorator, Component } from 'cc';
 import { PoolManager } from '../Managers/PoolManager';
-import { GlobalVariables } from './GlobalVariables';
+import { GlobalVariables, EffectType } from './GlobalVariables';
 const { ccclass, property } = _decorator;
 
 /**
@@ -15,10 +15,9 @@ export class FxAutoReturnToPool extends Component {
     public lifeTime: number = 1;
 
     @property({
-        type: GlobalVariables.EffectType,
         tooltip: '特效类型'
     })
-    public effectType: GlobalVariables.EffectType = GlobalVariables.EffectType.None;
+    public effectType: EffectType = GlobalVariables.EffectType.None;
 
     private _timeoutHandle: number | null = null;
 
