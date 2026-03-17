@@ -2,12 +2,12 @@
   "ver": "2.3.14",
   "importer": "fbx",
   "imported": true,
-  "uuid": "86758ef2-60ee-43ce-a84b-03ab87e73967",
+  "uuid": "50d1ccf0-62a1-419e-8d88-2536696d6a1d",
   "files": [],
   "subMetas": {
     "86025": {
       "importer": "gltf-material",
-      "uuid": "86758ef2-60ee-43ce-a84b-03ab87e73967@86025",
+      "uuid": "50d1ccf0-62a1-419e-8d88-2536696d6a1d@86025",
       "displayName": "",
       "id": "86025",
       "name": "M_shotgunJM.material",
@@ -23,7 +23,7 @@
     },
     "a0ec4": {
       "importer": "gltf-mesh",
-      "uuid": "86758ef2-60ee-43ce-a84b-03ab87e73967@a0ec4",
+      "uuid": "50d1ccf0-62a1-419e-8d88-2536696d6a1d@a0ec4",
       "displayName": "",
       "id": "a0ec4",
       "name": "SK_shotgun.mesh",
@@ -41,7 +41,7 @@
     },
     "438fe": {
       "importer": "gltf-skeleton",
-      "uuid": "86758ef2-60ee-43ce-a84b-03ab87e73967@438fe",
+      "uuid": "50d1ccf0-62a1-419e-8d88-2536696d6a1d@438fe",
       "displayName": "",
       "id": "438fe",
       "name": "UnnamedSkeleton.skeleton",
@@ -58,7 +58,7 @@
     },
     "dfe29": {
       "importer": "gltf-embeded-image",
-      "uuid": "86758ef2-60ee-43ce-a84b-03ab87e73967@dfe29",
+      "uuid": "50d1ccf0-62a1-419e-8d88-2536696d6a1d@dfe29",
       "displayName": "",
       "id": "dfe29",
       "name": "file3.image",
@@ -78,7 +78,7 @@
     },
     "a562b": {
       "importer": "texture",
-      "uuid": "86758ef2-60ee-43ce-a84b-03ab87e73967@a562b",
+      "uuid": "50d1ccf0-62a1-419e-8d88-2536696d6a1d@a562b",
       "displayName": "",
       "id": "a562b",
       "name": "file3.texture",
@@ -90,7 +90,7 @@
         "mipfilter": "none",
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "86758ef2-60ee-43ce-a84b-03ab87e73967@dfe29"
+        "imageUuidOrDatabaseUri": "50d1ccf0-62a1-419e-8d88-2536696d6a1d@dfe29"
       },
       "ver": "1.0.22",
       "imported": true,
@@ -101,7 +101,7 @@
     },
     "d3399": {
       "importer": "gltf-scene",
-      "uuid": "86758ef2-60ee-43ce-a84b-03ab87e73967@d3399",
+      "uuid": "50d1ccf0-62a1-419e-8d88-2536696d6a1d@d3399",
       "displayName": "",
       "id": "d3399",
       "name": "里奥_散弹枪_LOD_skin.prefab",
@@ -120,7 +120,7 @@
     "imageMetas": [
       {
         "name": "file3",
-        "uri": "86758ef2-60ee-43ce-a84b-03ab87e73967@dfe29"
+        "uri": "50d1ccf0-62a1-419e-8d88-2536696d6a1d@dfe29"
       }
     ],
     "fbx": {
@@ -146,19 +146,19 @@
     },
     "assetFinder": {
       "meshes": [
-        "86758ef2-60ee-43ce-a84b-03ab87e73967@a0ec4"
+        "50d1ccf0-62a1-419e-8d88-2536696d6a1d@a0ec4"
       ],
       "skeletons": [
-        "86758ef2-60ee-43ce-a84b-03ab87e73967@438fe"
+        "50d1ccf0-62a1-419e-8d88-2536696d6a1d@438fe"
       ],
       "textures": [
-        "86758ef2-60ee-43ce-a84b-03ab87e73967@a562b"
+        "50d1ccf0-62a1-419e-8d88-2536696d6a1d@a562b"
       ],
       "materials": [
-        "86758ef2-60ee-43ce-a84b-03ab87e73967@86025"
+        "50d1ccf0-62a1-419e-8d88-2536696d6a1d@86025"
       ],
       "scenes": [
-        "86758ef2-60ee-43ce-a84b-03ab87e73967@d3399"
+        "50d1ccf0-62a1-419e-8d88-2536696d6a1d@d3399"
       ]
     }
   }

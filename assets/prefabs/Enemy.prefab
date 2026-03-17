@@ -17,21 +17,25 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
-    "_children": [],
-    "_active": true,
-    "_components": [
+    "_children": [
       {
         "__id__": 2
       }
     ],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 15
+      }
+    ],
     "_prefab": {
-      "__id__": 5
+      "__id__": 18
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
-      "z": 0
+      "x": 8.863,
+      "y": 1.718,
+      "z": 19.47
     },
     "_lrot": {
       "__type__": "cc.Quat",
@@ -57,6 +61,173 @@
     "_id": ""
   },
   {
+    "__type__": "cc.Node",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 1
+    },
+    "_prefab": {
+      "__id__": 3
+    },
+    "__editorExtras__": {}
+  },
+  {
+    "__type__": "cc.PrefabInfo",
+    "root": {
+      "__id__": 2
+    },
+    "asset": {
+      "__uuid__": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@da679",
+      "__expectedType__": "cc.Prefab"
+    },
+    "fileId": "e7cd2VZCJWb7KCQ+GonicL",
+    "instance": {
+      "__id__": 4
+    },
+    "targetOverrides": null
+  },
+  {
+    "__type__": "cc.PrefabInstance",
+    "fileId": "09hggSJClJfJ+6+PIIsz8n",
+    "prefabRootNode": {
+      "__id__": 1
+    },
+    "mountedChildren": [],
+    "mountedComponents": [
+      {
+        "__id__": 5
+      }
+    ],
+    "propertyOverrides": [
+      {
+        "__id__": 9
+      },
+      {
+        "__id__": 11
+      },
+      {
+        "__id__": 12
+      },
+      {
+        "__id__": 13
+      }
+    ],
+    "removedComponents": [
+      {
+        "__id__": 14
+      }
+    ]
+  },
+  {
+    "__type__": "cc.MountedComponentsInfo",
+    "targetInfo": {
+      "__id__": 6
+    },
+    "components": [
+      {
+        "__id__": 7
+      }
+    ]
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "e7cd2VZCJWb7KCQ+GonicL"
+    ]
+  },
+  {
+    "__type__": "cc.animation.AnimationController",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {
+      "mountedRoot": {
+        "__id__": 2
+      }
+    },
+    "node": {
+      "__id__": 2
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 8
+    },
+    "_graph": null,
+    "graph": null,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "aetU//jp9FEL3blj/RKBUq"
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 10
+    },
+    "propertyPath": [
+      "_name"
+    ],
+    "value": "丧尸男02_skin"
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "e7cd2VZCJWb7KCQ+GonicL"
+    ]
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 10
+    },
+    "propertyPath": [
+      "_lpos"
+    ],
+    "value": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    }
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 10
+    },
+    "propertyPath": [
+      "_lrot"
+    ],
+    "value": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    }
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 10
+    },
+    "propertyPath": [
+      "_euler"
+    ],
+    "value": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    }
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "182GRtTIBU+b8DeHw+eTTR"
+    ]
+  },
+  {
     "__type__": "cc.MeshRenderer",
     "_name": "",
     "_objFlags": 0,
@@ -66,12 +237,12 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 3
+      "__id__": 16
     },
     "_materials": [],
     "_visFlags": 0,
     "bakeSettings": {
-      "__id__": 4
+      "__id__": 17
     },
     "_mesh": null,
     "_shadowCastingMode": 0,
@@ -118,7 +289,11 @@
       "__id__": 0
     },
     "fileId": "deVn8i+wpFZqzpHvPucJOc",
-    "instance": null,
-    "targetOverrides": null
+    "targetOverrides": null,
+    "nestedPrefabInstanceRoots": [
+      {
+        "__id__": 2
+      }
+    ]
   }
 ]

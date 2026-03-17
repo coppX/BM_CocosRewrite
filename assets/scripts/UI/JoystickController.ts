@@ -207,7 +207,7 @@ export class JoystickController extends Component {
         this._inputVector.set(localPoint.x / this._radius, localPoint.y / this._radius);
 
         // 更新玩家移动方向：拖拽方向与角色移动方向保持一致
-        const moveDirection = new Vec3(this._inputVector.x, 0, this._inputVector.y);
+        const moveDirection = new Vec3(this._inputVector.x, 0, -this._inputVector.y);
         if (this.playerController) {
             this.playerController.SetMoveDirection(moveDirection.normalize());
         }
