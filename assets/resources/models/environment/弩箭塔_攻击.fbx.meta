@@ -1,0 +1,317 @@
+{
+  "ver": "2.3.14",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e",
+  "files": [
+    "__original-animation-0.bin"
+  ],
+  "subMetas": {
+    "30732": {
+      "importer": "gltf-skeleton",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@30732",
+      "displayName": "",
+      "id": "30732",
+      "name": "UnnamedSkeleton-0.skeleton",
+      "userData": {
+        "gltfIndex": 0,
+        "jointsLength": 6
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ed2ea": {
+      "importer": "gltf-mesh",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@ed2ea",
+      "displayName": "",
+      "id": "ed2ea",
+      "name": "sda5:CrossBow_CrossBow.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 532
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "8b66e": {
+      "importer": "gltf-mesh",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@8b66e",
+      "displayName": "",
+      "id": "8b66e",
+      "name": "sda5:CrossBow_Hub.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 68
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "425f2": {
+      "importer": "gltf-mesh",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@425f2",
+      "displayName": "",
+      "id": "425f2",
+      "name": "sda5:CrossBow_Base.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 74
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "4f874": {
+      "importer": "gltf-mesh",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@4f874",
+      "displayName": "",
+      "id": "4f874",
+      "name": "sda5:CrossBow_string.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 70
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "73b7f": {
+      "importer": "gltf-animation",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@73b7f",
+      "displayName": "",
+      "id": "73b7f",
+      "name": "Take 001.animation",
+      "userData": {
+        "gltfIndex": 0,
+        "wrapMode": 2,
+        "sample": 30,
+        "span": {
+          "from": 0,
+          "to": 0.5333333611488342
+        },
+        "events": []
+      },
+      "ver": "1.0.18",
+      "imported": true,
+      "files": [
+        ".bin"
+      ],
+      "subMetas": {}
+    },
+    "f1394": {
+      "importer": "gltf-skeleton",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@f1394",
+      "displayName": "",
+      "id": "f1394",
+      "name": "UnnamedSkeleton-1.skeleton",
+      "userData": {
+        "gltfIndex": 1,
+        "jointsLength": 1
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "75ee4": {
+      "importer": "gltf-skeleton",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@75ee4",
+      "displayName": "",
+      "id": "75ee4",
+      "name": "UnnamedSkeleton-2.skeleton",
+      "userData": {
+        "gltfIndex": 2,
+        "jointsLength": 1
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a72ab": {
+      "importer": "gltf-skeleton",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@a72ab",
+      "displayName": "",
+      "id": "a72ab",
+      "name": "UnnamedSkeleton-3.skeleton",
+      "userData": {
+        "gltfIndex": 3,
+        "jointsLength": 3
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "271ee": {
+      "importer": "gltf-embeded-image",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@271ee",
+      "displayName": "",
+      "id": "271ee",
+      "name": "sda5:file1.image",
+      "userData": {
+        "gltfIndex": 0,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": true,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "c40dc": {
+      "importer": "texture",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@c40dc",
+      "displayName": "",
+      "id": "c40dc",
+      "name": "sda5:file1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "95f2871c-85fd-45c3-99cf-977745971b6e@271ee"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a07c6": {
+      "importer": "gltf-material",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@a07c6",
+      "displayName": "",
+      "id": "a07c6",
+      "name": "sda5:MI_crossbow.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "d7a10": {
+      "importer": "gltf-scene",
+      "uuid": "95f2871c-85fd-45c3-99cf-977745971b6e@d7a10",
+      "displayName": "",
+      "id": "d7a10",
+      "name": "弩箭塔_攻击.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "sda5:file1",
+        "uri": "95f2871c-85fd-45c3-99cf-977745971b6e@271ee"
+      }
+    ],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "animationImportSettings": [
+      {
+        "name": "Take 001",
+        "duration": 0.5333333611488342,
+        "fps": 30,
+        "splits": [
+          {
+            "name": "Take 001",
+            "from": 0,
+            "to": 0.5333333611488342,
+            "wrapMode": 2,
+            "previousId": "73b7f"
+          }
+        ]
+      }
+    ],
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "95f2871c-85fd-45c3-99cf-977745971b6e@ed2ea",
+        "95f2871c-85fd-45c3-99cf-977745971b6e@8b66e",
+        "95f2871c-85fd-45c3-99cf-977745971b6e@425f2",
+        "95f2871c-85fd-45c3-99cf-977745971b6e@4f874"
+      ],
+      "skeletons": [
+        "95f2871c-85fd-45c3-99cf-977745971b6e@30732",
+        "95f2871c-85fd-45c3-99cf-977745971b6e@f1394",
+        "95f2871c-85fd-45c3-99cf-977745971b6e@75ee4",
+        "95f2871c-85fd-45c3-99cf-977745971b6e@a72ab"
+      ],
+      "textures": [
+        "95f2871c-85fd-45c3-99cf-977745971b6e@c40dc"
+      ],
+      "materials": [
+        "95f2871c-85fd-45c3-99cf-977745971b6e@a07c6"
+      ],
+      "scenes": [
+        "95f2871c-85fd-45c3-99cf-977745971b6e@d7a10"
+      ]
+    }
+  }
+}

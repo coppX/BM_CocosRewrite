@@ -1,0 +1,14 @@
+{
+  "ver": "1.1.50",
+  "importer": "prefab",
+  "imported": true,
+  "uuid": "a7c5ad6f-4f57-4d8c-b7e7-f362a381e6f5",
+  "files": [
+    ".json"
+  ],
+  "subMetas": {},
+  "userData": {
+    "syncNodeName": "WorldSpaceBar",
+    "hasIcon": false
+  }
+}

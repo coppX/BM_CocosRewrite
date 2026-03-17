@@ -1,0 +1,216 @@
+{
+  "ver": "2.3.14",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "0fdcefd3-582f-4edc-ad52-ac71c977cf34",
+  "files": [],
+  "subMetas": {
+    "8130b": {
+      "importer": "gltf-mesh",
+      "uuid": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@8130b",
+      "displayName": "",
+      "id": "8130b",
+      "name": "SK_BM_Zombie_001.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 1000
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "438fe": {
+      "importer": "gltf-skeleton",
+      "uuid": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@438fe",
+      "displayName": "",
+      "id": "438fe",
+      "name": "UnnamedSkeleton.skeleton",
+      "userData": {
+        "gltfIndex": 0,
+        "jointsLength": 52
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "be25d": {
+      "importer": "gltf-embeded-image",
+      "uuid": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@be25d",
+      "displayName": "",
+      "id": "be25d",
+      "name": "T_Zombie_02_D_1.image",
+      "userData": {
+        "gltfIndex": 0,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": true,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "dd3be": {
+      "importer": "texture",
+      "uuid": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@dd3be",
+      "displayName": "",
+      "id": "dd3be",
+      "name": "T_Zombie_02_D_1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@be25d"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "21ef4": {
+      "importer": "gltf-material",
+      "uuid": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@21ef4",
+      "displayName": "",
+      "id": "21ef4",
+      "name": "zombie02coat_mat.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "670bd": {
+      "importer": "gltf-material",
+      "uuid": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@670bd",
+      "displayName": "",
+      "id": "670bd",
+      "name": "M_BM_Zombie_001.material",
+      "userData": {
+        "gltfIndex": 1
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a24e9": {
+      "importer": "gltf-material",
+      "uuid": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@a24e9",
+      "displayName": "",
+      "id": "a24e9",
+      "name": "zombie02pants_mat.material",
+      "userData": {
+        "gltfIndex": 2
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "ea609": {
+      "importer": "gltf-material",
+      "uuid": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@ea609",
+      "displayName": "",
+      "id": "ea609",
+      "name": "zombie02shoes_mat.material",
+      "userData": {
+        "gltfIndex": 3
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "da679": {
+      "importer": "gltf-scene",
+      "uuid": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@da679",
+      "displayName": "",
+      "id": "da679",
+      "name": "丧尸男02_skin.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "T_Zombie_02_D_1",
+        "uri": "0fdcefd3-582f-4edc-ad52-ac71c977cf34@be25d"
+      }
+    ],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "0fdcefd3-582f-4edc-ad52-ac71c977cf34@8130b"
+      ],
+      "skeletons": [
+        "0fdcefd3-582f-4edc-ad52-ac71c977cf34@438fe"
+      ],
+      "textures": [
+        "0fdcefd3-582f-4edc-ad52-ac71c977cf34@dd3be"
+      ],
+      "materials": [
+        "0fdcefd3-582f-4edc-ad52-ac71c977cf34@21ef4",
+        "0fdcefd3-582f-4edc-ad52-ac71c977cf34@670bd",
+        "0fdcefd3-582f-4edc-ad52-ac71c977cf34@a24e9",
+        "0fdcefd3-582f-4edc-ad52-ac71c977cf34@ea609"
+      ],
+      "scenes": [
+        "0fdcefd3-582f-4edc-ad52-ac71c977cf34@da679"
+      ]
+    }
+  }
+}

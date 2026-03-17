@@ -1,0 +1,179 @@
+{
+  "ver": "2.3.14",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "48ae479c-06b6-44b5-ba38-5f229029ab91",
+  "files": [],
+  "subMetas": {
+    "12c19": {
+      "importer": "gltf-mesh",
+      "uuid": "48ae479c-06b6-44b5-ba38-5f229029ab91@12c19",
+      "displayName": "",
+      "id": "12c19",
+      "name": "卡通金币01_放平_PBR.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 853
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "baaf9": {
+      "importer": "gltf-material",
+      "uuid": "48ae479c-06b6-44b5-ba38-5f229029ab91@baaf9",
+      "displayName": "",
+      "id": "baaf9",
+      "name": "jinbi_BC3_pbr.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "9eb39": {
+      "importer": "gltf-scene",
+      "uuid": "48ae479c-06b6-44b5-ba38-5f229029ab91@9eb39",
+      "displayName": "",
+      "id": "9eb39",
+      "name": "jingbi.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "48ae479c-06b6-44b5-ba38-5f229029ab91@12c19"
+      ],
+      "skeletons": [],
+      "textures": [],
+      "materials": [
+        "48ae479c-06b6-44b5-ba38-5f229029ab91@baaf9"
+      ],
+      "scenes": [
+        "48ae479c-06b6-44b5-ba38-5f229029ab91@9eb39"
+      ]
+    },
+    "materials": {
+      "48ae479c-06b6-44b5-ba38-5f229029ab91@baaf9": {
+        "__type__": "cc.Material",
+        "_name": "",
+        "_objFlags": 0,
+        "__editorExtras__": {},
+        "_native": "",
+        "_effectAsset": {
+          "__uuid__": "f648964e-8d32-41fc-9ac9-7a1e714dd17b",
+          "__expectedType__": "cc.EffectAsset"
+        },
+        "_techIdx": 0,
+        "_defines": [
+          {
+            "DCC_APP_NAME": 1
+          },
+          {},
+          {},
+          {}
+        ],
+        "_states": [
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          },
+          {
+            "rasterizerState": {},
+            "depthStencilState": {},
+            "blendState": {
+              "targets": [
+                {}
+              ]
+            }
+          }
+        ],
+        "_props": [
+          {
+            "mainColor": {
+              "__type__": "cc.Color",
+              "r": 218,
+              "g": 165,
+              "b": 32,
+              "a": 255
+            },
+            "emissiveScale": 0,
+            "shininessExponent": 19.999998092651367,
+            "specularColor": {
+              "__type__": "cc.Color",
+              "r": 218,
+              "g": 165,
+              "b": 32,
+              "a": 255
+            }
+          },
+          {},
+          {},
+          {}
+        ]
+      }
+    }
+  }
+}

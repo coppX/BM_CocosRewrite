@@ -1,0 +1,146 @@
+{
+  "ver": "2.3.14",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf",
+  "files": [],
+  "subMetas": {
+    "f698b": {
+      "importer": "gltf-mesh",
+      "uuid": "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@f698b",
+      "displayName": "",
+      "id": "f698b",
+      "name": "muzhalan_004.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 128
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f42b9": {
+      "importer": "gltf-embeded-image",
+      "uuid": "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@f42b9",
+      "displayName": "",
+      "id": "f42b9",
+      "name": "muzhalan_004_1.image",
+      "userData": {
+        "gltfIndex": 0,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": true,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "bf290": {
+      "importer": "texture",
+      "uuid": "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@bf290",
+      "displayName": "",
+      "id": "bf290",
+      "name": "muzhalan_004_1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@f42b9"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "783a3": {
+      "importer": "gltf-material",
+      "uuid": "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@783a3",
+      "displayName": "",
+      "id": "783a3",
+      "name": "M_Loa_muzhalan_004.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a0e9d": {
+      "importer": "gltf-scene",
+      "uuid": "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@a0e9d",
+      "displayName": "",
+      "id": "a0e9d",
+      "name": "muzhalan_004.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "muzhalan_004_1",
+        "uri": "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@f42b9"
+      }
+    ],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@f698b"
+      ],
+      "skeletons": [],
+      "textures": [
+        "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@bf290"
+      ],
+      "materials": [
+        "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@783a3"
+      ],
+      "scenes": [
+        "6c6125a1-5ea9-4cd1-a4bc-55a73f6403cf@a0e9d"
+      ]
+    }
+  }
+}

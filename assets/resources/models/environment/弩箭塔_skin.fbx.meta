@@ -1,0 +1,276 @@
+{
+  "ver": "2.3.14",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1",
+  "files": [],
+  "subMetas": {
+    "30732": {
+      "importer": "gltf-skeleton",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@30732",
+      "displayName": "",
+      "id": "30732",
+      "name": "UnnamedSkeleton-0.skeleton",
+      "userData": {
+        "gltfIndex": 0,
+        "jointsLength": 6
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "93320": {
+      "importer": "gltf-scene",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@93320",
+      "displayName": "",
+      "id": "93320",
+      "name": "弩箭塔_skin.prefab",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "763a2": {
+      "importer": "gltf-mesh",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@763a2",
+      "displayName": "",
+      "id": "763a2",
+      "name": "CrossBow_CrossBow.mesh",
+      "userData": {
+        "gltfIndex": 0,
+        "triangleCount": 532
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "3d3f3": {
+      "importer": "gltf-mesh",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@3d3f3",
+      "displayName": "",
+      "id": "3d3f3",
+      "name": "CrossBow_Hub.mesh",
+      "userData": {
+        "gltfIndex": 1,
+        "triangleCount": 68
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "c5500": {
+      "importer": "gltf-mesh",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@c5500",
+      "displayName": "",
+      "id": "c5500",
+      "name": "CrossBow_Base.mesh",
+      "userData": {
+        "gltfIndex": 2,
+        "triangleCount": 74
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "362d2": {
+      "importer": "gltf-mesh",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@362d2",
+      "displayName": "",
+      "id": "362d2",
+      "name": "CrossBow_string.mesh",
+      "userData": {
+        "gltfIndex": 3,
+        "triangleCount": 70
+      },
+      "ver": "1.1.1",
+      "imported": true,
+      "files": [
+        ".bin",
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f1394": {
+      "importer": "gltf-skeleton",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@f1394",
+      "displayName": "",
+      "id": "f1394",
+      "name": "UnnamedSkeleton-1.skeleton",
+      "userData": {
+        "gltfIndex": 1,
+        "jointsLength": 1
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "75ee4": {
+      "importer": "gltf-skeleton",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@75ee4",
+      "displayName": "",
+      "id": "75ee4",
+      "name": "UnnamedSkeleton-2.skeleton",
+      "userData": {
+        "gltfIndex": 2,
+        "jointsLength": 1
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "a72ab": {
+      "importer": "gltf-skeleton",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@a72ab",
+      "displayName": "",
+      "id": "a72ab",
+      "name": "UnnamedSkeleton-3.skeleton",
+      "userData": {
+        "gltfIndex": 3,
+        "jointsLength": 3
+      },
+      "ver": "1.0.1",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "43c71": {
+      "importer": "gltf-embeded-image",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@43c71",
+      "displayName": "",
+      "id": "43c71",
+      "name": "file1.image",
+      "userData": {
+        "gltfIndex": 0,
+        "fixAlphaTransparencyArtifacts": true,
+        "hasAlpha": true,
+        "type": "texture"
+      },
+      "ver": "1.0.3",
+      "imported": true,
+      "files": [
+        ".json",
+        ".png"
+      ],
+      "subMetas": {}
+    },
+    "d20e9": {
+      "importer": "texture",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@d20e9",
+      "displayName": "",
+      "id": "d20e9",
+      "name": "file1.texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "21b3bebc-1957-45a2-8373-4323feaf5ea1@43c71"
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "1d522": {
+      "importer": "gltf-material",
+      "uuid": "21b3bebc-1957-45a2-8373-4323feaf5ea1@1d522",
+      "displayName": "",
+      "id": "1d522",
+      "name": "MI_crossbow.material",
+      "userData": {
+        "gltfIndex": 0
+      },
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "file1",
+        "uri": "21b3bebc-1957-45a2-8373-4323feaf5ea1@43c71"
+      }
+    ],
+    "fbx": {
+      "smartMaterialEnabled": true
+    },
+    "lods": {
+      "enable": false,
+      "hasBuiltinLOD": false,
+      "options": [
+        {
+          "screenRatio": 0.25,
+          "faceCount": 1
+        },
+        {
+          "screenRatio": 0.125,
+          "faceCount": 0.25
+        },
+        {
+          "screenRatio": 0.01,
+          "faceCount": 0.1
+        }
+      ]
+    },
+    "assetFinder": {
+      "meshes": [
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@763a2",
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@3d3f3",
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@c5500",
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@362d2"
+      ],
+      "skeletons": [
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@30732",
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@f1394",
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@75ee4",
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@a72ab"
+      ],
+      "textures": [
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@d20e9"
+      ],
+      "materials": [
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@1d522"
+      ],
+      "scenes": [
+        "21b3bebc-1957-45a2-8373-4323feaf5ea1@93320"
+      ]
+    }
+  }
+}
