@@ -1,7 +1,9 @@
-import { _decorator, Component, Vec3, RigidBody, BoxCollider, Node, Animation } from 'cc';
+import { _decorator, Component, Vec3, RigidBody, BoxCollider, Node, animation } from 'cc';
 import { HealthSystem } from '../Core/HealthSystem';
 import { GameManager, GameState } from '../Managers/GameManager';
 const { ccclass, property } = _decorator;
+
+type AnimationControllerLike = animation.AnimationController;
 
 /**
  * 玩家控制器
@@ -26,7 +28,7 @@ export class PlayerController extends Component {
     public isMoving: boolean = false;
 
     private _moveDirection: Vec3 = new Vec3();
-    private _animation: Animation | null = null;
+    private _animationController: AnimationControllerLike | null = null;
     private _healthSystem: HealthSystem | null = null;
     private _rigidBody: RigidBody | null = null;
 
@@ -47,7 +49,7 @@ export class PlayerController extends Component {
     }
 
     protected start(): void {
-        this._animation = this.node.getComponent(Animation);
+        this._animationController = this.FindAnimationControllerInChildren();
         this._healthSystem = this.node.getComponent(HealthSystem);
         this._rigidBody = this.node.getComponent(RigidBody);
 
@@ -55,6 +57,9 @@ export class PlayerController extends Component {
             this._healthSystem.OnHealthChanged = this.OnHealthChanged.bind(this);
             this._healthSystem.OnDeath = this.OnDeath.bind(this);
         }
+
+        this.SetAnimationBool('IsMoving', false);
+        this.SetAnimationBool('IsAttack', false);
     }
 
     protected update(dt: number): void {
@@ -70,7 +75,9 @@ export class PlayerController extends Component {
         // const canAttack = this.attackLogic?.canAttack;
         // const hasTarget = this.currentWeapon?.IsInAttackRange();
 
-        if (this._moveDirection.lengthSqr() > 0.01) {
+        const isMovingNow = this._moveDirection.lengthSqr() > 0.01;
+
+        if (isMovingNow) {
             // 朝向移动方向
             const dir = this._moveDirection.clone().normalize();
             const targetRotation = new Vec3();
@@ -81,16 +88,14 @@ export class PlayerController extends Component {
             this.node.setRotationFromEuler(0, angle * 180 / Math.PI, 0);
         }
 
-        if (this._moveDirection.lengthSqr() > 0.01) {
+        if (isMovingNow) {
             const moveVec = this._moveDirection.clone().multiplyScalar(this.moveSpeed * dt);
             const newPos = this.node.getPosition().clone().add(moveVec);
             this.node.setPosition(newPos);
-
-            // TODO: 播放移动动画
-            this.isMoving = true;
-        } else {
-            this.isMoving = false;
         }
+
+        this.isMoving = isMovingNow;
+        this.SetAnimationBool('IsMoving', isMovingNow);
     }
 
     /**
@@ -104,7 +109,7 @@ export class PlayerController extends Component {
      * 设置攻击动画
      */
     public SetAttackAnimation(isAttacking: boolean): void {
-        // TODO: 实现攻击动画
+        this.SetAnimationBool('IsAttack', isAttacking);
     }
 
     private OnHealthChanged(currentHealth: number, maxHealth: number): void {
@@ -112,7 +117,9 @@ export class PlayerController extends Component {
     }
 
     private OnDeath(): void {
-        // TODO: 播放死亡动画
+        this.SetAnimationBool('IsMoving', false);
+        this.SetAnimationBool('IsAttack', false);
+
         if (GameManager.Instance) {
             GameManager.Instance.GameOver();
         }
@@ -129,6 +136,9 @@ export class PlayerController extends Component {
             this._healthSystem.ResetHealth();
         }
 
+        this.SetAnimationBool('IsMoving', false);
+        this.SetAnimationBool('IsAttack', false);
+
         this._moveDirection = new Vec3();
         this.isMoving = false;
     }
@@ -137,5 +147,32 @@ export class PlayerController extends Component {
         if (PlayerController._instance === this) {
             PlayerController._instance = null;
         }
+    }
+
+    private SetAnimationBool(variableName: string, value: boolean): void {
+        if (!this._animationController) {
+            return;
+        }
+
+        this._animationController.setValue(variableName, value);
+    }
+
+    private FindAnimationControllerInChildren(): AnimationControllerLike | null {
+        const queue: Node[] = [this.node];
+        while (queue.length > 0) {
+            const current = queue.shift();
+            if (!current) {
+                continue;
+            }
+
+            const controller = current.getComponent(animation.AnimationController) as AnimationControllerLike | null;
+            if (controller) {
+                return controller;
+            }
+
+            queue.push(...current.children);
+        }
+
+        return null;
     }
 }

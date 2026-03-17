@@ -1,6 +1,6 @@
-import { _decorator, Component, Node, Vec2, Vec3, UITransform, EventTouch, EventMouse, Input, input } from 'cc';
+import { _decorator, Component, Node, Vec2, Vec3, UITransform, EventTouch, EventMouse, Input, input, Canvas } from 'cc';
 import { PlayerController } from '../Player/PlayerController';
-import { GameManager } from '../Managers/GameManager';
+import { GameManager, GameState } from '../Managers/GameManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -25,6 +25,7 @@ export class JoystickController extends Component {
     private _activeTouchId: number = -1;
     private _radius: number = 0;
     private _hasBoundInput: boolean = false;
+    private _canvasTransform: UITransform | null = null;
 
     protected onEnable(): void {
         this.BindInputEvents();
@@ -96,7 +97,7 @@ export class JoystickController extends Component {
 
     private OnPointerDown(event: EventTouch): void {
         console.log('[JoystickController] touch down', event.getID());
-        if (!GameManager.Instance || GameManager.Instance.CurrentState !== GameManager.GameState.Playing) {
+        if (!GameManager.Instance || GameManager.Instance.CurrentState !== GameState.Playing) {
             return;
         }
 
@@ -120,7 +121,7 @@ export class JoystickController extends Component {
 
         const touchId = event.getID();
         if (!this._isDragging) {
-            if (!GameManager.Instance || GameManager.Instance.CurrentState !== GameManager.GameState.Playing) {
+            if (!GameManager.Instance || GameManager.Instance.CurrentState !== GameState.Playing) {
                 return;
             }
 
@@ -148,7 +149,7 @@ export class JoystickController extends Component {
     }
 
     private OnMouseDown(event: EventMouse): void {
-        if (!GameManager.Instance || GameManager.Instance.CurrentState !== GameManager.GameState.Playing) {
+        if (!GameManager.Instance || GameManager.Instance.CurrentState !== GameState.Playing) {
             return;
         }
 
@@ -205,8 +206,8 @@ export class JoystickController extends Component {
         // 计算输入向量
         this._inputVector.set(localPoint.x / this._radius, localPoint.y / this._radius);
 
-        // 更新玩家移动方向 (注意坐标转换)
-        const moveDirection = new Vec3(-this._inputVector.x, 0, -this._inputVector.y);
+        // 更新玩家移动方向：拖拽方向与角色移动方向保持一致
+        const moveDirection = new Vec3(this._inputVector.x, 0, this._inputVector.y);
         if (this.playerController) {
             this.playerController.SetMoveDirection(moveDirection.normalize());
         }
@@ -248,7 +249,38 @@ export class JoystickController extends Component {
             return new Vec3(uiLocation.x, uiLocation.y, 0);
         }
 
-        return parentTransform.convertToNodeSpaceAR(new Vec3(uiLocation.x, uiLocation.y, 0));
+        const canvasTransform = this.GetCanvasTransform();
+        if (!canvasTransform) {
+            return parentTransform.convertToNodeSpaceAR(new Vec3(uiLocation.x, uiLocation.y, 0));
+        }
+
+        const canvasSize = canvasTransform.contentSize;
+        const canvasAnchor = canvasTransform.anchorPoint;
+        const canvasLocalPoint = new Vec3(
+            uiLocation.x - canvasSize.width * canvasAnchor.x,
+            uiLocation.y - canvasSize.height * canvasAnchor.y,
+            0
+        );
+
+        const worldPoint = canvasTransform.convertToWorldSpaceAR(canvasLocalPoint);
+        return parentTransform.convertToNodeSpaceAR(worldPoint);
+    }
+
+    private GetCanvasTransform(): UITransform | null {
+        if (this._canvasTransform && this._canvasTransform.isValid) {
+            return this._canvasTransform;
+        }
+
+        let current: Node | null = this.joystickBackground;
+        while (current) {
+            if (current.getComponent(Canvas)) {
+                this._canvasTransform = current.getComponent(UITransform);
+                break;
+            }
+            current = current.parent;
+        }
+
+        return this._canvasTransform;
     }
 
     private Hide(): void {
