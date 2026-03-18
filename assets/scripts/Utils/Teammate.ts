@@ -168,10 +168,10 @@ export class Teammate extends Component {
     private checkMinionsCollision(): void {
         if (this.isLeftMinion && !GlobalVariables.IsLeftMinionCollision) {
             GlobalVariables.IsLeftMinionCollision = true;
-            EventCenter.Instance.eventTrigger(EventName.MinionsCollision, this.isLeftMinion);
+            EventCenter.Instance.EventTrigger(EventName.MinionsCollision, this.isLeftMinion);
         } else if (!this.isLeftMinion && !GlobalVariables.IsRightMinionCollision) {
             GlobalVariables.IsRightMinionCollision = true;
-            EventCenter.Instance.eventTrigger(EventName.MinionsCollision, this.isLeftMinion);
+            EventCenter.Instance.EventTrigger(EventName.MinionsCollision, this.isLeftMinion);
         }
     }
 

@@ -8,4 +8,5 @@ export class EventName {
     public static readonly CoinCollected: string = "CoinCollected";
     public static readonly EnemyDeath: string = "EnemyDeath";
     public static readonly PlayerDamaged: string = "PlayerDamaged";
+    public static readonly MinionsCollision: string = "MinionsCollision";
 }

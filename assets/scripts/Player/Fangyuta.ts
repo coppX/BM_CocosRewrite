@@ -42,7 +42,7 @@ export class Fangyuta extends Component {
 
         if (target) {
             const dir = new Vec3();
-            Vec3.subtract(dir, target.getPosition(), this.aimingBone.getWorldPosition());
+            Vec3.subtract(dir, target.getWorldPosition(), this.aimingBone.getWorldPosition());
             dir.normalize();
 
             const lookRotation = new Quat();
@@ -55,11 +55,11 @@ export class Fangyuta extends Component {
             // const lerpSpeed = 8;
             // Quat.slerp(finalRotation, this.aimingBone.getRotation(), finalRotation, dt * lerpSpeed);
 
-            this.aimingBone.setRotation(finalRotation);
+            this.aimingBone.setWorldRotation(finalRotation);
             this._lastAimRotation = finalRotation.clone();
         } else if (this.aimingBone) {
             // 保持最后的瞄准方向
-            this.aimingBone.setRotation(this._lastAimRotation);
+            this.aimingBone.setWorldRotation(this._lastAimRotation);
         }
     }
 }

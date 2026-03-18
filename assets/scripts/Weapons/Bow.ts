@@ -1,4 +1,4 @@
-import { _decorator, Vec2, Vec3, Quat, instantiate, Prefab } from 'cc';
+import { _decorator, Vec2, Vec3, Quat, instantiate } from 'cc';
 import { Weapon } from './Weapon';
 import { Bullet } from './Bullet';
 import { EnemyController } from '../Enemy/EnemyController';
@@ -8,10 +8,6 @@ import { GlobalVariables } from '../Core/GlobalVariables';
 import { PoolManager } from '../Managers/PoolManager';
 const { ccclass, property } = _decorator;
 
-/**
- * 弓箭武器
- * 支持多发射击和随机间隔
- */
 @ccclass('Bow')
 export class Bow extends Weapon {
     @property
@@ -23,47 +19,40 @@ export class Bow extends Weapon {
     @property(Vec2)
     public bulletSpawnRange: Vec2 = new Vec2(0, 0);
 
-    @property({
-        tooltip: '最小延迟帧数'
-    })
+    @property({ tooltip: 'Minimum frame delay between multi-shot bullets' })
     public minDelayFrames: number = 3;
 
-    @property({
-        tooltip: '最大延迟帧数'
-    })
+    @property({ tooltip: 'Maximum frame delay between multi-shot bullets' })
     public maxDelayFrames: number = 9;
+
+    private readonly _onMapLevelUpgradeHandler = (stage: number) => {
+        this.onMapLevelUpgrade(stage);
+    };
 
     protected onEnable(): void {
         super.onEnable();
-        EventCenter.Instance.AddEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade.bind(this));
+        EventCenter.Instance.AddEventListener(EventName.MapLevelUpgrade, this._onMapLevelUpgradeHandler);
     }
 
     protected onDisable(): void {
         super.onDisable();
-        EventCenter.Instance.RemoveEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade.bind(this));
+        EventCenter.Instance.RemoveEventListener(EventName.MapLevelUpgrade, this._onMapLevelUpgradeHandler);
     }
 
     public onAttackAnimEvent(): void {
         super.onAttackAnimEvent();
-
-        // TODO: 播放音效
-        // AudioManager.Instance?.play('发射');
-
-        // 启动协程来随机间隔生成子弹
         this.spawnBulletsWithRandomDelay(this.currentTarget);
     }
 
-    private async spawnBulletsWithRandomDelay(target: any): Promise<void> {
+    private async spawnBulletsWithRandomDelay(initialTarget: any): Promise<void> {
         let spawnNum = this.bulletSpawnNum;
         if (this.numIsRandom) {
             spawnNum = Math.floor(Math.random() * this.bulletSpawnNum) + 1;
         }
 
-        // 随机间隔生成子弹
         for (let i = 0; i < spawnNum; i++) {
-            this.spawnSingleBullet(target);
+            this.spawnSingleBullet(initialTarget);
 
-            // 如果不是最后一个子弹，则等待随机帧数
             if (i < spawnNum - 1) {
                 const randomDelayFrames = Math.floor(
                     Math.random() * (this.maxDelayFrames - this.minDelayFrames + 1)
@@ -89,13 +78,16 @@ export class Bow extends Weapon {
         });
     }
 
-    private spawnSingleBullet(target: any): void {
-        // 预计算生成位置和方向
-        let spawnPosition = this.node.getPosition().clone();
-        let shootDir = new Vec3(0, 0, 1);
+    private spawnSingleBullet(initialTarget: any): void {
+        if (!this.bulletPrefab) {
+            return;
+        }
+
+        const fallbackDir = this.getFallbackShootDirection();
+        let shootDir = fallbackDir.clone();
+        let spawnPosition = this.node.getWorldPosition().clone();
 
         if (this.muzzle) {
-            // 随机偏移
             const randomOffsetLocal = new Vec3(
                 (Math.random() * 2 - 1) * this.bulletSpawnRange.x,
                 0,
@@ -104,76 +96,102 @@ export class Bow extends Weapon {
 
             const worldOffset = new Vec3();
             Vec3.transformQuat(worldOffset, randomOffsetLocal, this.muzzle.getWorldRotation());
-            spawnPosition = this.muzzle.getWorldPosition().add(worldOffset);
-
-            // 更新目标
-            this.updateTarget();
-            if (this.currentTarget) {
-                let targetPos = this.currentTarget.getWorldPosition();
-
-                const enemy = this.currentTarget.getComponent(EnemyController);
-                if (enemy && enemy.attackPoint) {
-                    targetPos = enemy.attackPoint.getWorldPosition();
-                }
-
-                shootDir = targetPos.subtract(spawnPosition).normalize();
-            } else {
-                this.muzzle.getWorldRotation().getEulerAngles(shootDir);
-            }
+            spawnPosition = this.muzzle.getWorldPosition().clone().add(worldOffset);
         }
 
-        // 直接实例化子弹预制体
-        if (!this.bulletPrefab) return;
+        this.updateTarget();
+        const targetNode = (this.currentTarget && this.currentTarget.isValid) ? this.currentTarget : initialTarget;
+        if (targetNode && targetNode.isValid) {
+            const targetPos = this.getTargetPointWorldPosition(targetNode);
+            shootDir = targetPos.clone().subtract(spawnPosition);
+        }
+
+        if (shootDir.lengthSqr() <= 0) {
+            shootDir = fallbackDir;
+        } else {
+            shootDir.normalize();
+        }
 
         const bulletObj = instantiate(this.bulletPrefab);
-        if (!bulletObj) return;
-
-        // 加入场景，否则 onEnable/onLoad 不会触发
-        if (this.node.scene) {
-            this.node.scene.addChild(bulletObj);
+        if (!bulletObj) {
+            return;
         }
 
-        // 设置位置和旋转
+        bulletObj.active = false;
+
+        const parentNode = this.node.scene ?? this.node.parent;
+        if (parentNode) {
+            parentNode.addChild(bulletObj);
+        }
+
         bulletObj.setWorldPosition(spawnPosition);
+
         const rotation = new Quat();
         Quat.fromViewUp(rotation, shootDir);
         bulletObj.setWorldRotation(rotation);
 
-        // 激活子弹
-        bulletObj.active = true;
-
-        // 设置子弹属性
         const bullet = bulletObj.getComponent(Bullet);
         if (bullet) {
             bullet.setBulletStartPosition(spawnPosition);
+            bullet.setInitialDirection(shootDir);
             bullet.shooter = this.ownerPlayer ? this.ownerPlayer.node : this.node;
             bullet.setBulletDamage(this.damage);
 
-            if (this.currentTarget) {
-                bullet.setTarget(this.currentTarget);
-                const enemy = this.currentTarget.getComponent(EnemyController);
+            if (targetNode && targetNode.isValid) {
+                bullet.setTarget(targetNode);
+
+                const enemy = targetNode.getComponent(EnemyController);
                 if (enemy) {
                     enemy.aimer = bulletObj;
                 }
             }
         }
 
-        // 生成开火特效
+        bulletObj.active = true;
+
         if (this.muzzlePrefab && this.muzzle) {
             if (GlobalVariables.activeMuzzleEffectsCount < GlobalVariables.maxMuzzleEffects) {
                 PoolManager.Instance?.getObj(this.muzzlePrefab.name, (fx) => {
-                    if (fx) {
-                        fx.setWorldPosition(this.muzzle!.getWorldPosition());
-                        fx.setWorldRotation(this.muzzle!.getWorldRotation());
-                        fx.active = true;
-                        GlobalVariables.activeMuzzleEffectsCount++;
+                    if (!fx) {
+                        return;
                     }
+                    fx.setWorldPosition(this.muzzle!.getWorldPosition());
+                    fx.setWorldRotation(this.muzzle!.getWorldRotation());
+                    fx.active = true;
+                    GlobalVariables.activeMuzzleEffectsCount++;
                 });
             }
         }
     }
 
-    private onMapLevelUpgrade(stage: GlobalVariables.Stage): void {
+    private getFallbackShootDirection(): Vec3 {
+        const dir = new Vec3(0, 0, -1);
+        const rotation = this.muzzle ? this.muzzle.getWorldRotation() : this.node.getWorldRotation();
+        Vec3.transformQuat(dir, dir, rotation);
+
+        if (dir.lengthSqr() <= 0) {
+            dir.set(this.node.forward.x, this.node.forward.y, this.node.forward.z);
+        }
+
+        if (dir.lengthSqr() <= 0) {
+            dir.set(0, 0, -1);
+        } else {
+            dir.normalize();
+        }
+
+        return dir;
+    }
+
+    private getTargetPointWorldPosition(targetNode: any): Vec3 {
+        let targetPos = targetNode.getWorldPosition();
+        const enemy = targetNode.getComponent(EnemyController);
+        if (enemy && enemy.attackPoint && enemy.attackPoint.isValid) {
+            targetPos = enemy.attackPoint.getWorldPosition();
+        }
+        return targetPos;
+    }
+
+    private onMapLevelUpgrade(stage: number): void {
         if (
             stage === GlobalVariables.Stage.TowerAndFence1 ||
             stage === GlobalVariables.Stage.TowerAndFence2 ||

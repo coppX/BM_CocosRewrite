@@ -1,15 +1,11 @@
-import { _decorator, Component, Node, Vec3, Prefab, instantiate } from 'cc';
+import { _decorator, Node, Vec3, Prefab, instantiate } from 'cc';
 import { TowerBase } from './TowerBase';
 import { Bullet } from '../Weapons/Bullet';
+import { EnemyController } from '../Enemy/EnemyController';
 const { ccclass, property } = _decorator;
 
-/**
- * 弩箭塔
- * 发射箭矢攻击敌人
- */
 @ccclass('BowTower')
 export class BowTower extends TowerBase {
-
     @property(Prefab)
     public arrowPrefab: Prefab | null = null;
 
@@ -18,28 +14,57 @@ export class BowTower extends TowerBase {
 
     protected Attack(target: Node): void {
         if (!this.arrowPrefab || !this.firePoint) {
-            console.warn('[BowTower] 缺少箭矢预制体或发射点');
+            console.warn('[BowTower] Missing arrow prefab or fire point');
             return;
         }
 
-        // 创建箭矢
         const arrow = instantiate(this.arrowPrefab);
+        arrow.active = false;
+
         if (this.node.scene) {
             this.node.scene.addChild(arrow);
         }
-        arrow.setWorldPosition(this.firePoint.getWorldPosition());
 
-        // 设置箭矢目标和速度
+        const spawnPos = this.firePoint.getWorldPosition();
+        arrow.setWorldPosition(spawnPos);
+
+        const shootDir = this.buildShootDirection(target, spawnPos);
+
         const arrowComponent = arrow.getComponent(Bullet);
         if (arrowComponent) {
-            arrowComponent.setTarget(target);
+            arrowComponent.setBulletStartPosition(spawnPos);
+            arrowComponent.setInitialDirection(shootDir);
             arrowComponent.setBulletDamage(this.damage);
             arrowComponent.shooter = this.node;
-            arrowComponent.setBulletStartPosition(this.firePoint.getWorldPosition());
+            arrowComponent.setTarget(target);
         }
 
         arrow.active = true;
+    }
 
-        console.log('[BowTower] 发射箭矢');
+    private buildShootDirection(target: Node, spawnPos: Vec3): Vec3 {
+        const shootDir = new Vec3(this.firePoint!.forward.x, this.firePoint!.forward.y, this.firePoint!.forward.z);
+
+        if (target && target.isValid) {
+            let targetPos = target.getWorldPosition();
+            const enemy = target.getComponent(EnemyController);
+            if (enemy && enemy.attackPoint && enemy.attackPoint.isValid) {
+                targetPos = enemy.attackPoint.getWorldPosition();
+            }
+
+            Vec3.subtract(shootDir, targetPos, spawnPos);
+        }
+
+        if (shootDir.lengthSqr() <= 0) {
+            shootDir.set(this.node.forward.x, this.node.forward.y, this.node.forward.z);
+        }
+
+        if (shootDir.lengthSqr() <= 0) {
+            shootDir.set(0, 0, -1);
+        } else {
+            shootDir.normalize();
+        }
+
+        return shootDir;
     }
 }

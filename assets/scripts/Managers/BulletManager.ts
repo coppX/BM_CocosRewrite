@@ -28,7 +28,7 @@ export class BulletManager extends Component {
      * 注册子弹
      */
     public registerBullet(bullet: Bullet): void {
-        if (!this._activeBullets.includes(bullet)) {
+        if (this._activeBullets.indexOf(bullet) === -1) {
             this._activeBullets.push(bullet);
         }
     }
@@ -48,7 +48,7 @@ export class BulletManager extends Component {
         for (let i = this._activeBullets.length - 1; i >= 0; i--) {
             const bullet = this._activeBullets[i];
 
-            if (bullet && bullet.node.active) {
+            if (bullet && bullet.node && bullet.node.isValid && bullet.node.active) {
                 bullet.manualUpdate(dt);
             } else {
                 // 清理null或非激活的条目
