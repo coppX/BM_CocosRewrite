@@ -1,8 +1,10 @@
-import { _decorator, Component, Node, Vec3, Animation, math } from 'cc';
+import { _decorator, Component, Node, Vec3, Animation, math, Material, MeshRenderer, SkinnedMeshRenderer } from 'cc';
 import { HealthSystem } from '../Core/HealthSystem';
 import { BezierFollower } from '../Utils/BezierFollower';
 import { PlayerController } from '../Player/PlayerController';
 import { Coin } from '../Utils/Coin';
+import { EnemyManager } from '../Managers/EnemyManager';
+import { PoolManager } from '../Managers/PoolManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -82,11 +84,11 @@ export class EnemyController extends Component {
     }
 
     protected onDisable(): void {
-        // TODO: EnemyManager.Instance?.UnregisterTarget(this);
+        EnemyManager.Instance?.unregisterTarget(this);
     }
 
     private RegisterToManager(): void {
-        // TODO: EnemyManager.Instance?.RegisterTarget(this);
+        EnemyManager.Instance?.registerTarget(this);
     }
 
     private Attack(): void {
@@ -118,7 +120,44 @@ export class EnemyController extends Component {
     }
 
     private SetMaterialSaturation(saturationValue: number): void {
-        // TODO: 实现材质饱和度设置
+        // 获取所有渲染器
+        const allRenderers = this.node.getComponentsInChildren(MeshRenderer);
+        const allSkinnedRenderers = this.node.getComponentsInChildren(SkinnedMeshRenderer);
+
+        // 处理普通渲染器
+        for (const renderer of allRenderers) {
+            if (renderer) {
+                const materials = renderer.materials;
+                for (let i = 0; i < materials.length; i++) {
+                    const mat = materials[i];
+                    // 检查材质是否有 _Saturation 属性
+                    if (mat) {
+                        try {
+                            mat.setProperty('_Saturation', saturationValue);
+                        } catch (e) {
+                            // 材质可能没有这个属性
+                        }
+                    }
+                }
+            }
+        }
+
+        // 处理蒙皮渲染器
+        for (const renderer of allSkinnedRenderers) {
+            if (renderer) {
+                const materials = renderer.materials;
+                for (let i = 0; i < materials.length; i++) {
+                    const mat = materials[i];
+                    if (mat) {
+                        try {
+                            mat.setProperty('_Saturation', saturationValue);
+                        } catch (e) {
+                            // 材质可能没有这个属性
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private ApplyKnockback(): void {
@@ -147,7 +186,20 @@ export class EnemyController extends Component {
             this.node.setRotationFromEuler(0, angle * 180 / Math.PI, 0);
         }
 
-        // TODO: 触发死亡动画
+        // 触发死亡动画
+        if (this._animation) {
+            // 播放死亡动画
+            const deathClip = this._animation.getState('Death');
+            if (deathClip) {
+                this._animation.play('Death');
+            } else {
+                // 如果没有Death动画，尝试设置动画参数
+                const animController = this.node.getComponent('cc.animation.AnimationController') as any;
+                if (animController) {
+                    animController.setValue('Death', true);
+                }
+            }
+        }
     }
 
     private DropItems(): void {
@@ -156,8 +208,45 @@ export class EnemyController extends Component {
         for (let i = 0; i < this.dropAmount; i++) {
             if (Math.random() > this.dropChance * this.dropChanceMultiplier) continue;
 
-            // TODO: 从对象池获取金币并设置位置
-            // 这里需要对象池系统支持
+            // 计算起始位置：在敌人位置上方0.5米
+            const startPos = dropOrigin.clone().add(new Vec3(0, 0.5, 0));
+
+            // 计算目标位置：使用更受控的随机位置，限制范围在敌人周围2米内
+            const randomX = (Math.random() * 2 - 1) * 2;
+            const randomZ = (Math.random() * 2 - 1) * 2;
+            const randomPos = dropOrigin.clone().add(new Vec3(randomX, 0.1, randomZ));
+
+            // 使用对象池获取金币
+            PoolManager.Instance?.getObj('Coin', (coinObj) => {
+                if (coinObj) {
+                    // 获取Coin组件
+                    const coin = coinObj.getComponent(Coin);
+                    if (coin) {
+                        // 重置金币状态
+                        coin.ResetState();
+
+                        // 确保移除任何之前的关联
+                        coin.spawnOwner = null;
+                        coin.IsBearByGenerator = false;
+                    }
+
+                    // 设置金币初始位置（对象此时是禁用的）
+                    coinObj.setPosition(startPos);
+
+                    // 激活金币
+                    coinObj.active = true;
+
+                    // 添加到场景
+                    if (this.node.scene) {
+                        this.node.scene.addChild(coinObj);
+                    }
+
+                    // 开始下落动画
+                    if (coin) {
+                        coin.DropOnGround(randomPos);
+                    }
+                }
+            });
         }
     }
 
@@ -165,7 +254,8 @@ export class EnemyController extends Component {
         this.isDead = false;
         this.SetMaterialSaturation(1);
         this.node.active = false;
-        // TODO: PoolMgr.Instance.PushObj(this.node.name, this.node);
+        // 对象池回收
+        PoolManager.Instance?.pushObj(this.node.name, this.node);
     }
 
     public OnSpawn(): void {
@@ -174,6 +264,16 @@ export class EnemyController extends Component {
 
         if (this._animation) {
             // 重置动画
+            const deathClip = this._animation.getState('Death');
+            if (deathClip) {
+                deathClip.stop();
+            }
+
+            // 重置动画控制器
+            const animController = this.node.getComponent('cc.animation.AnimationController') as any;
+            if (animController) {
+                animController.setValue('Death', false);
+            }
         }
 
         if (this._healthSystem) {

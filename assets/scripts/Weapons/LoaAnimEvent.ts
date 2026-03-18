@@ -11,8 +11,8 @@ export class LoaAnimEvent extends Component {
     private _attackLogic: AttackLogic | null = null;
 
     protected start(): void {
-        // 获取父节点的AttackLogic组件
-        this._attackLogic = this.node.parent?.getComponent(AttackLogic) || null;
+        // 获取AttackLogic组件
+        this._attackLogic = this.node.getComponent(AttackLogic) || null;
     }
 
     /**

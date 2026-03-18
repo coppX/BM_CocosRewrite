@@ -128,6 +128,11 @@ export class Bow extends Weapon {
         const bulletObj = instantiate(this.bulletPrefab);
         if (!bulletObj) return;
 
+        // 加入场景，否则 onEnable/onLoad 不会触发
+        if (this.node.scene) {
+            this.node.scene.addChild(bulletObj);
+        }
+
         // 设置位置和旋转
         bulletObj.setWorldPosition(spawnPosition);
         const rotation = new Quat();

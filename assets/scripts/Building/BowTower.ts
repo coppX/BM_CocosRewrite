@@ -1,5 +1,6 @@
 import { _decorator, Component, Node, Vec3, Prefab, instantiate } from 'cc';
 import { TowerBase } from './TowerBase';
+import { Bullet } from '../Weapons/Bullet';
 const { ccclass, property } = _decorator;
 
 /**
@@ -23,14 +24,21 @@ export class BowTower extends TowerBase {
 
         // 创建箭矢
         const arrow = instantiate(this.arrowPrefab);
-        arrow.setParent(this.node.scene);
+        if (this.node.scene) {
+            this.node.scene.addChild(arrow);
+        }
         arrow.setWorldPosition(this.firePoint.getWorldPosition());
 
-        // TODO: 设置箭矢目标和速度
-        // const arrowComponent = arrow.getComponent(Arrow);
-        // if (arrowComponent) {
-        //     arrowComponent.SetTarget(target);
-        // }
+        // 设置箭矢目标和速度
+        const arrowComponent = arrow.getComponent(Bullet);
+        if (arrowComponent) {
+            arrowComponent.setTarget(target);
+            arrowComponent.setBulletDamage(this.damage);
+            arrowComponent.shooter = this.node;
+            arrowComponent.setBulletStartPosition(this.firePoint.getWorldPosition());
+        }
+
+        arrow.active = true;
 
         console.log('[BowTower] 发射箭矢');
     }

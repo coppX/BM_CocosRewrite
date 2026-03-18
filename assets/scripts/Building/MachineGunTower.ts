@@ -1,5 +1,6 @@
 import { _decorator, Component, Node, Vec3, Prefab, instantiate, Animation } from 'cc';
 import { TowerBase } from './TowerBase';
+import { Bullet } from '../Weapons/Bullet';
 const { ccclass, property } = _decorator;
 
 /**
@@ -69,14 +70,21 @@ export class MachineGunTower extends TowerBase {
 
         // 创建子弹
         const bullet = instantiate(this.bulletPrefab);
-        bullet.setParent(this.node.scene);
+        if (this.node.scene) {
+            this.node.scene.addChild(bullet);
+        }
         bullet.setWorldPosition(this.firePoint.getWorldPosition());
 
-        // TODO: 设置子弹目标和速度
-        // const bulletComponent = bullet.getComponent(Bullet);
-        // if (bulletComponent) {
-        //     bulletComponent.SetTarget(this._currentTarget);
-        // }
+        // 设置子弹目标和速度
+        const bulletComponent = bullet.getComponent(Bullet);
+        if (bulletComponent) {
+            bulletComponent.setTarget(this._currentTarget);
+            bulletComponent.setBulletDamage(this.damage);
+            bulletComponent.shooter = this.node;
+            bulletComponent.setBulletStartPosition(this.firePoint.getWorldPosition());
+        }
+
+        bullet.active = true;
 
         console.log('[MachineGunTower] 发射子弹');
     }

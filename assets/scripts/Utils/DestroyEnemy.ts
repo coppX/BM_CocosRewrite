@@ -1,5 +1,6 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Node, Vec3 } from 'cc';
 import { EnemyController } from '../Enemy/EnemyController';
+import { EnemyManager } from '../Managers/EnemyManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -37,24 +38,44 @@ export class DestroyEnemy extends Component {
     }
 
     private checkCollision(): void {
+        const selfPos = this.node.getPosition();
+
         // 检测预设敌人
         for (let i = this.preEnemies.length - 1; i >= 0; i--) {
             const enemy = this.preEnemies[i];
             if (!enemy || !enemy.node) continue;
 
-            const distance = this.node.getPosition().subtract(enemy.node.getPosition()).lengthSqr();
+            const distance = Vec3.squaredDistance(selfPos, enemy.node.getPosition());
             if (distance < this.detectionRadius * this.detectionRadius) {
-                // TODO: 建筑受击
-                // if (this._building) {
-                //     (this._building as any).beHit(enemy.node);
-                // }
+                // 建筑受击（如果有Building组件）
+                if (this._building && typeof (this._building as any).beHit === 'function') {
+                    (this._building as any).beHit(enemy.node);
+                }
 
-                enemy.releaseToPool();
+                enemy.ReleaseToPool();
                 this.preEnemies.splice(i, 1);
                 return;
             }
         }
 
-        // TODO: 检测EnemyManager中的敌人
+        // 检测EnemyManager中的敌人
+        if (EnemyManager.Instance) {
+            const enemies = EnemyManager.Instance.getTargetsInRange(selfPos, this.detectionRadius);
+
+            for (const enemy of enemies) {
+                if (!enemy || !enemy.node.active || enemy.IsDead()) continue;
+
+                const distance = Vec3.squaredDistance(selfPos, enemy.node.getPosition());
+                if (distance < this.detectionRadius * this.detectionRadius) {
+                    // 建筑受击（如果有Building组件）
+                    if (this._building && typeof (this._building as any).beHit === 'function') {
+                        (this._building as any).beHit(enemy.node);
+                    }
+
+                    enemy.ReleaseToPool();
+                    return;
+                }
+            }
+        }
     }
 }

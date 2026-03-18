@@ -71,9 +71,11 @@ export class DoorManager extends Component {
         if (!this._playerTransform) return;
 
         for (const door of this._doors) {
-            if (door) {
-                // TODO: 调用door的checkProximity方法
-                // (door as any).checkProximity(this._playerTransform);
+            if (door && door.node.active) {
+                // 调用door的checkProximity方法（如果存在）
+                if (typeof (door as any).checkProximity === 'function') {
+                    (door as any).checkProximity(this._playerTransform);
+                }
             }
         }
     }

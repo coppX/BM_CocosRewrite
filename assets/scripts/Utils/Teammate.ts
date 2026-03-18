@@ -1,9 +1,10 @@
-import { _decorator, Component, Material, MeshRenderer, tween } from 'cc';
+import { _decorator, Component, Material, MeshRenderer, tween, Vec3 } from 'cc';
 import { HealthSystem } from '../Core/HealthSystem';
 import { PoolManager } from '../Managers/PoolManager';
 import { EventCenter } from '../Core/EventCenter';
 import { EventName } from '../Core/EventName';
 import { GlobalVariables } from '../Core/GlobalVariables';
+import { EnemyManager } from '../Managers/EnemyManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -72,13 +73,34 @@ export class Teammate extends Component {
      * 更新碰撞检测
      */
     public updateCollision(): void {
-        if (!this._healthSystem || this._healthSystem.currentHealth <= 0) return;
+        if (!this._healthSystem || this._healthSystem.CurrentHealth <= 0) return;
 
-        // TODO: 使用EnemyManager获取范围内的敌人
-        // const enemies = EnemyManager.Instance.getTargetsInRange(
-        //     this.node.getPosition(),
-        //     this.detectionRadius
-        // );
+        // 使用EnemyManager获取范围内的敌人
+        if (EnemyManager.Instance) {
+            const enemies = EnemyManager.Instance.getTargetsInRange(
+                this.node.getPosition(),
+                this.detectionRadius
+            );
+
+            // 检查敌人碰撞
+            for (const enemy of enemies) {
+                if (!enemy || !enemy.node.active || enemy.IsDead()) continue;
+
+                const distance = Vec3.squaredDistance(
+                    this.node.getPosition(),
+                    enemy.node.getPosition()
+                );
+
+                if (distance < this.detectionRadius * this.detectionRadius) {
+                    // 互相造成伤害
+                    if (this._healthSystem) {
+                        this._healthSystem.TakeDamage(enemy.GetDamage(), enemy.node);
+                    }
+                    enemy.BeAttack(this.getDamage(), this.node);
+                    break;
+                }
+            }
+        }
 
         this.checkMinionsCollision();
     }

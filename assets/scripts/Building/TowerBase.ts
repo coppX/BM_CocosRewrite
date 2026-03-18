@@ -1,4 +1,5 @@
-import { _decorator, Component, Node, Vec3 } from 'cc';
+import { _decorator, Component, Node, Vec3, Quat, math } from 'cc';
+import { EnemyManager } from '../Managers/EnemyManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -27,10 +28,35 @@ export class TowerBase extends Component {
      * 查找攻击目标
      */
     protected FindTarget(): Node | null {
-        // TODO: 实现查找敌人逻辑
-        // 1. 获取范围内所有敌人
-        // 2. 选择最近或优先级最高的目标
-        return null;
+        if (!EnemyManager.Instance) {
+            return null;
+        }
+
+        // 获取范围内所有敌人
+        const selfPos = this.node.getWorldPosition();
+        const enemiesInRange = EnemyManager.Instance.getTargetsInRange(selfPos, this.attackRange);
+
+        if (enemiesInRange.length === 0) {
+            return null;
+        }
+
+        // 选择最近的存活敌人
+        let closestEnemy: Node | null = null;
+        let shortestDistance = Number.MAX_VALUE;
+
+        for (const enemy of enemiesInRange) {
+            if (!enemy.node.active || enemy.IsDead()) {
+                continue;
+            }
+
+            const distance = Vec3.squaredDistance(selfPos, enemy.node.getWorldPosition());
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                closestEnemy = enemy.node;
+            }
+        }
+
+        return closestEnemy;
     }
 
     /**
@@ -47,7 +73,17 @@ export class TowerBase extends Component {
         direction.y = 0; // 只在水平面旋转
         direction.normalize();
 
-        // TODO: 实现平滑旋转
+        if (direction.lengthSqr() === 0) return;
+
+        // 计算目标旋转
+        const targetRotation = new Quat();
+        Quat.fromViewUp(targetRotation, direction);
+
+        // 平滑旋转到目标
+        const currentRotation = this.node.getWorldRotation();
+        const newRotation = new Quat();
+        Quat.slerp(newRotation, currentRotation, targetRotation, this.rotationSpeed * dt);
+        this.node.setWorldRotation(newRotation);
     }
 
     /**
