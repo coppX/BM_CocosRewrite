@@ -92,18 +92,7 @@
           "from": 0,
           "to": 1
         },
-        "events": [
-          {
-            "frame": 0.36666666666666664,
-            "func": "",
-            "params": []
-          },
-          {
-            "frame": 0.36666666666666664,
-            "func": "onAnimFire",
-            "params": []
-          }
-        ],
+        "events": [],
         "embeddedPlayers": [],
         "editorExtras": {
           "embeddedPlayerGroups": []

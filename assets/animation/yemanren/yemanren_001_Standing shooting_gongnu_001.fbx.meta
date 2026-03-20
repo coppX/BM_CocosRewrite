@@ -92,10 +92,27 @@
           "from": 0,
           "to": 0.5333333611488342
         },
-        "events": [],
+        "events": [
+          {
+            "frame": 0.1,
+            "func": "",
+            "params": []
+          },
+          {
+            "frame": 0.1,
+            "func": "onAnimFire",
+            "params": []
+          }
+        ],
         "additive": {
           "enabled": false
-        }
+        },
+        "embeddedPlayers": [],
+        "editorExtras": {
+          "embeddedPlayerGroups": []
+        },
+        "speed": 1,
+        "auxiliaryCurves": {}
       },
       "ver": "1.0.18",
       "imported": true,

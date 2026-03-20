@@ -1,6 +1,8 @@
-import { _decorator, Component, Vec3, RigidBody, BoxCollider, Node, animation } from 'cc';
+import { _decorator, Component, Vec3, RigidBody, BoxCollider, Node, animation, Quat } from 'cc';
 import { HealthSystem } from '../Core/HealthSystem';
 import { GameManager, GameState } from '../Managers/GameManager';
+import { AttackLogic } from '../Utils/AttackLogic';
+import { Weapon } from '../Weapons/Weapon';
 const { ccclass, property } = _decorator;
 
 type AnimationControllerLike = animation.AnimationController;
@@ -25,12 +27,15 @@ export class PlayerController extends Component {
     @property
     public attackRange: number = 20;
 
+    @property(Weapon)
+    public currentWeapon: Weapon | null = null;
+
     public isMoving: boolean = false;
 
     private _moveDirection: Vec3 = new Vec3();
     private _animationController: AnimationControllerLike | null = null;
     private _healthSystem: HealthSystem | null = null;
-    private _rigidBody: RigidBody | null = null;
+    private _attackLogic: AttackLogic | null = null;
 
     private _initialPosition: Vec3 = new Vec3();
     private _initialRotation: any = null;
@@ -51,13 +56,13 @@ export class PlayerController extends Component {
     protected start(): void {
         this._animationController = this.FindAnimationControllerInChildren();
         this._healthSystem = this.node.getComponent(HealthSystem);
-        this._rigidBody = this.node.getComponent(RigidBody);
 
         if (this._healthSystem) {
             this._healthSystem.OnHealthChanged = this.OnHealthChanged.bind(this);
             this._healthSystem.OnDeath = this.OnDeath.bind(this);
         }
 
+        this._attackLogic = this.currentWeapon?.getComponent(AttackLogic) || null;
         this.SetAnimationBool('IsMoving', false);
         this.SetAnimationBool('IsAttack', false);
     }
@@ -71,21 +76,41 @@ export class PlayerController extends Component {
     }
 
     private HandleMovement(dt: number): void {
-        // TODO: 检查攻击逻辑
-        // const canAttack = this.attackLogic?.canAttack;
-        // const hasTarget = this.currentWeapon?.IsInAttackRange();
+        const canAttack = this._attackLogic?.canAttack;
+        const hasTarget = this.currentWeapon?.isInAttackRange();
+        const targetNode = this.currentWeapon?.currentTarget;
 
+        const shouldFaceTarget = canAttack && hasTarget;
         const isMovingNow = this._moveDirection.lengthSqr() > 0.01;
+        if (shouldFaceTarget && targetNode && targetNode.isValid)
+        {
+            // 如果正在攻击且目标在范围内，朝向攻击目标
+            const directionToTarget = targetNode.getWorldPosition().subtract(this.node.getWorldPosition());
+            directionToTarget.y = 0; // 保持在水平面上
+            
+            if (directionToTarget.lengthSqr() > 0.0001)
+            {
+                directionToTarget.normalize();
+                const angle = Math.atan2(directionToTarget.x, directionToTarget.z);
+                const toRotation = new Quat();
+                Quat.fromEuler(toRotation, 0, angle * 180 / Math.PI, 0);
+                const smoothRotation = new Quat();
+                Quat.slerp(smoothRotation, this.node.getRotation(), toRotation, this.rotationSpeed * dt);
+                this.node.setRotation(smoothRotation);
+            }
+        }
+        else
+        {
+            if (isMovingNow) {
+                // 朝向移动方向
+                const dir = this._moveDirection.clone().normalize();
+                const targetRotation = new Vec3();
+                Vec3.transformQuat(targetRotation, Vec3.FORWARD, this.node.getRotation());
 
-        if (isMovingNow) {
-            // 朝向移动方向
-            const dir = this._moveDirection.clone().normalize();
-            const targetRotation = new Vec3();
-            Vec3.transformQuat(targetRotation, Vec3.FORWARD, this.node.getRotation());
-
-            // 简单的朝向处理
-            const angle = Math.atan2(dir.x, dir.z);
-            this.node.setRotationFromEuler(0, angle * 180 / Math.PI, 0);
+                // 简单的朝向处理
+                const angle = Math.atan2(dir.x, dir.z);
+                this.node.setRotationFromEuler(0, angle * 180 / Math.PI, 0);
+            }
         }
 
         if (isMovingNow) {

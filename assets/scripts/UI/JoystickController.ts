@@ -44,8 +44,6 @@ export class JoystickController extends Component {
                 this._radius = uiTransform.width * 0.5;
             }
         }
-
-        console.log('[JoystickController] start, radius =', this._radius);
     }
 
     protected onDisable(): void {
@@ -74,7 +72,6 @@ export class JoystickController extends Component {
         input.on(Input.EventType.MOUSE_UP, this.OnMouseUp, this);
 
         this._hasBoundInput = true;
-        console.log('[JoystickController] input listeners bound');
     }
 
     private UnbindInputEvents(): void {
@@ -92,11 +89,9 @@ export class JoystickController extends Component {
         input.off(Input.EventType.MOUSE_UP, this.OnMouseUp, this);
 
         this._hasBoundInput = false;
-        console.log('[JoystickController] input listeners unbound');
     }
 
     private OnPointerDown(event: EventTouch): void {
-        console.log('[JoystickController] touch down', event.getID());
         if (!GameManager.Instance || GameManager.Instance.CurrentState !== GameState.Playing) {
             return;
         }
@@ -114,7 +109,6 @@ export class JoystickController extends Component {
     }
 
     private OnDrag(event: EventTouch): void {
-        // console.log('[JoystickController] touch move', event.getID(), this._activeTouchId, this._isDragging);
         if (!this.joystickBackground || !this.joystickHandle) {
             return;
         }
@@ -144,7 +138,6 @@ export class JoystickController extends Component {
             return;
         }
 
-        console.log('[JoystickController] touch up', event.getID());
         this.ResetJoystickState();
     }
 

@@ -28,17 +28,17 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 60
+        "__id__": 61
       },
       {
-        "__id__": 62
+        "__id__": 63
       },
       {
         "__id__": 46
       }
     ],
     "_prefab": {
-      "__id__": 64
+      "__id__": 65
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -301,11 +301,14 @@
       },
       {
         "__id__": 57
+      },
+      {
+        "__id__": 59
       }
     ],
     "removedComponents": [
       {
-        "__id__": 59
+        "__id__": 60
       }
     ]
   },
@@ -403,7 +406,7 @@
     "__prefab": {
       "__id__": 25
     },
-    "attackRange": 10,
+    "attackRange": 50,
     "canAttack": true,
     "_id": ""
   },
@@ -1003,6 +1006,9 @@
     "moveSpeed": 5,
     "rotationSpeed": 10,
     "attackRange": 20,
+    "currentWeapon": {
+      "__id__": 26
+    },
     "_id": ""
   },
   {
@@ -1123,6 +1129,16 @@
     ]
   },
   {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 58
+    },
+    "propertyPath": [
+      "attackRange"
+    ],
+    "value": 50
+  },
+  {
     "__type__": "cc.TargetInfo",
     "localID": [
       "c5sso6cYlfgL7NJEaKzI5E"
@@ -1138,7 +1154,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 61
+      "__id__": 62
     },
     "_group": 1,
     "_type": 4,
@@ -1175,7 +1191,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 63
+      "__id__": 64
     },
     "_material": null,
     "_isTrigger": false,
@@ -1208,7 +1224,10 @@
     "fileId": "3fct2X1Z9KcIUtkJ8+gbnT",
     "targetOverrides": [
       {
-        "__id__": 65
+        "__id__": 66
+      },
+      {
+        "__id__": 68
       }
     ],
     "nestedPrefabInstanceRoots": [
@@ -1233,13 +1252,35 @@
       "__id__": 15
     },
     "targetInfo": {
-      "__id__": 66
+      "__id__": 67
     }
   },
   {
     "__type__": "cc.TargetInfo",
     "localID": [
       "01fAtcLQZRGIB+4RnsoYql"
+    ]
+  },
+  {
+    "__type__": "cc.TargetOverrideInfo",
+    "source": {
+      "__id__": 46
+    },
+    "sourceInfo": null,
+    "propertyPath": [
+      "currentWeapon"
+    ],
+    "target": {
+      "__id__": 15
+    },
+    "targetInfo": {
+      "__id__": 69
+    }
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "bcF4iZV5FM2p5ffxl3cmBA"
     ]
   }
 ]

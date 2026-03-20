@@ -32,7 +32,7 @@ export class AttackLogic extends Component {
      * 查找最近的目标
      */
     public findNearestTarget(useY: boolean): Node | null {
-        let searchCenter = this.node.getPosition().clone();
+        let searchCenter = this.node.getWorldPosition().clone();
         if (!useY) {
             searchCenter = new Vec3(searchCenter.x, 0, searchCenter.z);
         }
@@ -110,7 +110,12 @@ export class AttackLogic extends Component {
 
         // 如果敌人已被瞄准，则跳过
         if (enemy.aimer) {
-            return false;
+            // 清理失效瞄准引用，避免子弹销毁后目标被长期占用
+            if (!enemy.aimer.isValid || !enemy.aimer.active) {
+                enemy.aimer = null;
+            } else {
+                return false;
+            }
         }
 
         return true;
