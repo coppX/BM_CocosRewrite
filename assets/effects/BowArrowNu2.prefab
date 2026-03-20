@@ -36,9 +36,9 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -0.925,
-      "y": 1.053,
-      "z": 18.552
+      "x": 0,
+      "y": 0,
+      "z": 0
     },
     "_lrot": {
       "__type__": "cc.Quat",
@@ -224,7 +224,7 @@
       "__id__": 55
     },
     "_prewarm": false,
-    "_capacity": 16,
+    "_capacity": 60,
     "_simulationSpace": 0,
     "_id": ""
   },
@@ -294,7 +294,7 @@
   {
     "__type__": "cc.CurveRange",
     "mode": 0,
-    "constant": 1000,
+    "constant": 0.12,
     "multiplier": 1
   },
   {
@@ -306,7 +306,7 @@
   {
     "__type__": "cc.CurveRange",
     "mode": 0,
-    "constant": 30,
+    "constant": 8,
     "multiplier": 1
   },
   {
@@ -916,7 +916,7 @@
       "__id__": 110
     },
     "_prewarm": false,
-    "_capacity": 16,
+    "_capacity": 60,
     "_simulationSpace": 0,
     "_id": ""
   },
@@ -962,7 +962,7 @@
   {
     "__type__": "cc.CurveRange",
     "mode": 0,
-    "constant": 1.5707963267948966,
+    "constant": 0,
     "multiplier": 1
   },
   {
@@ -986,7 +986,7 @@
   {
     "__type__": "cc.CurveRange",
     "mode": 0,
-    "constant": 1000,
+    "constant": 0.12,
     "multiplier": 1
   },
   {
@@ -998,7 +998,7 @@
   {
     "__type__": "cc.CurveRange",
     "mode": 0,
-    "constant": 30,
+    "constant": 8,
     "multiplier": 1
   },
   {
@@ -1459,9 +1459,11 @@
     "__prefab": {
       "__id__": 113
     },
-    "speed": 50,
+    "speed": 20,
     "hitEffectPrefab": null,
-    "enableDebugDraw": false,
+    "collisionRadius": 0.25,
+    "minArmingTime": 0.12,
+    "maxTravelDistance": 50,
     "_id": ""
   },
   {
@@ -1477,6 +1479,7 @@
       "__id__": 0
     },
     "fileId": "c46/YsCPVOJYA4mWEpNYRx",
+    "instance": null,
     "targetOverrides": null
   }
 ]

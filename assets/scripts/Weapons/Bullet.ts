@@ -23,7 +23,7 @@ export class Bullet extends Component {
     public minArmingTime: number = 0.12;
 
     @property
-    public maxTravelDistance: number = 20;
+    public maxTravelDistance: number = 50;
 
     // Flight state
     private damage: number = 0;
@@ -34,8 +34,11 @@ export class Bullet extends Component {
     private readonly _tmpMovement: Vec3 = new Vec3();
     private readonly _tmpRotation: Quat = new Quat();
     private readonly _flightDirection: Vec3 = new Vec3();
+    private readonly _fixedTargetPosition: Vec3 = new Vec3();
     private _aliveTime: number = 0;
-    private _updatedThisFrame: boolean = false;
+    private _hasResolvedHit: boolean = false;
+    private _hasFixedTargetPosition: boolean = false;
+    private _arrivedAtTarget: boolean = false;
 
     // Target tracking
     public target: Node | null = null;
@@ -45,12 +48,13 @@ export class Bullet extends Component {
 
     protected onEnable(): void {
         this._aliveTime = 0;
-        this._updatedThisFrame = false;
+        this._hasResolvedHit = false;
+        this._hasFixedTargetPosition = false;
+        this._arrivedAtTarget = false;
         if (this._flightDirection.lengthSqr() <= 0) {
             this.captureForwardAsFlightDirection();
         }
         this.register();
-        this.restartVisualParticles();
     }
 
     private register(): void {
@@ -58,98 +62,112 @@ export class Bullet extends Component {
     }
 
     protected manualUpdate(deltaTime: number): void {
-        this._updatedThisFrame = true;
         this.move(deltaTime);
         this._aliveTime += deltaTime;
         this.checkForCollision();
     }
 
-    protected lateUpdate(deltaTime: number): void {
-        // Fallback path: keep bullets moving even if manager update is not active.
-        if (!this._updatedThisFrame) {
-            this.manualUpdate(deltaTime);
-        }
-        this._updatedThisFrame = false;
-    }
-
     public move(deltaTime: number): void {
-        const currentPos = this.node.getWorldPosition(this._tmpCurrentPos);
-        const hasTrackDirection = this.tryGetTrackDirection(currentPos, this._tmpDirection);
+        if (this._arrivedAtTarget) {
+            this.resolveTargetHit(false);
+            return;
+        }
 
-        if (hasTrackDirection) {
+        const currentPos = this.node.getWorldPosition(this._tmpCurrentPos);
+        const canTrackTarget = this.tryGetTrackedTargetPosition(this._tmpTargetPos);
+
+        if (canTrackTarget) {
+            Vec3.subtract(this._tmpDirection, this._tmpTargetPos, currentPos);
+            const distanceToTarget = this._tmpDirection.length();
+
+            if (distanceToTarget <= Number.EPSILON) {
+                this.node.setWorldPosition(this._tmpTargetPos);
+                this._arrivedAtTarget = true;
+                this.resolveTargetHit(false);
+                return;
+            }
+
+            this._tmpDirection.multiplyScalar(1 / distanceToTarget);
             this._flightDirection.set(this._tmpDirection.x, this._tmpDirection.y, this._tmpDirection.z);
             this.faceDirection(this._flightDirection);
-        } else if (this._flightDirection.lengthSqr() <= 0) {
+
+            const moveDistance = this.speed * deltaTime;
+            if (moveDistance >= distanceToTarget) {
+                // Clamp to destination to avoid overshoot oscillation.
+                this.node.setWorldPosition(this._tmpTargetPos);
+                this._arrivedAtTarget = true;
+                this.resolveTargetHit(false);
+                return;
+            }
+
+            this._tmpMovement
+                .set(this._flightDirection.x, this._flightDirection.y, this._flightDirection.z)
+                .multiplyScalar(moveDistance);
+            currentPos.add(this._tmpMovement);
+            this.node.setWorldPosition(currentPos);
+        } else {
+            if (this._flightDirection.lengthSqr() <= 0) {
+                this.captureForwardAsFlightDirection();
+            }
+
+            this._tmpMovement
+                .set(this._flightDirection.x, this._flightDirection.y, this._flightDirection.z)
+                .multiplyScalar(this.speed * deltaTime);
+
+            currentPos.add(this._tmpMovement);
+            this.node.setWorldPosition(currentPos);
+        }
+
+        if (this._hasResolvedHit) {
+            return;
+        }
+
+        if (!canTrackTarget && this._flightDirection.lengthSqr() <= 0) {
             this.captureForwardAsFlightDirection();
         }
 
-        this._tmpMovement
-            .set(this._flightDirection.x, this._flightDirection.y, this._flightDirection.z)
-            .multiplyScalar(this.speed * deltaTime);
-
-        currentPos.add(this._tmpMovement);
-        this.node.setWorldPosition(currentPos);
-
         // Always run range despawn check, including tracking mode.
-        const distanceSqr = Vec3.squaredDistance(currentPos, this.startPosition);
+        const latestPos = this.node.getWorldPosition(this._tmpCurrentPos);
+        const distanceSqr = Vec3.squaredDistance(latestPos, this.startPosition);
         if (distanceSqr >= this.maxTravelDistance * this.maxTravelDistance) {
             this.deactivateBullet();
         }
     }
 
     private checkForCollision(): void {
+        if (this._hasResolvedHit) {
+            return;
+        }
+
         if (this._aliveTime < this.minArmingTime) {
             return;
         }
 
-        if (!this.hasTarget || !this.target || !this.target.isValid || !this.target.active) {
+        if (!this.tryGetTrackedTargetPosition(this._tmpTargetPos)) {
             return;
         }
 
-        const targetPosition = this.getTargetWorldPosition(this._tmpTargetPos);
         const currentPosition = this.node.getWorldPosition(this._tmpCurrentPos);
-        const distanceToTarget = Vec3.squaredDistance(targetPosition, currentPosition);
+        const distanceToTarget = Vec3.squaredDistance(this._tmpTargetPos, currentPosition);
         const collisionRadiusSqr = this.collisionRadius * this.collisionRadius;
 
         if (distanceToTarget > collisionRadiusSqr) {
             return;
         }
 
-        let attackPoint = this.target;
-
-        const enemy = this.target.getComponent(EnemyController);
-        if (enemy) {
-            const shooterTransform = this.shooter ? this.shooter : this.node;
-            enemy.BeAttack(this.damage, shooterTransform);
-            attackPoint = enemy.attackPoint ? enemy.attackPoint : this.target;
-        }
-
-        this.deactivateBullet();
-
-        if (GlobalVariables.activeHitEffectsCount >= GlobalVariables.maxHitEffects) {
-            return;
-        }
-
-        if (this.hitEffectPrefab) {
-            const fx = instantiate(this.hitEffectPrefab);
-            fx.setWorldPosition(attackPoint.getWorldPosition());
-            fx.setScale(5, 5, 5);
-            fx.active = true;
-            GlobalVariables.activeHitEffectsCount++;
-
-            if (this.node.scene) {
-                this.node.scene.addChild(fx);
-            }
-        }
+        this.resolveTargetHit(false);
     }
 
     protected onDisable(): void {
+        this.stopAndClearParticleSystems();
         BulletManager.Instance?.unregisterBullet(this);
         this.target = null;
         this.hasTarget = false;
         this._flightDirection.set(0, 0, 0);
         this._aliveTime = 0;
-        this._updatedThisFrame = false;
+        this._hasResolvedHit = false;
+        this._hasFixedTargetPosition = false;
+        this._arrivedAtTarget = false;
     }
 
     /**
@@ -159,10 +177,12 @@ export class Bullet extends Component {
         if (newTarget && newTarget.isValid) {
             this.target = newTarget;
             this.hasTarget = true;
+            this.captureFixedTargetPosition();
             this.orientTowardsCurrentTarget();
         } else {
             this.target = null;
             this.hasTarget = false;
+            this._hasFixedTargetPosition = false;
         }
     }
 
@@ -191,11 +211,42 @@ export class Bullet extends Component {
     }
 
     private deactivateBullet(): void {
+        this._hasResolvedHit = true;
+        this._arrivedAtTarget = false;
+        this.stopAndClearParticleSystems();
         this.node.destroy();
     }
 
-    private tryGetTrackDirection(currentWorldPos: Vec3, outDirection: Vec3): boolean {
-        if (!this.hasTarget || !this.target || !this.target.isValid || !this.target.active) {
+    private stopAndClearParticleSystems(): void {
+        const particleSystems = this.node.getComponentsInChildren(ParticleSystem);
+        for (const particleSystem of particleSystems) {
+            const particleLike = particleSystem as unknown as {
+                stopEmitting?: () => void;
+                stop?: () => void;
+                clear?: () => void;
+            };
+
+            particleLike.stopEmitting?.();
+            particleLike.stop?.();
+            particleLike.clear?.();
+        }
+    }
+
+    private tryGetTrackedTargetPosition(outPos: Vec3): boolean {
+        if (!this.hasTarget) {
+            return false;
+        }
+
+        if (this._hasFixedTargetPosition) {
+            outPos.set(
+                this._fixedTargetPosition.x,
+                this._fixedTargetPosition.y,
+                this._fixedTargetPosition.z
+            );
+            return true;
+        }
+
+        if (!this.target || !this.target.isValid || !this.target.active) {
             return false;
         }
 
@@ -204,13 +255,7 @@ export class Bullet extends Component {
             return false;
         }
 
-        const targetWorldPos = this.getTargetWorldPosition(this._tmpTargetPos);
-        Vec3.subtract(outDirection, targetWorldPos, currentWorldPos);
-        if (outDirection.lengthSqr() <= 0) {
-            return false;
-        }
-
-        outDirection.normalize();
+        this.getTargetWorldPosition(outPos);
         return true;
     }
 
@@ -229,7 +274,12 @@ export class Bullet extends Component {
 
     private orientTowardsCurrentTarget(): void {
         const currentWorldPos = this.node.getWorldPosition(this._tmpCurrentPos);
-        if (this.tryGetTrackDirection(currentWorldPos, this._tmpDirection)) {
+        if (this.tryGetTrackedTargetPosition(this._tmpTargetPos)) {
+            Vec3.subtract(this._tmpDirection, this._tmpTargetPos, currentWorldPos);
+            if (this._tmpDirection.lengthSqr() <= Number.EPSILON) {
+                return;
+            }
+            this._tmpDirection.normalize();
             this._flightDirection.set(this._tmpDirection.x, this._tmpDirection.y, this._tmpDirection.z);
             this.faceDirection(this._flightDirection);
         }
@@ -253,15 +303,54 @@ export class Bullet extends Component {
         }
     }
 
-    private restartVisualParticles(): void {
-        const particles = this.node.getComponentsInChildren(ParticleSystem);
-        for (const particle of particles) {
-            if (!particle || !particle.isValid) {
-                continue;
+    private captureFixedTargetPosition(): void {
+        if (!this.target || !this.target.isValid || !this.target.active) {
+            this._hasFixedTargetPosition = false;
+            return;
+        }
+        this.getTargetWorldPosition(this._fixedTargetPosition);
+        this._hasFixedTargetPosition = true;
+    }
+
+    private resolveTargetHit(ignoreArmingTime: boolean = false): void {
+        if (this._hasResolvedHit) {
+            return;
+        }
+
+        if (!ignoreArmingTime && this._aliveTime < this.minArmingTime) {
+            return;
+        }
+
+        if (!this.target || !this.target.isValid || !this.target.active) {
+            this.deactivateBullet();
+            return;
+        }
+
+        let attackPoint = this.target;
+        const enemy = this.target.getComponent(EnemyController);
+        if (enemy) {
+            const shooterTransform = this.shooter ? this.shooter : this.node;
+            enemy.BeAttack(this.damage, shooterTransform);
+            attackPoint = enemy.attackPoint ? enemy.attackPoint : this.target;
+        }
+
+        const bulletScene = this.node.scene;
+        this.deactivateBullet();
+
+        if (GlobalVariables.activeHitEffectsCount >= GlobalVariables.maxHitEffects) {
+            return;
+        }
+
+        if (this.hitEffectPrefab) {
+            const fx = instantiate(this.hitEffectPrefab);
+            fx.setWorldPosition(attackPoint.getWorldPosition());
+            fx.setScale(5, 5, 5);
+            fx.active = true;
+            GlobalVariables.activeHitEffectsCount++;
+
+            if (bulletScene) {
+                bulletScene.addChild(fx);
             }
-            particle.clear();
-            particle.stop();
-            particle.play();
         }
     }
 }

@@ -52,7 +52,7 @@ export class Teammate extends Component {
         // 初始化血量
         if (this._healthSystem) {
             this._healthSystem.maxHealth = this.maxHealth;
-            this._healthSystem.currentHealth = this.maxHealth;
+            this._healthSystem.ResetHealth();
         }
 
         this.resetHealthMultiplier();

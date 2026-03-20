@@ -227,7 +227,7 @@ export class EnemyController extends Component {
 
                         // 确保移除任何之前的关联
                         coin.spawnOwner = null;
-                        coin.IsBearByGenerator = false;
+                        coin.isBearByGenerator = false;
                     }
 
                     // 设置金币初始位置（对象此时是禁用的）

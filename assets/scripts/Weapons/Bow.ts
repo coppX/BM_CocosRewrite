@@ -25,6 +25,8 @@ export class Bow extends Weapon {
     @property({ tooltip: 'Maximum frame delay between multi-shot bullets' })
     public maxDelayFrames: number = 9;
 
+    private _debugAttackAnimEventCalledOnce: boolean = false;
+
     private readonly _onMapLevelUpgradeHandler = (stage: number) => {
         this.onMapLevelUpgrade(stage);
     };
@@ -40,6 +42,11 @@ export class Bow extends Weapon {
     }
 
     public onAttackAnimEvent(): void {
+        if (this._debugAttackAnimEventCalledOnce) {
+            // return;
+        }
+
+        this._debugAttackAnimEventCalledOnce = true;
         super.onAttackAnimEvent();
         this.spawnBulletsWithRandomDelay(this.currentTarget);
     }

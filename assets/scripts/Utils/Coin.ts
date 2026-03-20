@@ -22,6 +22,7 @@ export class Coin extends Component {
     public isMoving: boolean = false;
     public isBeingDelivered: boolean = false;
     public isBearByGenerator: boolean = false;
+    public spawnOwner: Node | null = null;
 
     // Private state
     private _destroyTimeout: number | null = null;
