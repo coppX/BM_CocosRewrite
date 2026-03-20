@@ -31,29 +31,26 @@
         "__id__": 55
       },
       {
-        "__id__": 58
+        "__id__": 57
       },
       {
-        "__id__": 60
+        "__id__": 59
       },
       {
-        "__id__": 62
+        "__id__": 61
       },
       {
-        "__id__": 64
-      },
-      {
-        "__id__": 66
+        "__id__": 63
       }
     ],
     "_prefab": {
-      "__id__": 68
+      "__id__": 65
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 0,
+      "x": 2.664,
       "y": 0,
-      "z": 0
+      "z": 18.02
     },
     "_lrot": {
       "__type__": "cc.Quat",
@@ -1471,59 +1468,6 @@
     ]
   },
   {
-    "__type__": "cc.MeshRenderer",
-    "_name": "",
-    "_objFlags": 0,
-    "__editorExtras__": {},
-    "node": {
-      "__id__": 1
-    },
-    "_enabled": true,
-    "__prefab": {
-      "__id__": 56
-    },
-    "_materials": [],
-    "_visFlags": 0,
-    "bakeSettings": {
-      "__id__": 57
-    },
-    "_mesh": null,
-    "_shadowCastingMode": 0,
-    "_shadowReceivingMode": 1,
-    "_shadowBias": 0,
-    "_shadowNormalBias": 0,
-    "_reflectionProbeId": -1,
-    "_reflectionProbeBlendId": -1,
-    "_reflectionProbeBlendWeight": 0,
-    "_enabledGlobalStandardSkinObject": false,
-    "_enableMorph": true,
-    "_id": ""
-  },
-  {
-    "__type__": "cc.CompPrefabInfo",
-    "fileId": "FCWmjtdtkGFO5q7gPKFb9b"
-  },
-  {
-    "__type__": "cc.ModelBakeSettings",
-    "texture": null,
-    "uvParam": {
-      "__type__": "cc.Vec4",
-      "x": 0,
-      "y": 0,
-      "z": 0,
-      "w": 0
-    },
-    "_bakeable": false,
-    "_castShadow": false,
-    "_receiveShadow": false,
-    "_recieveShadow": false,
-    "_lightmapSize": 64,
-    "_useLightProbe": false,
-    "_bakeToLightProbe": true,
-    "_reflectionProbeType": 0,
-    "_bakeToReflectionProbe": true
-  },
-  {
     "__type__": "cc.animation.AnimationController",
     "_name": "",
     "_objFlags": 0,
@@ -1533,7 +1477,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 59
+      "__id__": 56
     },
     "_graph": {
       "__uuid__": "03e82b1d-1fd1-45a9-9d25-4094cd1d9636",
@@ -1559,7 +1503,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 61
+      "__id__": 58
     },
     "_id": ""
   },
@@ -1577,7 +1521,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 63
+      "__id__": 60
     },
     "aimingBone": {
       "__id__": 12
@@ -1598,9 +1542,9 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 65
+      "__id__": 62
     },
-    "attackRange": 10,
+    "attackRange": 50,
     "canAttack": true,
     "_id": ""
   },
@@ -1618,7 +1562,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 67
+      "__id__": 64
     },
     "damage": 10,
     "muzzle": {
@@ -1655,10 +1599,12 @@
       "__id__": 0
     },
     "fileId": "b52A/bOqFGNJrDolmMjSX0",
-    "instance": null,
     "targetOverrides": [
       {
-        "__id__": 69
+        "__id__": 66
+      },
+      {
+        "__id__": 68
       }
     ],
     "nestedPrefabInstanceRoots": [
@@ -1670,7 +1616,7 @@
   {
     "__type__": "cc.TargetOverrideInfo",
     "source": {
-      "__id__": 62
+      "__id__": 59
     },
     "sourceInfo": null,
     "propertyPath": [
@@ -1680,13 +1626,35 @@
       "__id__": 4
     },
     "targetInfo": {
-      "__id__": 70
+      "__id__": 67
     }
   },
   {
     "__type__": "cc.TargetInfo",
     "localID": [
       "cftnYHw15e7phpKF3VEy13"
+    ]
+  },
+  {
+    "__type__": "cc.TargetOverrideInfo",
+    "source": {
+      "__id__": 63
+    },
+    "sourceInfo": null,
+    "propertyPath": [
+      "muzzle"
+    ],
+    "target": {
+      "__id__": 4
+    },
+    "targetInfo": {
+      "__id__": 69
+    }
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "41h5dtzrBMKK+4uY4JjNbo"
     ]
   }
 ]

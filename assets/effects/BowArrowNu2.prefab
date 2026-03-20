@@ -224,7 +224,7 @@
       "__id__": 55
     },
     "_prewarm": false,
-    "_capacity": 60,
+    "_capacity": 2,
     "_simulationSpace": 0,
     "_id": ""
   },
@@ -916,7 +916,7 @@
       "__id__": 110
     },
     "_prewarm": false,
-    "_capacity": 60,
+    "_capacity": 2,
     "_simulationSpace": 0,
     "_id": ""
   },
