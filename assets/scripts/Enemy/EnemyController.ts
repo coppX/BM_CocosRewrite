@@ -139,7 +139,7 @@ export class EnemyController extends Component {
         this.isDead = true;
 
         // 设置材质饱和度为0（死亡效果）
-        // this.SetMaterialSaturation(0);
+        this.SetMaterialSaturation(0);
         this.ApplyKnockback();
         // this.DropItems();
     }
