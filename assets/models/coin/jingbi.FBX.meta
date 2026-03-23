@@ -44,7 +44,7 @@
       "uuid": "48ae479c-06b6-44b5-ba38-5f229029ab91@9eb39",
       "displayName": "",
       "id": "9eb39",
-      "name": "jingbi.prefab",
+      "name": "jingbi.FBX.prefab",
       "userData": {
         "gltfIndex": 0
       },
@@ -106,7 +106,8 @@
         "_techIdx": 0,
         "_defines": [
           {
-            "DCC_APP_NAME": 1
+            "DCC_APP_NAME": 1,
+            "USE_ALBEDO_MAP": true
           },
           {},
           {},
@@ -152,20 +153,17 @@
         ],
         "_props": [
           {
-            "mainColor": {
-              "__type__": "cc.Color",
-              "r": 218,
-              "g": 165,
-              "b": 32,
-              "a": 255
+            "mainTexture": {
+              "__uuid__": "a89c58c1-3959-4973-a403-1ba24942e2c6@6c48a",
+              "__expectedType__": "cc.Texture2D"
             },
             "emissiveScale": 0,
             "shininessExponent": 19.999998092651367,
             "specularColor": {
               "__type__": "cc.Color",
-              "r": 218,
-              "g": 165,
-              "b": 32,
+              "r": 255,
+              "g": 255,
+              "b": 255,
               "a": 255
             }
           },

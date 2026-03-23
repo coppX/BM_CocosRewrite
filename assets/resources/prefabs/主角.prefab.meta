@@ -2,13 +2,13 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "8f1e7a1f-289e-47ec-a7c4-190347e17754",
+  "uuid": "4b4bc88a-1241-4a59-9602-3d00e0a819e3",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "Bullet",
+    "syncNodeName": "主角",
     "hasIcon": false
   }
 }

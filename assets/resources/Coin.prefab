@@ -25,17 +25,17 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 12
+        "__id__": 10
       }
     ],
     "_prefab": {
-      "__id__": 14
+      "__id__": 12
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 15.950246168825165,
-      "y": 5.359556185986619,
-      "z": -3.177308327950499
+      "x": 0,
+      "y": 0,
+      "z": 0
     },
     "_lrot": {
       "__type__": "cc.Quat",
@@ -46,9 +46,9 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
-      "z": 1
+      "x": 5,
+      "y": 5,
+      "z": 5
     },
     "_mobility": 0,
     "_layer": 1073741824,
@@ -88,7 +88,7 @@
   },
   {
     "__type__": "cc.PrefabInstance",
-    "fileId": "c4wcHQa/NHyYo6hY29eY9C",
+    "fileId": "e8T1fU8vxI2r1PEoF2Xzqa",
     "prefabRootNode": {
       "__id__": 1
     },
@@ -106,12 +106,25 @@
       },
       {
         "__id__": 9
-      },
-      {
-        "__id__": 10
       }
     ],
     "removedComponents": []
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 6
+    },
+    "propertyPath": [
+      "_name"
+    ],
+    "value": "jingbi.FBX"
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "894UjlVOFeaKQRAeosc7go"
+    ]
   },
   {
     "__type__": "CCPropertyOverrideInfo",
@@ -127,22 +140,6 @@
       "y": 0,
       "z": 0
     }
-  },
-  {
-    "__type__": "cc.TargetInfo",
-    "localID": [
-      "894UjlVOFeaKQRAeosc7go"
-    ]
-  },
-  {
-    "__type__": "CCPropertyOverrideInfo",
-    "targetInfo": {
-      "__id__": 6
-    },
-    "propertyPath": [
-      "_name"
-    ],
-    "value": "jingbi"
   },
   {
     "__type__": "CCPropertyOverrideInfo",
@@ -176,23 +173,6 @@
     }
   },
   {
-    "__type__": "CCPropertyOverrideInfo",
-    "targetInfo": {
-      "__id__": 11
-    },
-    "propertyPath": [
-      "bakeSettings",
-      "_bakeable"
-    ],
-    "value": false
-  },
-  {
-    "__type__": "cc.TargetInfo",
-    "localID": [
-      "a9ciDKVi9dS4ljnnLW60uz"
-    ]
-  },
-  {
     "__type__": "649e8ipeipIRoQQ+xESBhAm",
     "_name": "",
     "_objFlags": 0,
@@ -202,7 +182,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 13
+      "__id__": 11
     },
     "lifeTime": 2,
     "stayProbability": 0.2,
@@ -222,6 +202,7 @@
       "__id__": 0
     },
     "fileId": "79SZfV5J5FRpxqiP7iKfIm",
+    "instance": null,
     "targetOverrides": null,
     "nestedPrefabInstanceRoots": [
       {

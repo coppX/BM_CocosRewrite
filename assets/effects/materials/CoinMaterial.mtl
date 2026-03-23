@@ -75,13 +75,6 @@
   ],
   "_props": [
     {
-      "mainColor": {
-        "__type__": "cc.Color",
-        "r": 255,
-        "g": 153,
-        "b": 0,
-        "a": 255
-      },
       "roughness": 0.2
     },
     {},

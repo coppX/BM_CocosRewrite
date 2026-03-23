@@ -141,7 +141,7 @@ export class EnemyController extends Component {
         // 设置材质饱和度为0（死亡效果）
         this.SetMaterialSaturation(0);
         this.ApplyKnockback();
-        // this.DropItems();
+        this.DropItems();
     }
 
     private SetMaterialSaturation(saturationValue: number): void {

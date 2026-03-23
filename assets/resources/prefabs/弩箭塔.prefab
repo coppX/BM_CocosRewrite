@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "BowTower",
+    "_name": "弩箭塔",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "BowTower",
+    "_name": "弩箭塔",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -48,9 +48,9 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 2.664,
-      "y": 0,
-      "z": 18.02
+      "x": 3.6032725253614073,
+      "y": 7.105427357601002e-15,
+      "z": 22.538670367986633
     },
     "_lrot": {
       "__type__": "cc.Quat",

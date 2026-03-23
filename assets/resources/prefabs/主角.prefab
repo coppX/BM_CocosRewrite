@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "Player",
+    "_name": "主角",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Player",
+    "_name": "主角",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -42,9 +42,9 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 2.631999969482422,
+      "x": 0,
       "y": 0,
-      "z": 25.406999588012695
+      "z": 0
     },
     "_lrot": {
       "__type__": "cc.Quat",
@@ -1222,6 +1222,7 @@
       "__id__": 0
     },
     "fileId": "3fct2X1Z9KcIUtkJ8+gbnT",
+    "instance": null,
     "targetOverrides": [
       {
         "__id__": 66
