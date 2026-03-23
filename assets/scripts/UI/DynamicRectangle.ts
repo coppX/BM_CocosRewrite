@@ -35,11 +35,13 @@ export class DynamicRectangle extends Component {
         }
 
         // 创建新的Mesh
-        this._mesh = utils.MeshUtils.createMesh({
+        this._mesh = utils.createMesh({
             positions: [],
             indices: [],
             primitiveMode: gfx.PrimitiveMode.TRIANGLE_LIST
         });
+
+        this._meshRenderer.mesh = this._mesh;
     }
 
     protected update(dt: number): void {
@@ -57,14 +59,19 @@ export class DynamicRectangle extends Component {
     }
 
     private updateMesh(): void {
-        if (!this._mesh) return;
+        if (!this._mesh || !this._meshRenderer) return;
 
         // 如果起点和终点太近，清空mesh
-        if (Vec3.distance(this.startPoint, this.endPoint) < 0.01) {
-            this._mesh.reset({
+        const distance = Vec3.distance(this.startPoint, this.endPoint);
+        if (distance < 0.01) {
+            // 重新创建一个空mesh
+            this._mesh.destroy();
+            this._mesh = utils.createMesh({
                 positions: [],
-                indices: []
+                indices: [],
+                primitiveMode: gfx.PrimitiveMode.TRIANGLE_LIST
             });
+            this._meshRenderer.mesh = this._mesh;
             return;
         }
 
@@ -73,7 +80,7 @@ export class DynamicRectangle extends Component {
 
         // 计算垂直方向（用于宽度）
         const sideDirection = new Vec3();
-        Vec3.cross(sideDirection, direction, Vec3.DOWN);
+        Vec3.cross(sideDirection, direction, new Vec3(0, -1, 0));
         sideDirection.normalize();
 
         const halfWidth = this.width / 2;
@@ -93,23 +100,55 @@ export class DynamicRectangle extends Component {
 
         const indices = [0, 2, 1, 1, 2, 3];
 
-        const dist = Vec3.distance(this.startPoint, this.endPoint);
         const uvs = [
             0, 0,
             1, 0,
-            0, dist,
-            1, dist
+            0, distance,
+            1, distance
         ];
 
-        this._mesh.reset({
+        // 计算法线
+        const normal = new Vec3();
+        Vec3.cross(normal, sideDirection, direction);
+        normal.normalize();
+
+        const normals = [
+            normal.x, normal.y, normal.z,
+            normal.x, normal.y, normal.z,
+            normal.x, normal.y, normal.z,
+            normal.x, normal.y, normal.z
+        ];
+
+        // 计算包围盒
+        const minPos = new Vec3(
+            Math.min(v0.x, v1.x, v2.x, v3.x),
+            Math.min(v0.y, v1.y, v2.y, v3.y),
+            Math.min(v0.z, v1.z, v2.z, v3.z)
+        );
+        const maxPos = new Vec3(
+            Math.max(v0.x, v1.x, v2.x, v3.x),
+            Math.max(v0.y, v1.y, v2.y, v3.y),
+            Math.max(v0.z, v1.z, v2.z, v3.z)
+        );
+
+        // 销毁旧mesh并创建新的
+        this._mesh.destroy();
+        this._mesh = utils.createMesh({
             positions: positions,
             indices: indices,
             uvs: uvs,
+            normals: normals,
+            minPos: minPos,
+            maxPos: maxPos,
             primitiveMode: gfx.PrimitiveMode.TRIANGLE_LIST
         });
 
-        if (this._meshRenderer) {
-            this._meshRenderer.mesh = this._mesh;
+        this._meshRenderer.mesh = this._mesh;
+    }
+
+    protected onDestroy(): void {
+        if (this._mesh) {
+            this._mesh.destroy();
         }
     }
 }

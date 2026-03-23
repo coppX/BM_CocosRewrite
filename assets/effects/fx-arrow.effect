@@ -1,0 +1,93 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/en/shader/index.html
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: fx-arrow-vs:vert
+      frag: fx-arrow-fs:frag
+      depthStencilState:
+        depthTest: true
+        depthWrite: true
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: back
+      properties:
+        mainTexture:      { value: white }
+        tilingOffset:     { value: [1.0, 1.0, 0.0, 0.0] }
+        worldScale:       { value: 1.0 }
+        rowSpeed:         { value: 0.0 }
+        alphaClip:        { value: 0.5 }
+        tileRatio:        { value: 0.7, editor: { range: [0.1, 1.0] } }
+}%
+
+CCProgram fx-arrow-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-local>
+
+  in vec3 a_position;
+  in vec2 a_texCoord;
+
+  out vec2 v_uv;
+
+  uniform VertConstants {
+    vec4 tilingOffset;
+    float worldScale;
+    float rowSpeed;
+  };
+
+  vec4 vert() {
+    vec4 pos = vec4(a_position, 1.0);
+    pos = cc_matWorld * pos;
+    pos = cc_matView * pos;
+    pos = cc_matProj * pos;
+
+    // 应用世界缩放、tiling、offset和动画
+    v_uv = a_texCoord;
+    v_uv.y *= worldScale;
+    v_uv = v_uv * tilingOffset.xy + tilingOffset.zw;
+    v_uv.y -= rowSpeed * cc_time.x;
+
+    return pos;
+  }
+}%
+
+CCProgram fx-arrow-fs %{
+  precision highp float;
+
+  in vec2 v_uv;
+
+  uniform sampler2D mainTexture;
+
+  uniform FragConstants {
+    float alphaClip;
+    float tileRatio;
+  };
+
+  vec4 frag() {
+    // 计算当前片段在tile中的位置
+    float tileV = fract(v_uv.y);
+
+    // 如果超出了tile比例范围，则丢弃该片段（创建空白间歇）
+    if (tileV > tileRatio) {
+      discard;
+    }
+
+    // 重新映射UV坐标以适应tile比例
+    vec2 adjustedUV = vec2(v_uv.x, tileV / tileRatio);
+
+    vec4 col = texture(mainTexture, adjustedUV);
+
+    // Alpha裁剪
+    if (col.a < alphaClip) {
+      discard;
+    }
+
+    return col;
+  }
+}%
