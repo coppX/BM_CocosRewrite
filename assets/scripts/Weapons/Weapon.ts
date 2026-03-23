@@ -1,5 +1,4 @@
 import { _decorator, Component, Node, Vec3, Prefab, instantiate, director } from 'cc';
-import { PlayerController } from '../Player/PlayerController';
 import { EnemyController } from '../Enemy/EnemyController';
 import { AttackLogic } from '../Utils/AttackLogic';
 const { ccclass, property } = _decorator;
@@ -27,8 +26,8 @@ export abstract class Weapon extends Component {
     })
     public useDirectionalArrow: boolean = true;
 
-    @property(PlayerController)
-    public ownerPlayer: PlayerController | null = null;
+    @property
+    public ownerPlayer: any | null = null;
 
     public currentTarget: Node | null = null;
 

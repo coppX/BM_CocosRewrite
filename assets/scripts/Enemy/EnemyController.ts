@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3, Animation, math, Material, MeshRenderer, SkinnedMeshRenderer } from 'cc';
+import { _decorator, Component, Node, Vec3, animation, math, Material, MeshRenderer, SkinnedMeshRenderer } from 'cc';
 import { HealthSystem } from '../Core/HealthSystem';
 import { BezierFollower } from '../Utils/BezierFollower';
 import { PlayerController } from '../Player/PlayerController';
@@ -6,6 +6,7 @@ import { Coin } from '../Utils/Coin';
 import { EnemyManager } from '../Managers/EnemyManager';
 import { PoolManager } from '../Managers/PoolManager';
 const { ccclass, property } = _decorator;
+type AnimationControllerLike = animation.AnimationController;
 
 /**
  * 敌人控制器
@@ -39,17 +40,38 @@ export class EnemyController extends Component {
     @property(Node)
     public attackPoint: Node | null = null;
 
+    @property({ type: animation.AnimationController, tooltip: '可选：手动指定敌人动画状态机控制器' })
+    public animationController: AnimationControllerLike | null = null;
+
     public isDead: boolean = false;
-    public aimer: Node | null = null;
+
+    private _aimer: Node | null = null;
+    private readonly _aimerAutoClearDelay: number = 2;
+    private readonly _clearAimerCallback = (): void => {
+        this._aimer = null;
+    };
+
+    public get aimer(): Node | null {
+        return this._aimer;
+    }
+
+    public set aimer(value: Node | null) {
+        this._aimer = value;
+        this.unschedule(this._clearAimerCallback);
+
+        if (value) {
+            this.scheduleOnce(this._clearAimerCallback, this._aimerAutoClearDelay);
+        }
+    }
 
     private _player: Node | null = null;
     private _healthSystem: HealthSystem | null = null;
-    private _animation: Animation | null = null;
+    private _animation: AnimationControllerLike | null = null;
     private _bezierSpeed: number = 0;
 
     protected onLoad(): void {
         this._healthSystem = this.getComponent(HealthSystem);
-        this._animation = this.getComponentInChildren(Animation);
+        this._animation = this.animationController ?? this.FindAnimationControllerInChildren();
 
         const bezierFollower = this.getComponent(BezierFollower);
         if (bezierFollower) {
@@ -76,6 +98,7 @@ export class EnemyController extends Component {
         this.aimer = null;
         this.ResetHealthMultiplier();
         this.damageMultiplier = 1;
+        this.SetDeathState(false);
 
         const bezierFollower = this.getComponent(BezierFollower);
         if (bezierFollower) {
@@ -84,6 +107,8 @@ export class EnemyController extends Component {
     }
 
     protected onDisable(): void {
+        this.unschedule(this._clearAimerCallback);
+        this._aimer = null;
         EnemyManager.Instance?.unregisterTarget(this);
     }
 
@@ -114,9 +139,9 @@ export class EnemyController extends Component {
         this.isDead = true;
 
         // 设置材质饱和度为0（死亡效果）
-        this.SetMaterialSaturation(0);
+        // this.SetMaterialSaturation(0);
         this.ApplyKnockback();
-        this.DropItems();
+        // this.DropItems();
     }
 
     private SetMaterialSaturation(saturationValue: number): void {
@@ -187,19 +212,7 @@ export class EnemyController extends Component {
         }
 
         // 触发死亡动画
-        if (this._animation) {
-            // 播放死亡动画
-            const deathClip = this._animation.getState('Death');
-            if (deathClip) {
-                this._animation.play('Death');
-            } else {
-                // 如果没有Death动画，尝试设置动画参数
-                const animController = this.node.getComponent('cc.animation.AnimationController') as any;
-                if (animController) {
-                    animController.setValue('Death', true);
-                }
-            }
-        }
+        this.SetDeathState(true);
     }
 
     private DropItems(): void {
@@ -261,20 +274,7 @@ export class EnemyController extends Component {
     public OnSpawn(): void {
         this.isDead = false;
         this.SetMaterialSaturation(1);
-
-        if (this._animation) {
-            // 重置动画
-            const deathClip = this._animation.getState('Death');
-            if (deathClip) {
-                deathClip.stop();
-            }
-
-            // 重置动画控制器
-            const animController = this.node.getComponent('cc.animation.AnimationController') as any;
-            if (animController) {
-                animController.setValue('Death', false);
-            }
-        }
+        this.SetDeathState(false);
 
         if (this._healthSystem) {
             this._healthSystem.ResetHealth();
@@ -303,5 +303,64 @@ export class EnemyController extends Component {
         if (this._healthSystem) {
             this._healthSystem.healthMultiplier = this.hpMultiplier;
         }
+    }
+
+    private SetDeathState(isDead: boolean): void {
+        if (!this._animation) {
+            this._animation = this.animationController ?? this.FindAnimationControllerInChildren();
+        }
+
+        if (this._animation) {
+            this._animation.setValue('Death', isDead);
+        }
+    }
+
+    private FindAnimationControllerInChildren(): AnimationControllerLike | null {
+        const findInSubtree = (root: Node): AnimationControllerLike | null => {
+            const queue: Node[] = [root];
+            while (queue.length > 0) {
+                const current = queue.shift();
+                if (!current) {
+                    continue;
+                }
+
+                const controller = current.getComponent(animation.AnimationController) as AnimationControllerLike | null;
+                if (controller) {
+                    return controller;
+                }
+
+                queue.push(...current.children);
+            }
+
+            return null;
+        };
+
+        // 先查自己和子节点
+        const selfController = findInSubtree(this.node);
+        if (selfController) {
+            return selfController;
+        }
+
+        // 如果AnimationController在同层级兄弟节点上，再查父节点下所有子树
+        const parent = this.node.parent;
+        if (parent) {
+            for (const sibling of parent.children) {
+                if (sibling === this.node) {
+                    continue;
+                }
+
+                // 跳过其它敌人根节点，避免误绑到别的敌人动画控制器
+                if (sibling.getComponent(EnemyController)) {
+                    continue;
+                }
+
+                const siblingController = findInSubtree(sibling);
+                if (siblingController) {
+                    return siblingController;
+                }
+            }
+        }
+
+        return null;
     }
 }

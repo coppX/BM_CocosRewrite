@@ -1,4 +1,4 @@
-import { _decorator, Component, Vec3, RigidBody, BoxCollider, Node, animation, Quat } from 'cc';
+import { _decorator, Component, Vec3, Node, animation, Quat } from 'cc';
 import { HealthSystem } from '../Core/HealthSystem';
 import { GameManager, GameState } from '../Managers/GameManager';
 import { AttackLogic } from '../Utils/AttackLogic';
