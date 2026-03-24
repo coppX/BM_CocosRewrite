@@ -32,8 +32,8 @@ export class CoinManager extends Component {
     /**
      * 注册金币
      */
-    public RegisterCoin(coin: Coin): void {
-        if (!this.AvailableCoins.includes(coin)) {
+    public registerCoin(coin: Coin): void {
+        if (this.AvailableCoins.indexOf(coin) === -1) {
             this.AvailableCoins.push(coin);
         }
     }
@@ -41,7 +41,7 @@ export class CoinManager extends Component {
     /**
      * 注销金币
      */
-    public UnregisterCoin(coin: Coin): void {
+    public unregisterCoin(coin: Coin): void {
         const index = this.AvailableCoins.indexOf(coin);
         if (index !== -1) {
             this.AvailableCoins.splice(index, 1);

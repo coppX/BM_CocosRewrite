@@ -37,7 +37,7 @@ export class HealthSystem extends Component {
     /**
      * 受到伤害
      */
-    public TakeDamage(damage: number, damager?: Node): void {
+    public takeDamage(damage: number, damager?: Node): void {
         if (!this.IsAlive) return;
 
         if (damager) {
@@ -59,7 +59,7 @@ export class HealthSystem extends Component {
     /**
      * 恢复生命值
      */
-    public Heal(amount: number): void {
+    public heal(amount: number): void {
         if (!this.IsAlive) return;
 
         this._currentHealth += amount;
@@ -73,7 +73,7 @@ export class HealthSystem extends Component {
     /**
      * 重置生命值
      */
-    public ResetHealth(): void {
+    public resetHealth(): void {
         this._currentHealth = this.maxHealth * this.healthMultiplier;
         this._lastDamager = null;
 

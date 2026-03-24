@@ -105,7 +105,7 @@ export abstract class Weapon extends Component {
     protected stopAttacking(): void {
         // 停止攻击动画
         if (this.ownerPlayer) {
-            this.ownerPlayer.SetAttackAnimation(false);
+            this.ownerPlayer.setAttackAnimation(false);
         }
 
         // 如果武器自身有动画控制器，也停止攻击动画
@@ -122,7 +122,7 @@ export abstract class Weapon extends Component {
     public attack(target: Node | null): void {
         // 播放攻击动画
         if (this.ownerPlayer) {
-            this.ownerPlayer.SetAttackAnimation(true);
+            this.ownerPlayer.setAttackAnimation(true);
         }
 
         // 如果武器自身有动画控制器，也播放攻击动画
@@ -200,7 +200,7 @@ export abstract class Weapon extends Component {
 
         const enemy = target.getComponent(EnemyController);
         if (enemy) {
-            return !enemy.IsDead() && target.active;
+            return !enemy.isDeadState() && target.active;
         }
 
         return true;

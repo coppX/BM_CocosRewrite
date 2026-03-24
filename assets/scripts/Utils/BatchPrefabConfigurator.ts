@@ -15,7 +15,7 @@ export class BatchPrefabConfigurator extends Component {
     /**
      * 配置所有预制体
      */
-    public async ConfigureAllPrefabs() {
+    public async configureAllPrefabs() {
         console.log('==========================================');
         console.log('[BatchPrefabConfigurator] 开始批量配置预制体');
         console.log('==========================================');
@@ -28,7 +28,7 @@ export class BatchPrefabConfigurator extends Component {
         ];
 
         for (const config of prefabConfigs) {
-            await this.ConfigurePrefab(config.path, config.type);
+            await this.configurePrefab(config.path, config.type);
         }
 
         // 打印结果
@@ -43,7 +43,7 @@ export class BatchPrefabConfigurator extends Component {
     /**
      * 配置单个预制体
      */
-    private async ConfigurePrefab(prefabPath: string, prefabType: string): Promise<void> {
+    private async configurePrefab(prefabPath: string, prefabType: string): Promise<void> {
         console.log(`\n--- 配置预制体: ${prefabType} ---`);
 
         return new Promise((resolve) => {
@@ -69,7 +69,7 @@ export class BatchPrefabConfigurator extends Component {
                     }
 
                     // 执行配置
-                    await configurator.Configure();
+                    await configurator.configure();
 
                     console.log(`✅ ${prefabType} 配置成功`);
                     this._results.set(prefabType, true);
@@ -89,7 +89,7 @@ export class BatchPrefabConfigurator extends Component {
     /**
      * 测试配置是否成功
      */
-    public async TestPrefabs() {
+    public async testPrefabs() {
         console.log('\n==========================================');
         console.log('[BatchPrefabConfigurator] 开始测试预制体');
         console.log('==========================================\n');
@@ -101,14 +101,14 @@ export class BatchPrefabConfigurator extends Component {
         ];
 
         for (const path of prefabPaths) {
-            await this.TestPrefab(path);
+            await this.testPrefab(path);
         }
     }
 
     /**
      * 测试单个预制体
      */
-    private async TestPrefab(prefabPath: string): Promise<void> {
+    private async testPrefab(prefabPath: string): Promise<void> {
         return new Promise((resolve) => {
             resources.load(prefabPath, Prefab, (err, prefab) => {
                 if (err) {

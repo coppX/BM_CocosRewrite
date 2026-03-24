@@ -24,7 +24,7 @@ export class EnemySpawner extends Component {
 
     protected start(): void {
         if (this.autoStart) {
-            this.StartSpawning();
+            this.startSpawning();
         }
     }
 
@@ -40,19 +40,19 @@ export class EnemySpawner extends Component {
         this._spawnTimer += dt;
         if (this._spawnTimer >= this.spawnInterval) {
             this._spawnTimer = 0;
-            this.SpawnEnemy();
+            this.spawnEnemy();
         }
     }
 
-    public StartSpawning(): void {
+    public startSpawning(): void {
         this._spawnTimer = 0;
     }
 
-    public StopSpawning(): void {
+    public stopSpawning(): void {
         this._spawnTimer = 0;
     }
 
-    private SpawnEnemy(): void {
+    private spawnEnemy(): void {
         if (this.enemyPrefabs.length === 0) return;
 
         // 随机选择一个敌人预制体
@@ -71,7 +71,7 @@ export class EnemySpawner extends Component {
         // TODO: 设置敌人的贝塞尔曲线路径
     }
 
-    public ClearAllEnemies(): void {
+    public clearAllEnemies(): void {
         this._spawnedEnemies.forEach(enemy => {
             if (enemy && enemy.isValid) {
                 enemy.destroy();

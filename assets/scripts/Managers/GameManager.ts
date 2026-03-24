@@ -43,7 +43,7 @@ export class GameManager extends Component {
     public set PlayerHealth(value: number) {
         this._playerHealth = value;
         if (this._playerHealth <= 0) {
-            this.SetGameState(GameState.GameOver);
+            this.setGameState(GameState.GameOver);
         }
     }
 
@@ -65,7 +65,7 @@ export class GameManager extends Component {
         }
     }
 
-    private SetGameState(newState: GameStateValue): void {
+    private setGameState(newState: GameStateValue): void {
         if (this._currentState !== newState) {
             this._currentState = newState;
             if (this.OnGameStateChanged) {
@@ -77,24 +77,24 @@ export class GameManager extends Component {
     /**
      * 开始游戏
      */
-    public StartGame(): void {
+    public startGame(): void {
         this._playerHealth = 100;
-        this.SetGameState(GameState.Playing);
+        this.setGameState(GameState.Playing);
         // TODO: AudioManager.Instance?.PlayBGM();
     }
 
     /**
      * 游戏结束
      */
-    public GameOver(): void {
+    public gameOver(): void {
         // TODO: AudioManager.Instance?.StopBGM();
-        this.SetGameState(GameState.GameOver);
+        this.setGameState(GameState.GameOver);
     }
 
     /**
      * 等待开始
      */
-    public WaitingToStart(): void {
-        this.SetGameState(GameState.WaitingToStart);
+    public waitingToStart(): void {
+        this.setGameState(GameState.WaitingToStart);
     }
 }

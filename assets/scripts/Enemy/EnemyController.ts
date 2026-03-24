@@ -71,14 +71,14 @@ export class EnemyController extends Component {
 
     protected onLoad(): void {
         this._healthSystem = this.getComponent(HealthSystem);
-        this._animation = this.animationController ?? this.FindAnimationControllerInChildren();
+        this._animation = this.animationController ?? this.findAnimationControllerInChildren();
 
         const bezierFollower = this.getComponent(BezierFollower);
         if (bezierFollower) {
             this._bezierSpeed = bezierFollower.speed;
         }
 
-        this.RegisterToManager();
+        this.registerToManager();
     }
 
     protected start(): void {
@@ -87,18 +87,18 @@ export class EnemyController extends Component {
         }
 
         if (this._healthSystem) {
-            this._healthSystem.OnDeath = this.OnDeath.bind(this);
+            this._healthSystem.OnDeath = this.onDeath.bind(this);
         }
 
-        this.RegisterToManager();
+        this.registerToManager();
     }
 
     protected onEnable(): void {
-        this.RegisterToManager();
+        this.registerToManager();
         this.aimer = null;
-        this.ResetHealthMultiplier();
+        this.resetHealthMultiplier();
         this.damageMultiplier = 1;
-        this.SetDeathState(false);
+        this.setDeathState(false);
 
         const bezierFollower = this.getComponent(BezierFollower);
         if (bezierFollower) {
@@ -112,84 +112,84 @@ export class EnemyController extends Component {
         EnemyManager.Instance?.unregisterTarget(this);
     }
 
-    private RegisterToManager(): void {
+    private registerToManager(): void {
         EnemyManager.Instance?.registerTarget(this);
     }
 
-    private Attack(): void {
+    private attack(): void {
         if (!this._player) return;
 
         const playerHealth = this._player.getComponent(HealthSystem);
         if (playerHealth) {
-            playerHealth.TakeDamage(this.GetDamage());
+            playerHealth.takeDamage(this.getDamage());
         }
 
         // TODO: AudioManager.Instance?.Play("enemy_attack");
     }
 
-    public BeAttack(damage: number, damager: Node): void {
+    public beAttack(damage: number, damager: Node): void {
         if (this.isDead) return;
         if (this._healthSystem) {
-            this._healthSystem.TakeDamage(damage, damager);
+            this._healthSystem.takeDamage(damage, damager);
         }
     }
 
-    private OnDeath(): void {
+    private onDeath(): void {
         if (this.isDead) return;
         this.isDead = true;
 
         // 设置材质饱和度为0（死亡效果）
-        this.SetMaterialSaturation(0);
-        this.ApplyKnockback();
-        this.DropItems();
+        this.setMaterialSaturation(0);
+        this.applyKnockback();
+        this.dropItems();
     }
 
-    private SetMaterialSaturation(saturationValue: number): void {
+    private setMaterialSaturation(saturationValue: number): void {
         // 获取所有渲染器
-        const allRenderers = this.node.getComponentsInChildren(MeshRenderer);
-        const allSkinnedRenderers = this.node.getComponentsInChildren(SkinnedMeshRenderer);
+        // const allRenderers = this.node.getComponentsInChildren(MeshRenderer);
+        // const allSkinnedRenderers = this.node.getComponentsInChildren(SkinnedMeshRenderer);
 
-        // 处理普通渲染器
-        for (const renderer of allRenderers) {
-            if (renderer) {
-                const materials = renderer.materials;
-                for (let i = 0; i < materials.length; i++) {
-                    const mat = materials[i];
-                    // 检查材质是否有 _Saturation 属性
-                    if (mat) {
-                        try {
-                            mat.setProperty('_Saturation', saturationValue);
-                        } catch (e) {
-                            // 材质可能没有这个属性
-                        }
-                    }
-                }
-            }
-        }
+        // // 处理普通渲染器
+        // for (const renderer of allRenderers) {
+        //     if (renderer) {
+        //         const materials = renderer.materials;
+        //         for (let i = 0; i < materials.length; i++) {
+        //             const mat = materials[i];
+        //             // 检查材质是否有 _Saturation 属性
+        //             if (mat) {
+        //                 try {
+        //                     mat.setProperty('_Saturation', saturationValue);
+        //                 } catch (e) {
+        //                     // 材质可能没有这个属性
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
-        // 处理蒙皮渲染器
-        for (const renderer of allSkinnedRenderers) {
-            if (renderer) {
-                const materials = renderer.materials;
-                for (let i = 0; i < materials.length; i++) {
-                    const mat = materials[i];
-                    if (mat) {
-                        try {
-                            mat.setProperty('_Saturation', saturationValue);
-                        } catch (e) {
-                            // 材质可能没有这个属性
-                        }
-                    }
-                }
-            }
-        }
+        // // 处理蒙皮渲染器
+        // for (const renderer of allSkinnedRenderers) {
+        //     if (renderer) {
+        //         const materials = renderer.materials;
+        //         for (let i = 0; i < materials.length; i++) {
+        //             const mat = materials[i];
+        //             if (mat) {
+        //                 try {
+        //                     mat.setProperty('_Saturation', saturationValue);
+        //                 } catch (e) {
+        //                     // 材质可能没有这个属性
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     }
 
-    private ApplyKnockback(): void {
+    private applyKnockback(): void {
         // 停止移动
         const bezierFollower = this.getComponent(BezierFollower);
         if (bezierFollower) {
-            bezierFollower.StopMove();
+            bezierFollower.stopMove();
         }
 
         // 确定朝向
@@ -212,10 +212,10 @@ export class EnemyController extends Component {
         }
 
         // 触发死亡动画
-        this.SetDeathState(true);
+        this.setDeathState(true);
     }
 
-    private DropItems(): void {
+    private dropItems(): void {
         const dropOrigin = this.node.getPosition().clone();
 
         for (let i = 0; i < this.dropAmount; i++) {
@@ -236,7 +236,7 @@ export class EnemyController extends Component {
                     const coin = coinObj.getComponent(Coin);
                     if (coin) {
                         // 重置金币状态
-                        coin.ResetState();
+                        coin.resetState();
 
                         // 确保移除任何之前的关联
                         coin.spawnOwner = null;
@@ -256,58 +256,58 @@ export class EnemyController extends Component {
 
                     // 开始下落动画
                     if (coin) {
-                        coin.DropOnGround(randomPos);
+                        coin.dropOnGround(randomPos);
                     }
                 }
             });
         }
     }
 
-    public ReleaseToPool(): void {
+    public releaseToPool(): void {
         this.isDead = false;
-        this.SetMaterialSaturation(1);
+        this.setMaterialSaturation(1);
         this.node.active = false;
         // 对象池回收
         PoolManager.Instance?.pushObj(this.node.name, this.node);
     }
 
-    public OnSpawn(): void {
+    public onSpawn(): void {
         this.isDead = false;
-        this.SetMaterialSaturation(1);
-        this.SetDeathState(false);
+        this.setMaterialSaturation(1);
+        this.setDeathState(false);
 
         if (this._healthSystem) {
-            this._healthSystem.ResetHealth();
+            this._healthSystem.resetHealth();
         }
     }
 
-    public IsDead(): boolean {
+    public isDeadState(): boolean {
         if (this.isDead) return true;
         if (this._healthSystem && !this._healthSystem.IsAlive) return true;
         return false;
     }
 
-    public GetDamage(): number {
+    public getDamage(): number {
         return this.damage * this.damageMultiplier;
     }
 
-    public ApplyHealthMultiplier(multiplier: number): void {
+    public applyHealthMultiplier(multiplier: number): void {
         this.hpMultiplier = multiplier;
         if (this._healthSystem) {
             this._healthSystem.healthMultiplier = this.hpMultiplier;
         }
     }
 
-    public ResetHealthMultiplier(): void {
+    public resetHealthMultiplier(): void {
         this.hpMultiplier = 1;
         if (this._healthSystem) {
             this._healthSystem.healthMultiplier = this.hpMultiplier;
         }
     }
 
-    private SetDeathState(isDead: boolean): void {
+    private setDeathState(isDead: boolean): void {
         if (!this._animation) {
-            this._animation = this.animationController ?? this.FindAnimationControllerInChildren();
+            this._animation = this.animationController ?? this.findAnimationControllerInChildren();
         }
 
         if (this._animation) {
@@ -315,7 +315,7 @@ export class EnemyController extends Component {
         }
     }
 
-    private FindAnimationControllerInChildren(): AnimationControllerLike | null {
+    private findAnimationControllerInChildren(): AnimationControllerLike | null {
         const findInSubtree = (root: Node): AnimationControllerLike | null => {
             const queue: Node[] = [root];
             while (queue.length > 0) {

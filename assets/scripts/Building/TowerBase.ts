@@ -27,7 +27,7 @@ export class TowerBase extends Component {
     /**
      * 查找攻击目标
      */
-    protected FindTarget(): Node | null {
+    protected findTarget(): Node | null {
         if (!EnemyManager.Instance) {
             return null;
         }
@@ -45,7 +45,7 @@ export class TowerBase extends Component {
         let shortestDistance = Number.MAX_VALUE;
 
         for (const enemy of enemiesInRange) {
-            if (!enemy.node.active || enemy.IsDead()) {
+            if (!enemy.node.active || enemy.isDeadState()) {
                 continue;
             }
 
@@ -62,7 +62,7 @@ export class TowerBase extends Component {
     /**
      * 旋转朝向目标
      */
-    protected RotateToTarget(target: Node, dt: number): void {
+    protected rotateToTarget(target: Node, dt: number): void {
         if (!target) return;
 
         // 计算目标方向
@@ -89,7 +89,7 @@ export class TowerBase extends Component {
     /**
      * 执行攻击
      */
-    protected Attack(target: Node): void {
+    protected attack(target: Node): void {
         // TODO: 实现攻击逻辑
         // 1. 播放攻击动画
         // 2. 生成子弹/箭矢
@@ -102,17 +102,17 @@ export class TowerBase extends Component {
 
         // 查找或更新目标
         if (!this._currentTarget || !this._currentTarget.isValid) {
-            this._currentTarget = this.FindTarget();
+            this._currentTarget = this.findTarget();
         }
 
         // 如果有目标
         if (this._currentTarget) {
             // 旋转朝向目标
-            this.RotateToTarget(this._currentTarget, dt);
+            this.rotateToTarget(this._currentTarget, dt);
 
             // 检查是否可以攻击
             if (this._attackTimer >= this.attackInterval) {
-                this.Attack(this._currentTarget);
+                this.attack(this._currentTarget);
                 this._attackTimer = 0;
             }
         }

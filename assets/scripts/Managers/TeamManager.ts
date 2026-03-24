@@ -42,7 +42,7 @@ export class TeamManager extends Component {
      * 注册队友
      */
     public registerTeammate(teammate: Teammate): void {
-        if (!this.teammates.includes(teammate)) {
+        if (this.teammates.indexOf(teammate) === -1) {
             this.teammates.push(teammate);
         }
     }

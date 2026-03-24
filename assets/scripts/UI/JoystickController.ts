@@ -28,7 +28,7 @@ export class JoystickController extends Component {
     private _canvasTransform: UITransform | null = null;
 
     protected onEnable(): void {
-        this.BindInputEvents();
+        this.bindInputEvents();
     }
 
     protected start(): void {
@@ -47,51 +47,51 @@ export class JoystickController extends Component {
     }
 
     protected onDisable(): void {
-        this.UnbindInputEvents();
-        this.ResetJoystickState();
+        this.unbindInputEvents();
+        this.resetJoystickState();
     }
 
     protected onDestroy(): void {
-        this.UnbindInputEvents();
+        this.unbindInputEvents();
     }
 
-    private BindInputEvents(): void {
+    private bindInputEvents(): void {
         if (this._hasBoundInput) {
             return;
         }
 
         // 使用全局触摸事件，避免部分浏览器下节点未收到 TOUCH_START 导致拖拽状态丢失
-        input.on(Input.EventType.TOUCH_START, this.OnPointerDown, this);
-        input.on(Input.EventType.TOUCH_MOVE, this.OnDrag, this);
-        input.on(Input.EventType.TOUCH_END, this.OnPointerUp, this);
-        input.on(Input.EventType.TOUCH_CANCEL, this.OnPointerUp, this);
+        input.on(Input.EventType.TOUCH_START, this.onPointerDown, this);
+        input.on(Input.EventType.TOUCH_MOVE, this.onDrag, this);
+        input.on(Input.EventType.TOUCH_END, this.onPointerUp, this);
+        input.on(Input.EventType.TOUCH_CANCEL, this.onPointerUp, this);
 
         // 桌面端预览通常产生鼠标事件而不是触摸事件
-        input.on(Input.EventType.MOUSE_DOWN, this.OnMouseDown, this);
-        input.on(Input.EventType.MOUSE_MOVE, this.OnMouseMove, this);
-        input.on(Input.EventType.MOUSE_UP, this.OnMouseUp, this);
+        input.on(Input.EventType.MOUSE_DOWN, this.onMouseDown, this);
+        input.on(Input.EventType.MOUSE_MOVE, this.onMouseMove, this);
+        input.on(Input.EventType.MOUSE_UP, this.onMouseUp, this);
 
         this._hasBoundInput = true;
     }
 
-    private UnbindInputEvents(): void {
+    private unbindInputEvents(): void {
         if (!this._hasBoundInput) {
             return;
         }
 
-        input.off(Input.EventType.TOUCH_START, this.OnPointerDown, this);
-        input.off(Input.EventType.TOUCH_MOVE, this.OnDrag, this);
-        input.off(Input.EventType.TOUCH_END, this.OnPointerUp, this);
-        input.off(Input.EventType.TOUCH_CANCEL, this.OnPointerUp, this);
+        input.off(Input.EventType.TOUCH_START, this.onPointerDown, this);
+        input.off(Input.EventType.TOUCH_MOVE, this.onDrag, this);
+        input.off(Input.EventType.TOUCH_END, this.onPointerUp, this);
+        input.off(Input.EventType.TOUCH_CANCEL, this.onPointerUp, this);
 
-        input.off(Input.EventType.MOUSE_DOWN, this.OnMouseDown, this);
-        input.off(Input.EventType.MOUSE_MOVE, this.OnMouseMove, this);
-        input.off(Input.EventType.MOUSE_UP, this.OnMouseUp, this);
+        input.off(Input.EventType.MOUSE_DOWN, this.onMouseDown, this);
+        input.off(Input.EventType.MOUSE_MOVE, this.onMouseMove, this);
+        input.off(Input.EventType.MOUSE_UP, this.onMouseUp, this);
 
         this._hasBoundInput = false;
     }
 
-    private OnPointerDown(event: EventTouch): void {
+    private onPointerDown(event: EventTouch): void {
         if (!GameManager.Instance || GameManager.Instance.CurrentState !== GameState.Playing) {
             return;
         }
@@ -104,11 +104,11 @@ export class JoystickController extends Component {
         this._activeTouchId = touchId;
         this._isDragging = true;
         const uiLocation = event.getUILocation();
-        this.Show(uiLocation);
-        this.UpdateDrag(uiLocation);
+        this.show(uiLocation);
+        this.updateDrag(uiLocation);
     }
 
-    private OnDrag(event: EventTouch): void {
+    private onDrag(event: EventTouch): void {
         if (!this.joystickBackground || !this.joystickHandle) {
             return;
         }
@@ -122,7 +122,7 @@ export class JoystickController extends Component {
             // 兼容部分浏览器首帧未触发 TOUCH_START 的情况
             this._activeTouchId = touchId;
             this._isDragging = true;
-            this.Show(event.getUILocation());
+            this.show(event.getUILocation());
         }
 
         if (this._activeTouchId !== touchId) {
@@ -130,18 +130,18 @@ export class JoystickController extends Component {
         }
 
         const uiLocation = event.getUILocation();
-        this.UpdateDrag(uiLocation);
+        this.updateDrag(uiLocation);
     }
 
-    private OnPointerUp(event: EventTouch): void {
+    private onPointerUp(event: EventTouch): void {
         if (this._activeTouchId !== -1 && event.getID() !== this._activeTouchId) {
             return;
         }
 
-        this.ResetJoystickState();
+        this.resetJoystickState();
     }
 
-    private OnMouseDown(event: EventMouse): void {
+    private onMouseDown(event: EventMouse): void {
         if (!GameManager.Instance || GameManager.Instance.CurrentState !== GameState.Playing) {
             return;
         }
@@ -153,27 +153,27 @@ export class JoystickController extends Component {
         this._activeTouchId = JoystickController.MOUSE_POINTER_ID;
         this._isDragging = true;
         const uiLocation = event.getUILocation();
-        this.Show(uiLocation);
-        this.UpdateDrag(uiLocation);
+        this.show(uiLocation);
+        this.updateDrag(uiLocation);
     }
 
-    private OnMouseMove(event: EventMouse): void {
+    private onMouseMove(event: EventMouse): void {
         if (!this._isDragging || this._activeTouchId !== JoystickController.MOUSE_POINTER_ID) {
             return;
         }
 
-        this.UpdateDrag(event.getUILocation());
+        this.updateDrag(event.getUILocation());
     }
 
-    private OnMouseUp(_event: EventMouse): void {
+    private onMouseUp(_event: EventMouse): void {
         if (this._activeTouchId !== JoystickController.MOUSE_POINTER_ID) {
             return;
         }
 
-        this.ResetJoystickState();
+        this.resetJoystickState();
     }
 
-    private UpdateDrag(uiLocation: Vec2): void {
+    private updateDrag(uiLocation: Vec2): void {
         if (!this.joystickBackground || !this.joystickHandle) {
             return;
         }
@@ -181,7 +181,7 @@ export class JoystickController extends Component {
         const bgTransform = this.joystickBackground.getComponent(UITransform);
         if (!bgTransform) return;
 
-        const pointerInParent = this.ConvertToJoystickParentSpace(uiLocation);
+        const pointerInParent = this.convertToJoystickParentSpace(uiLocation);
 
         // 计算相对于摇杆背景中心的偏移
         const bgPos = this.joystickBackground.getPosition();
@@ -202,11 +202,11 @@ export class JoystickController extends Component {
         // 更新玩家移动方向：拖拽方向与角色移动方向保持一致
         const moveDirection = new Vec3(this._inputVector.x, 0, -this._inputVector.y);
         if (this.playerController) {
-            this.playerController.SetMoveDirection(moveDirection.normalize());
+            this.playerController.setMoveDirection(moveDirection.normalize());
         }
     }
 
-    private ResetJoystickState(): void {
+    private resetJoystickState(): void {
         this._activeTouchId = -1;
         this._isDragging = false;
         this._inputVector.set(0, 0);
@@ -216,23 +216,23 @@ export class JoystickController extends Component {
         }
 
         if (this.playerController) {
-            this.playerController.SetMoveDirection(Vec3.ZERO);
+            this.playerController.setMoveDirection(Vec3.ZERO);
         }
 
-        this.Hide();
+        this.hide();
     }
 
-    private Show(position: Vec2): void {
+    private show(position: Vec2): void {
         if (!this.joystickBackground || !this.joystickHandle) return;
 
-        const localPos = this.ConvertToJoystickParentSpace(position);
+        const localPos = this.convertToJoystickParentSpace(position);
         this._joystickCenter.set(localPos.x, localPos.y);
         this.joystickBackground.active = true;
         this.joystickBackground.setPosition(localPos.x, localPos.y, 0);
         this.joystickHandle.setPosition(0, 0, 0);
     }
 
-    private ConvertToJoystickParentSpace(uiLocation: Vec2): Vec3 {
+    private convertToJoystickParentSpace(uiLocation: Vec2): Vec3 {
         if (!this.joystickBackground || !this.joystickBackground.parent) {
             return new Vec3(uiLocation.x, uiLocation.y, 0);
         }
@@ -242,7 +242,7 @@ export class JoystickController extends Component {
             return new Vec3(uiLocation.x, uiLocation.y, 0);
         }
 
-        const canvasTransform = this.GetCanvasTransform();
+        const canvasTransform = this.getCanvasTransform();
         if (!canvasTransform) {
             return parentTransform.convertToNodeSpaceAR(new Vec3(uiLocation.x, uiLocation.y, 0));
         }
@@ -259,7 +259,7 @@ export class JoystickController extends Component {
         return parentTransform.convertToNodeSpaceAR(worldPoint);
     }
 
-    private GetCanvasTransform(): UITransform | null {
+    private getCanvasTransform(): UITransform | null {
         if (this._canvasTransform && this._canvasTransform.isValid) {
             return this._canvasTransform;
         }
@@ -276,7 +276,7 @@ export class JoystickController extends Component {
         return this._canvasTransform;
     }
 
-    private Hide(): void {
+    private hide(): void {
         if (this.joystickBackground) {
             this.joystickBackground.active = false;
         }

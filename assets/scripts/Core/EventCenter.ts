@@ -42,7 +42,7 @@ export class EventCenter {
     /**
      * 触发事件
      */
-    public EventTrigger(eventName: string, ...args: any[]): void {
+    public eventTrigger(eventName: string, ...args: any[]): void {
         if (!this.eventListeners.has(eventName)) return;
 
         const listeners = this.eventListeners.get(eventName)!;
@@ -52,7 +52,7 @@ export class EventCenter {
     /**
      * 清空所有事件监听
      */
-    public Clear(): void {
+    public clear(): void {
         this.eventListeners.clear();
     }
 }

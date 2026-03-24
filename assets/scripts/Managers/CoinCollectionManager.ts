@@ -27,7 +27,7 @@ export class CoinCollectionManager extends Component {
      * 注册金币收集器
      */
     public registerCollection(collection: Component): void {
-        if (!this._collections.includes(collection)) {
+        if (this._collections.indexOf(collection) === -1) {
             this._collections.push(collection);
         }
     }

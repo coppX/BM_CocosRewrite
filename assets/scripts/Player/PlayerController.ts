@@ -54,17 +54,17 @@ export class PlayerController extends Component {
     }
 
     protected start(): void {
-        this._animationController = this.FindAnimationControllerInChildren();
+        this._animationController = this.findAnimationControllerInChildren();
         this._healthSystem = this.node.getComponent(HealthSystem);
 
         if (this._healthSystem) {
-            this._healthSystem.OnHealthChanged = this.OnHealthChanged.bind(this);
-            this._healthSystem.OnDeath = this.OnDeath.bind(this);
+            this._healthSystem.OnHealthChanged = this.onHealthChanged.bind(this);
+            this._healthSystem.OnDeath = this.onDeath.bind(this);
         }
 
         this._attackLogic = this.currentWeapon?.getComponent(AttackLogic) || null;
-        this.SetAnimationBool('IsMoving', false);
-        this.SetAnimationBool('IsAttack', false);
+        this.setAnimationBool('IsMoving', false);
+        this.setAnimationBool('IsAttack', false);
     }
 
     protected update(dt: number): void {
@@ -72,10 +72,10 @@ export class PlayerController extends Component {
             return;
         }
 
-        this.HandleMovement(dt);
+        this.handleMovement(dt);
     }
 
-    private HandleMovement(dt: number): void {
+    private handleMovement(dt: number): void {
         const canAttack = this._attackLogic?.canAttack;
         const hasTarget = this.currentWeapon?.isInAttackRange();
         const targetNode = this.currentWeapon?.currentTarget;
@@ -120,49 +120,49 @@ export class PlayerController extends Component {
         }
 
         this.isMoving = isMovingNow;
-        this.SetAnimationBool('IsMoving', isMovingNow);
+        this.setAnimationBool('IsMoving', isMovingNow);
     }
 
     /**
      * 设置移动方向
      */
-    public SetMoveDirection(direction: Vec3): void {
+    public setMoveDirection(direction: Vec3): void {
         this._moveDirection = direction.clone();
     }
 
     /**
      * 设置攻击动画
      */
-    public SetAttackAnimation(isAttacking: boolean): void {
-        this.SetAnimationBool('IsAttack', isAttacking);
+    public setAttackAnimation(isAttacking: boolean): void {
+        this.setAnimationBool('IsAttack', isAttacking);
     }
 
-    private OnHealthChanged(currentHealth: number, maxHealth: number): void {
+    private onHealthChanged(currentHealth: number, maxHealth: number): void {
         // 更新UI或触发效果
     }
 
-    private OnDeath(): void {
-        this.SetAnimationBool('IsMoving', false);
-        this.SetAnimationBool('IsAttack', false);
+    private onDeath(): void {
+        this.setAnimationBool('IsMoving', false);
+        this.setAnimationBool('IsAttack', false);
 
         if (GameManager.Instance) {
-            GameManager.Instance.GameOver();
+            GameManager.Instance.gameOver();
         }
     }
 
     /**
      * 重置玩家状态
      */
-    public ResetState(): void {
+    public resetState(): void {
         this.node.setPosition(this._initialPosition);
         this.node.setRotation(this._initialRotation);
 
         if (this._healthSystem) {
-            this._healthSystem.ResetHealth();
+            this._healthSystem.resetHealth();
         }
 
-        this.SetAnimationBool('IsMoving', false);
-        this.SetAnimationBool('IsAttack', false);
+        this.setAnimationBool('IsMoving', false);
+        this.setAnimationBool('IsAttack', false);
 
         this._moveDirection = new Vec3();
         this.isMoving = false;
@@ -174,7 +174,7 @@ export class PlayerController extends Component {
         }
     }
 
-    private SetAnimationBool(variableName: string, value: boolean): void {
+    private setAnimationBool(variableName: string, value: boolean): void {
         if (!this._animationController) {
             return;
         }
@@ -182,7 +182,7 @@ export class PlayerController extends Component {
         this._animationController.setValue(variableName, value);
     }
 
-    private FindAnimationControllerInChildren(): AnimationControllerLike | null {
+    private findAnimationControllerInChildren(): AnimationControllerLike | null {
         const queue: Node[] = [this.node];
         while (queue.length > 0) {
             const current = queue.shift();

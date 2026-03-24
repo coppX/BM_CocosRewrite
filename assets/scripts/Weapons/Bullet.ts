@@ -330,7 +330,7 @@ export class Bullet extends Component {
         const enemy = this.target.getComponent(EnemyController);
         if (enemy) {
             const shooterTransform = this.shooter ? this.shooter : this.node;
-            enemy.BeAttack(this.damage, shooterTransform);
+            enemy.beAttack(this.damage, shooterTransform);
             attackPoint = enemy.attackPoint ? enemy.attackPoint : this.target;
         }
 

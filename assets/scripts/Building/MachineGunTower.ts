@@ -22,7 +22,7 @@ export class MachineGunTower extends TowerBase {
     private _currentBurst: number = 0;
     private _isBursting: boolean = false;
 
-    protected Attack(_target: Node): void {
+    protected attack(_target: Node): void {
         if (!this.bulletPrefab || !this.firePoint) {
             console.warn('[MachineGunTower] Missing bullet prefab or fire point');
             return;

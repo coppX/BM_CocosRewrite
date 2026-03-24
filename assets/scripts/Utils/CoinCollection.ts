@@ -240,7 +240,7 @@ export class CoinCollection extends Component {
         this.deliverTimer = 0;
 
         const coinTrigger = this.lastDeliverTarget.getComponent(CoinTrigger);
-        if (!coinTrigger || coinTrigger.GetCanMoveCount() <= 0) return;
+        if (!coinTrigger || coinTrigger.getCanMoveCount() <= 0) return;
 
         AudioManager.Instance?.play('金币投递');
 
@@ -310,7 +310,7 @@ export class CoinCollection extends Component {
 
             // 触发地图升级事件（只触发一次）
             if (!CoinCollection.hasTriggeredMapLevelUpgradeEvent) {
-                EventCenter.Instance.EventTrigger('MapLevelUpgrade', 'MineCollect');
+                EventCenter.Instance.eventTrigger('MapLevelUpgrade', 'MineCollect');
                 CoinCollection.hasTriggeredMapLevelUpgradeEvent = true;
             }
 
@@ -349,11 +349,11 @@ export class CoinCollection extends Component {
         coin.setParent(null);
         const coinComponent = coin.getComponent(Coin);
         if (coinComponent) {
-            CoinManager.Instance?.UnregisterCoin(coinComponent);
+            CoinManager.Instance?.unregisterCoin(coinComponent);
             coinComponent.isBeingDelivered = true;
         }
 
-        coinTrigger.AddMovingCoin();
+        coinTrigger.addMovingCoin();
 
         // 添加随机偏移
         const randomOffset = new Vec3(
@@ -372,9 +372,9 @@ export class CoinCollection extends Component {
                 this.coinCountFinishedMove--;
             }
 
-            coinTrigger.FinishCoinMove();
+            coinTrigger.finishCoinMove();
             if (coinComponent) {
-                coinComponent.ResetState();
+                coinComponent.resetState();
             }
 
             coin.active = false;
@@ -390,7 +390,7 @@ export class CoinCollection extends Component {
         const coinComponent = coin.getComponent(Coin);
         if (coinComponent) {
             coinComponent.isBeingDelivered = true;
-            coinComponent.StartMove();
+            coinComponent.startMove();
         }
         coin.setParent(null);
 
@@ -461,8 +461,8 @@ export class CoinCollection extends Component {
     public collectCoin(coin: Node): void {
         const coinComponent = coin.getComponent(Coin);
         if (coinComponent) {
-            CoinManager.Instance?.UnregisterCoin(coinComponent);
-            coinComponent.StartMove();
+            CoinManager.Instance?.unregisterCoin(coinComponent);
+            coinComponent.startMove();
             coinComponent.spawnOwner = this.node;
         }
 
@@ -474,7 +474,7 @@ export class CoinCollection extends Component {
         const jumpTween = this.createJumpTween(coin, rotatedPos, this.collectJumpPower, this.moveDuration);
         jumpTween.call(() => {
             if (coinComponent && coinComponent.node.active) {
-                coinComponent.StopMove();
+                coinComponent.stopMove();
                 coinComponent.isBearByGenerator = false;
             }
             coin.setRotation(0, 0, 0, 1);
@@ -515,7 +515,7 @@ export class CoinCollection extends Component {
             coinComponent.spawnOwner = this.node;
             coinComponent.isBearByGenerator = false;
             coinComponent.isBeingDelivered = false;
-            coinComponent.StopMove();
+            coinComponent.stopMove();
         }
 
         if (this.coinCount >= this.maxVisualCollectCount) {

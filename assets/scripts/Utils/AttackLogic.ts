@@ -104,7 +104,7 @@ export class AttackLogic extends Component {
      * 检查目标是否有效
      */
     private isTargetValid(enemy: EnemyController): boolean {
-        if (!enemy.node.active || enemy.IsDead()) {
+        if (!enemy.node.active || enemy.isDeadState()) {
             return false;
         }
 

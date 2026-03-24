@@ -12,7 +12,7 @@ export class BezierCurve extends Component {
     /**
      * 根据t值(0-1)获取曲线上的点
      */
-    public GetPoint(t: number): Vec3 {
+    public getPoint(t: number): Vec3 {
         t = math.clamp01(t);
 
         if (this.controlPoints.length < 2) {
@@ -49,14 +49,14 @@ export class BezierCurve extends Component {
     /**
      * 获取最接近给定位置的t值
      */
-    public GetClosestT(position: Vec3): number {
+    public getClosestT(position: Vec3): number {
         let closestT = 0;
         let minDistance = Infinity;
         const samples = 50;
 
         for (let i = 0; i <= samples; i++) {
             const t = i / samples;
-            const point = this.GetPoint(t);
+            const point = this.getPoint(t);
             const distance = Vec3.distance(point, position);
 
             if (distance < minDistance) {
@@ -71,13 +71,13 @@ export class BezierCurve extends Component {
     /**
      * 获取曲线长度(近似值)
      */
-    public GetLength(steps: number = 50): number {
+    public getLength(steps: number = 50): number {
         let length = 0;
-        let prevPoint = this.GetPoint(0);
+        let prevPoint = this.getPoint(0);
 
         for (let i = 1; i <= steps; i++) {
             const t = i / steps;
-            const point = this.GetPoint(t);
+            const point = this.getPoint(t);
             length += Vec3.distance(prevPoint, point);
             prevPoint = point;
         }

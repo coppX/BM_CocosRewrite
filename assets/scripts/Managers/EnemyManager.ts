@@ -28,7 +28,7 @@ export class EnemyManager extends Component {
      * 注册敌人
      */
     public registerTarget(target: EnemyController): void {
-        if (!this._targets.includes(target)) {
+        if (this._targets.indexOf(target) === -1) {
             this._targets.push(target);
         }
     }

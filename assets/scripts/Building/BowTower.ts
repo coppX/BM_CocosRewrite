@@ -12,7 +12,7 @@ export class BowTower extends TowerBase {
     @property(Node)
     public firePoint: Node | null = null;
 
-    protected Attack(target: Node): void {
+    protected attack(target: Node): void {
         if (!this.arrowPrefab || !this.firePoint) {
             console.warn('[BowTower] Missing arrow prefab or fire point');
             return;

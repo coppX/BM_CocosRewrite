@@ -39,7 +39,7 @@ export class CameraZoom extends Component {
         this._finishedStages.push(stage);
 
         // 检查所有目标阶段是否都完成
-        if (!this._hasStartedZoom && this.targetStage.every(t => this._finishedStages.includes(t))) {
+        if (!this._hasStartedZoom && this.targetStage.every(t => this._finishedStages.indexOf(t) !== -1)) {
             this._hasStartedZoom = true;
             this.smoothCameraSizeChange(this._baseSize * this.targetSizeScale);
         }

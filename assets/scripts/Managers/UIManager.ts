@@ -158,7 +158,7 @@ export class UIManager extends Component {
 
         // 重置游戏状态
         if (GameManager.Instance) {
-            GameManager.Instance.WaitingToStart();
+            GameManager.Instance.waitingToStart();
         }
     }
 
@@ -185,7 +185,7 @@ export class UIManager extends Component {
         }
 
         if (gameManager.CurrentState === UIManager.STATE_WAITING_TO_START) {
-            gameManager.StartGame();
+            gameManager.startGame();
         }
     }
 

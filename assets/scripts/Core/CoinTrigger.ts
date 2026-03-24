@@ -28,7 +28,7 @@ export class CoinTrigger extends Component {
     private _moveFinishedCount: number = 0;
 
     protected onEnable(): void {
-        this.scheduleOnce(this.Register, 1);
+        this.scheduleOnce(this.register, 1);
         this._movingCount = 0;
         this._moveFinishedCount = 0;
     }
@@ -37,44 +37,44 @@ export class CoinTrigger extends Component {
         // TODO: DeliverTargetManager.Instance?.UnregisterTarget(this);
     }
 
-    private Register(): void {
+    private register(): void {
         // TODO: DeliverTargetManager.Instance?.RegisterTarget(this);
     }
 
-    public AddMovingCoin(): void {
+    public addMovingCoin(): void {
         this._movingCount += 1;
     }
 
-    public FinishCoinMove(): void {
+    public finishCoinMove(): void {
         this._moveFinishedCount += 1;
         if (this._moveFinishedCount === this._movingCount) {
-            this.CheckCount();
+            this.checkCount();
         }
     }
 
-    public CheckCount(): void {
+    public checkCount(): void {
         if (this._moveFinishedCount >= this.triggerCount) {
-            EventCenter.Instance.EventTrigger(EventName.MapLevelUpgrade, this.StageTag);
+            EventCenter.Instance.eventTrigger(EventName.MapLevelUpgrade, this.StageTag);
         }
 
         if (this.canChangeDirectionalArrowTarget && this._moveFinishedCount >= this.changeNumber) {
-            EventCenter.Instance.EventTrigger(EventName.ChangeDirectionalArrowTarget, this.StageTag);
+            EventCenter.Instance.eventTrigger(EventName.ChangeDirectionalArrowTarget, this.StageTag);
         }
     }
 
-    public SetShowed(show: boolean): void {
+    public setShowed(show: boolean): void {
         this.isShowed = show;
     }
 
-    public GetRemainingCount(): number {
+    public getRemainingCount(): number {
         return Math.max(0, this.triggerCount - this._moveFinishedCount);
     }
 
-    public GetCanMoveCount(): number {
+    public getCanMoveCount(): number {
         return Math.max(0, this.triggerCount - this._movingCount);
     }
 
-    public GetCurrentCount(): number {
+    public getCurrentCount(): number {
         return this._moveFinishedCount;
     }
 }

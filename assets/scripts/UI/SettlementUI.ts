@@ -76,7 +76,7 @@ export class SettlementUI extends Component {
 
         // 重置游戏状态
         if (GameManager.Instance) {
-            GameManager.Instance.WaitingToStart();
+            GameManager.Instance.waitingToStart();
         }
 
         GlobalVariables.GameResult = GlobalVariables.GameResultType.None;

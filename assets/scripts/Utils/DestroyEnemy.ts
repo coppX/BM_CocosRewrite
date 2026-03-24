@@ -52,7 +52,7 @@ export class DestroyEnemy extends Component {
                     (this._building as any).beHit(enemy.node);
                 }
 
-                enemy.ReleaseToPool();
+                enemy.releaseToPool();
                 this.preEnemies.splice(i, 1);
                 return;
             }
@@ -63,7 +63,7 @@ export class DestroyEnemy extends Component {
             const enemies = EnemyManager.Instance.getTargetsInRange(selfPos, this.detectionRadius);
 
             for (const enemy of enemies) {
-                if (!enemy || !enemy.node.active || enemy.IsDead()) continue;
+                if (!enemy || !enemy.node.active || enemy.isDeadState()) continue;
 
                 const distance = Vec3.squaredDistance(selfPos, enemy.node.getPosition());
                 if (distance < this.detectionRadius * this.detectionRadius) {
@@ -72,7 +72,7 @@ export class DestroyEnemy extends Component {
                         (this._building as any).beHit(enemy.node);
                     }
 
-                    enemy.ReleaseToPool();
+                    enemy.releaseToPool();
                     return;
                 }
             }

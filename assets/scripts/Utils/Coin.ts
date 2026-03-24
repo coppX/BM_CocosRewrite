@@ -31,25 +31,25 @@ export class Coin extends Component {
     protected onEnable() {
         // Register coin after 1 second
         this.scheduleOnce(() => {
-            this.RegisterCoin();
+            this.registerCoin();
         }, 1.0);
     }
 
     protected onDisable() {
         // Clean up when disabled
-        this.ResetState();
+        this.resetState();
     }
 
-    private RegisterCoin() {
+    private registerCoin() {
         // Trigger coin registration event
-        EventCenter.Instance.EventTrigger('coin_registered', this);
+        EventCenter.Instance.eventTrigger('coin_registered', this);
     }
 
     /**
      * Drop coin on ground with bounce animation
      * @param pos Target position to drop to
      */
-    public DropOnGround(pos: Vec3) {
+    public dropOnGround(pos: Vec3) {
         // Stop any existing auto-destroy timer
         if (this._destroyTimeout !== null) {
             clearTimeout(this._destroyTimeout);
@@ -58,7 +58,7 @@ export class Coin extends Component {
 
         // Start new auto-destroy timer
         this._destroyTimeout = setTimeout(() => {
-            this.AutoDestroy();
+            this.autoDestroy();
         }, this.lifeTime * 1000) as any;
 
         // Mark coin as moving
@@ -94,12 +94,12 @@ export class Coin extends Component {
             })
             .call(() => {
                 // Perform bounce sequence
-                this.PerformBounce(pos);
+                this.performBounce(pos);
             })
             .start();
     }
 
-    private PerformBounce(finalPos: Vec3) {
+    private performBounce(finalPos: Vec3) {
         const firstBounceHeight = 0.6;
         const secondBounceHeight = 0.3;
         const firstDuration = 0.1;
@@ -120,7 +120,7 @@ export class Coin extends Component {
             .start();
     }
 
-    private AutoDestroy() {
+    private autoDestroy() {
         if (Math.random() > this.stayProbability) {
             // Stop all tweens
             if (this._currentTween) {
@@ -129,17 +129,17 @@ export class Coin extends Component {
             }
 
             // Reset state
-            this.ResetState();
+            this.resetState();
 
             // Trigger destroy event
-            EventCenter.Instance.EventTrigger('coin_destroyed', this);
+            EventCenter.Instance.eventTrigger('coin_destroyed', this);
 
             // Deactivate (will be handled by object pool)
             this.node.active = false;
         }
     }
 
-    public StartMove() {
+    public startMove() {
         this.isMoving = true;
 
         // Stop auto-destroy timer
@@ -149,14 +149,14 @@ export class Coin extends Component {
         }
     }
 
-    public StopMove() {
+    public stopMove() {
         // Delay stop
         this.scheduleOnce(() => {
             this.isMoving = false;
         }, this.stopMoveDelay);
     }
 
-    public ResetState() {
+    public resetState() {
         this.isMoving = false;
         this.isBeingDelivered = false;
         this.isBearByGenerator = false;

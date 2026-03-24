@@ -29,8 +29,8 @@ export class BezierFollower extends Component {
         if (!this.curve) return;
 
         // 自动找到最近的t
-        this.t = this.curve.GetClosestT(this.node.getPosition());
-        this.node.setPosition(this.curve.GetPoint(this.t));
+        this.t = this.curve.getClosestT(this.node.getPosition());
+        this.node.setPosition(this.curve.getPoint(this.t));
 
         if (this.autoStart) {
             this._moving = true;
@@ -42,7 +42,7 @@ export class BezierFollower extends Component {
         if (GameManager.Instance && GameManager.Instance.CurrentState !== GameState.Playing) return;
 
         // 计算曲线总长度
-        const totalLength = this.GetCurveLength();
+        const totalLength = this.getCurveLength();
         if (totalLength <= Number.EPSILON) {
             this.t = 1;
             this._moving = false;
@@ -56,8 +56,8 @@ export class BezierFollower extends Component {
         while (remainingDistance > 0) {
             const stepT = remainingDistance / totalLength;
             const nextT = Math.min(this.t + stepT, 1);
-            const currentPos = this.curve.GetPoint(this.t);
-            const nextPos = this.curve.GetPoint(nextT);
+            const currentPos = this.curve.getPoint(this.t);
+            const nextPos = this.curve.getPoint(nextT);
             const segmentLength = Vec3.distance(currentPos, nextPos);
 
             if (segmentLength <= Number.EPSILON) {
@@ -81,12 +81,12 @@ export class BezierFollower extends Component {
         }
 
         // 更新位置
-        const pos = this.curve.GetPoint(this.t);
+        const pos = this.curve.getPoint(this.t);
         this.node.setPosition(pos);
 
         // 设置朝向
         const lookAheadT = Math.min(this.t + 0.01, 1);
-        const lookAheadPos = this.curve.GetPoint(lookAheadT);
+        const lookAheadPos = this.curve.getPoint(lookAheadT);
         const dir = Vec3.subtract(new Vec3(), lookAheadPos, pos);
 
         if (dir.lengthSqr() > 0.0001) {
@@ -97,11 +97,11 @@ export class BezierFollower extends Component {
         }
     }
 
-    public StartMove(): void {
+    public startMove(): void {
         this._moving = true;
     }
 
-    public StopMove(): void {
+    public stopMove(): void {
         this._moving = false;
     }
 
@@ -113,17 +113,17 @@ export class BezierFollower extends Component {
     /**
      * 近似计算曲线长度
      */
-    private GetCurveLength(steps: number = 50): number {
+    private getCurveLength(steps: number = 50): number {
         if (!this.curve) return 0;
-        return this.curve.GetLength(steps);
+        return this.curve.getLength(steps);
     }
 
     /**
      * 设置初始位置
      */
-    public SetInitialPosition(position: Vec3): void {
+    public setInitialPosition(position: Vec3): void {
         if (!this.curve) return;
-        this.t = this.curve.GetClosestT(position);
-        this.node.setPosition(this.curve.GetPoint(this.t));
+        this.t = this.curve.getClosestT(position);
+        this.node.setPosition(this.curve.getPoint(this.t));
     }
 }

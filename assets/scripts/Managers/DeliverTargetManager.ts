@@ -28,7 +28,7 @@ export class DeliverTargetManager extends Component {
      * 注册投递目标
      */
     public registerTarget(target: CoinTrigger): void {
-        if (!this._deliverTargets.includes(target)) {
+        if (this._deliverTargets.indexOf(target) === -1) {
             this._deliverTargets.push(target);
         }
     }

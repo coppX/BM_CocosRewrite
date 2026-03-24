@@ -20,14 +20,14 @@ export class AutoPrefabConfigurator extends Component {
 
     protected start() {
         if (this.autoConfigureOnStart && !this._configured) {
-            this.Configure();
+            this.configure();
         }
     }
 
     /**
      * 配置预制体
      */
-    public async Configure() {
+    public async configure() {
         if (this._configured) {
             console.warn(`[AutoPrefabConfigurator] ${this.node.name} 已经配置过了`);
             return;
@@ -37,19 +37,19 @@ export class AutoPrefabConfigurator extends Component {
 
         switch (this.prefabType) {
             case 'Zombie02':
-                await this.ConfigureZombie02();
+                await this.configureZombie02();
                 break;
             case 'Soldier':
-                await this.ConfigureSoldier();
+                await this.configureSoldier();
                 break;
             case 'MachineGunTower':
-                await this.ConfigureMachineGunTower();
+                await this.configureMachineGunTower();
                 break;
             case 'BowTower':
-                await this.ConfigureBowTower();
+                await this.configureBowTower();
                 break;
             case 'Coin':
-                await this.ConfigureCoin();
+                await this.configureCoin();
                 break;
             default:
                 console.warn(`[AutoPrefabConfigurator] 未知的预制体类型: ${this.prefabType}`);
@@ -63,7 +63,7 @@ export class AutoPrefabConfigurator extends Component {
     /**
      * 配置Zombie02预制体
      */
-    private async ConfigureZombie02() {
+    private async configureZombie02() {
         // 找到骨骼网格节点
         const meshNode = this.node.getChildByPath('Geometry/SK_BM_Zombie_001');
         if (!meshNode) {
@@ -72,8 +72,8 @@ export class AutoPrefabConfigurator extends Component {
         }
 
         // 加载资源
-        const meshAsset = await this.LoadMesh('models/enemy/丧尸男02_skin');
-        const texture = await this.LoadTexture('textures/T_Zombie_02_D');
+        const meshAsset = await this.loadMesh('models/enemy/丧尸男02_skin');
+        const texture = await this.loadTexture('textures/T_Zombie_02_D');
 
         if (!meshAsset || !texture) {
             console.error('[AutoPrefabConfigurator] Zombie02资源加载失败');
@@ -100,15 +100,15 @@ export class AutoPrefabConfigurator extends Component {
     /**
      * 配置Soldier预制体
      */
-    private async ConfigureSoldier() {
+    private async configureSoldier() {
         const meshNode = this.node.getChildByPath('SoldierModel');
         if (!meshNode) {
             console.error('[AutoPrefabConfigurator] 找不到Soldier的网格节点');
             return;
         }
 
-        const meshAsset = await this.LoadMesh('models/props/士兵优化_LOD_跑');
-        const texture = await this.LoadTexture('textures/T_Shibing_BC');
+        const meshAsset = await this.loadMesh('models/props/士兵优化_LOD_跑');
+        const texture = await this.loadTexture('textures/T_Shibing_BC');
 
         if (!meshAsset || !texture) {
             console.error('[AutoPrefabConfigurator] Soldier资源加载失败');
@@ -129,14 +129,14 @@ export class AutoPrefabConfigurator extends Component {
     /**
      * 配置MachineGunTower预制体
      */
-    private async ConfigureMachineGunTower() {
+    private async configureMachineGunTower() {
         const meshNode = this.node.getChildByPath('Geometry/CB_zhubao04_pao');
         if (!meshNode) {
             console.error('[AutoPrefabConfigurator] 找不到MachineGunTower的网格节点');
             return;
         }
 
-        const meshAsset = await this.LoadMesh('models/environment/三铳机炮_skin');
+        const meshAsset = await this.loadMesh('models/environment/三铳机炮_skin');
 
         if (!meshAsset) {
             console.error('[AutoPrefabConfigurator] MachineGunTower资源加载失败');
@@ -158,14 +158,14 @@ export class AutoPrefabConfigurator extends Component {
     /**
      * 配置BowTower预制体
      */
-    private async ConfigureBowTower() {
+    private async configureBowTower() {
         const meshNode = this.node.getChildByPath('Geometry/BowTowerModel');
         if (!meshNode) {
             console.error('[AutoPrefabConfigurator] 找不到BowTower的网格节点');
             return;
         }
 
-        const meshAsset = await this.LoadMesh('models/environment/弩箭塔_skin');
+        const meshAsset = await this.loadMesh('models/environment/弩箭塔_skin');
 
         if (!meshAsset) {
             console.error('[AutoPrefabConfigurator] BowTower资源加载失败');
@@ -187,7 +187,7 @@ export class AutoPrefabConfigurator extends Component {
     /**
      * 配置Coin预制体
      */
-    private async ConfigureCoin() {
+    private async configureCoin() {
         // 金币使用内置球体mesh，只需要配置材质
         const renderer = this.node.getComponent(MeshRenderer);
         if (renderer) {
@@ -204,7 +204,7 @@ export class AutoPrefabConfigurator extends Component {
     /**
      * 加载网格资源
      */
-    private LoadMesh(path: string): Promise<any> {
+    private loadMesh(path: string): Promise<any> {
         return new Promise((resolve, reject) => {
             resources.load(path, (err, asset) => {
                 if (err) {
@@ -221,7 +221,7 @@ export class AutoPrefabConfigurator extends Component {
     /**
      * 加载贴图资源
      */
-    private LoadTexture(path: string): Promise<Texture2D> {
+    private loadTexture(path: string): Promise<Texture2D> {
         return new Promise((resolve, reject) => {
             resources.load(path, Texture2D, (err, texture) => {
                 if (err) {

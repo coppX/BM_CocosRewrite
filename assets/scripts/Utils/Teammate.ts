@@ -52,7 +52,7 @@ export class Teammate extends Component {
         // 初始化血量
         if (this._healthSystem) {
             this._healthSystem.maxHealth = this.maxHealth;
-            this._healthSystem.ResetHealth();
+            this._healthSystem.resetHealth();
         }
 
         this.resetHealthMultiplier();
@@ -84,7 +84,7 @@ export class Teammate extends Component {
 
             // 检查敌人碰撞
             for (const enemy of enemies) {
-                if (!enemy || !enemy.node.active || enemy.IsDead()) continue;
+                if (!enemy || !enemy.node.active || enemy.isDeadState()) continue;
 
                 const distance = Vec3.squaredDistance(
                     this.node.getPosition(),
@@ -94,9 +94,9 @@ export class Teammate extends Component {
                 if (distance < this.detectionRadius * this.detectionRadius) {
                     // 互相造成伤害
                     if (this._healthSystem) {
-                        this._healthSystem.TakeDamage(enemy.GetDamage(), enemy.node);
+                        this._healthSystem.takeDamage(enemy.getDamage(), enemy.node);
                     }
-                    enemy.BeAttack(this.getDamage(), this.node);
+                    enemy.beAttack(this.getDamage(), this.node);
                     break;
                 }
             }
@@ -168,10 +168,10 @@ export class Teammate extends Component {
     private checkMinionsCollision(): void {
         if (this.isLeftMinion && !GlobalVariables.IsLeftMinionCollision) {
             GlobalVariables.IsLeftMinionCollision = true;
-            EventCenter.Instance.EventTrigger(EventName.MinionsCollision, this.isLeftMinion);
+            EventCenter.Instance.eventTrigger(EventName.MinionsCollision, this.isLeftMinion);
         } else if (!this.isLeftMinion && !GlobalVariables.IsRightMinionCollision) {
             GlobalVariables.IsRightMinionCollision = true;
-            EventCenter.Instance.EventTrigger(EventName.MinionsCollision, this.isLeftMinion);
+            EventCenter.Instance.eventTrigger(EventName.MinionsCollision, this.isLeftMinion);
         }
     }
 

@@ -49,7 +49,7 @@ export class DoorManager extends Component {
      * 注册门
      */
     public registerDoor(door: Component): void {
-        if (!this._doors.includes(door)) {
+        if (this._doors.indexOf(door) === -1) {
             this._doors.push(door);
         }
     }

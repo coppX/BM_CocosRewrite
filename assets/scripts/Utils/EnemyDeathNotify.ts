@@ -15,7 +15,7 @@ export class EnemyDeathNotify extends Component {
     public onDeathEnd(): void {
         const enemy = this.node.parent?.getComponent(EnemyController);
         if (enemy) {
-            enemy.ReleaseToPool();
+            enemy.releaseToPool();
         }
     }
 }
