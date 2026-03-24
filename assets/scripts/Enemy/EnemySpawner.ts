@@ -1,5 +1,7 @@
 import { _decorator, Component, Node, Prefab, instantiate, Vec3 } from 'cc';
 import { GameManager, GameState } from '../Managers/GameManager';
+import { BezierCurve } from '../Utils/BezierCurve';
+import { BezierFollower } from '../Utils/BezierFollower';
 const { ccclass, property } = _decorator;
 
 /**
@@ -10,6 +12,9 @@ export class EnemySpawner extends Component {
     @property([Prefab])
     public enemyPrefabs: Prefab[] = [];
 
+    @property(BezierCurve)
+    public bezierCurve: BezierCurve | null = null;
+
     @property
     public spawnInterval: number = 2;
 
@@ -18,6 +23,9 @@ export class EnemySpawner extends Component {
 
     @property
     public autoStart: boolean = true;
+
+    @property
+    public speedMultiplier: number = 1;
 
     private _spawnTimer: number = 0;
     private _spawnedEnemies: Node[] = [];
@@ -68,7 +76,20 @@ export class EnemySpawner extends Component {
 
         this._spawnedEnemies.push(enemy);
 
-        // TODO: 设置敌人的贝塞尔曲线路径
+        // 设置敌人的贝塞尔曲线路径
+        if (this.bezierCurve) {
+            const follower = enemy.getComponent(BezierFollower);
+            if (follower) {
+                follower.curve = this.bezierCurve;
+                follower.speedMultiplier = this.speedMultiplier;
+
+                // 设置初始位置为生成点
+                follower.setInitialPosition(this.node.getPosition());
+
+                // 开始移动
+                follower.startMove();
+            }
+        }
     }
 
     public clearAllEnemies(): void {

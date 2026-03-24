@@ -30,8 +30,6 @@ export class PlayerController extends Component {
     @property(Weapon)
     public currentWeapon: Weapon | null = null;
 
-    public isMoving: boolean = false;
-
     private _moveDirection: Vec3 = new Vec3();
     private _animationController: AnimationControllerLike | null = null;
     private _healthSystem: HealthSystem | null = null;
@@ -119,7 +117,6 @@ export class PlayerController extends Component {
             this.node.setPosition(newPos);
         }
 
-        this.isMoving = isMovingNow;
         this.setAnimationBool('IsMoving', isMovingNow);
     }
 
@@ -163,9 +160,8 @@ export class PlayerController extends Component {
 
         this.setAnimationBool('IsMoving', false);
         this.setAnimationBool('IsAttack', false);
-
+        
         this._moveDirection = new Vec3();
-        this.isMoving = false;
     }
 
     protected onDestroy(): void {
