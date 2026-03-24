@@ -405,8 +405,8 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -0.115,
-      "y": 0,
-      "z": -0.417
+      "y": 0.074,
+      "z": -0.527
     },
     "_lrot": {
       "__type__": "cc.Quat",
@@ -466,8 +466,8 @@
       "__id__": 13
     },
     "moveDuration": 0.3,
-    "rowsPerLayer": 2,
-    "colsPerLayer": 2,
+    "rowsPerLayer": 1,
+    "colsPerLayer": 1,
     "horizontalSpacing": 0.2,
     "depthSpacing": 0.2,
     "coinHeight": 0.1,
@@ -486,8 +486,8 @@
     "transferInterval": 0.1,
     "flyToOtherCollection": false,
     "canCollectBearByGeneratorCoins": false,
-    "enableInitialCoins": true,
-    "initialCoinCount": 3,
+    "enableInitialCoins": false,
+    "initialCoinCount": 10,
     "_id": "c9cNXTSwhHQZiV89jYi4Ze"
   },
   {
@@ -613,7 +613,7 @@
     },
     "minDelayFrames": 3,
     "maxDelayFrames": 9,
-    "_id": "3a8lu1a0BHi66V1sx8H8Xc"
+    "_id": "39nQrAIyJA3KNRcdkN+Rta"
   },
   {
     "__type__": "cc.Node",

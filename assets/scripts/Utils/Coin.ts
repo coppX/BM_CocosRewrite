@@ -1,5 +1,7 @@
 import { _decorator, Component, Node, Vec3, tween, Tween } from 'cc';
 import { EventCenter } from '../Core/EventCenter';
+import { CoinManager } from '../Managers/CoinManager';
+import { PoolManager } from '../Managers/PoolManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -41,8 +43,7 @@ export class Coin extends Component {
     }
 
     private registerCoin() {
-        // Trigger coin registration event
-        EventCenter.Instance.eventTrigger('coin_registered', this);
+        CoinManager.Instance?.registerCoin(this);
     }
 
     /**
@@ -131,11 +132,10 @@ export class Coin extends Component {
             // Reset state
             this.resetState();
 
-            // Trigger destroy event
-            EventCenter.Instance.eventTrigger('coin_destroyed', this);
-
             // Deactivate (will be handled by object pool)
             this.node.active = false;
+
+            PoolManager.Instance?.pushObj('Coin', this.node);
         }
     }
 

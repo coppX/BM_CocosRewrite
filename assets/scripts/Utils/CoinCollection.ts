@@ -8,6 +8,7 @@ import { EventCenter } from '../Core/EventCenter';
 import { AudioManager } from '../Managers/AudioManager';
 import { CoinTrigger } from '../Core/CoinTrigger';
 import { EventName } from '../Core/EventName';
+import { GlobalVariables } from '../Core/GlobalVariables';
 const { ccclass, property } = _decorator;
 
 /**
@@ -310,7 +311,7 @@ export class CoinCollection extends Component {
 
             // 触发地图升级事件（只触发一次）
             if (!CoinCollection.hasTriggeredMapLevelUpgradeEvent) {
-                EventCenter.Instance.eventTrigger('MapLevelUpgrade', 'MineCollect');
+                EventCenter.Instance.eventTrigger(EventName.MapLevelUpgrade, GlobalVariables.Stage.MineCollect);
                 CoinCollection.hasTriggeredMapLevelUpgradeEvent = true;
             }
 
