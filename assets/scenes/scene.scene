@@ -65,13 +65,13 @@
         "__id__": 166
       },
       {
-        "__id__": 179
+        "__id__": 191
       }
     ],
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 195
+      "__id__": 213
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -102,7 +102,7 @@
     },
     "autoReleaseAssets": false,
     "_globals": {
-      "__id__": 205
+      "__id__": 223
     },
     "_id": "04d5fe6e-54ad-48dd-89a3-b6701e605e2b"
   },
@@ -619,7 +619,7 @@
     },
     "minDelayFrames": 3,
     "maxDelayFrames": 9,
-    "_id": "e6hkw7JAxPVYZp9fhVHk+x"
+    "_id": "490bx8nA5Dcp5Qb7/4Q9/H"
   },
   {
     "__type__": "cc.Node",
@@ -1103,7 +1103,7 @@
     "_priority": 1073741824,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 436.11814345991564,
+    "_orthoHeight": 403.75,
     "_near": 1,
     "_far": 2000,
     "_color": {
@@ -3275,6 +3275,9 @@
     "_children": [
       {
         "__id__": 167
+      },
+      {
+        "__id__": 179
       }
     ],
     "_active": true,
@@ -3690,19 +3693,19 @@
     "__prefab": null,
     "controlPoints": [
       {
-        "__id__": 168
-      },
-      {
-        "__id__": 169
-      },
-      {
-        "__id__": 170
+        "__id__": 172
       },
       {
         "__id__": 171
       },
       {
-        "__id__": 172
+        "__id__": 170
+      },
+      {
+        "__id__": 169
+      },
+      {
+        "__id__": 168
       }
     ],
     "showCurve": true,
@@ -3769,7 +3772,465 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "EnemySpawn",
+    "_name": "Curve_L2",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 166
+    },
+    "_children": [
+      {
+        "__id__": 180
+      },
+      {
+        "__id__": 181
+      },
+      {
+        "__id__": 182
+      },
+      {
+        "__id__": 183
+      },
+      {
+        "__id__": 184
+      },
+      {
+        "__id__": 185
+      }
+    ],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 188
+      },
+      {
+        "__id__": 189
+      }
+    ],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": -7.669,
+      "y": 0.215,
+      "z": 7.764
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "c0UtM1zu1BgafA01mbO+bv"
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "Node_L1",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 179
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "24fcOuvFpNiplb9idRSCNK"
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "Node_L2",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 179
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 15.304,
+      "y": 0,
+      "z": 12.393
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "f9v5dNVH5OZp035aosXkHE"
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "Node_L3",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 179
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 2.29,
+      "y": 0,
+      "z": 23.168
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "30Q5Ax8+5M5p5tA4tJA9qL"
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "Node_L4",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 179
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": -4.506,
+      "y": 0,
+      "z": 36.854
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "75ZgkWtU5OArFBk5GLR6UM"
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "Node_L5",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 179
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": -14.831,
+      "y": 0,
+      "z": 42.466
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "88Oph+LZJIs7FnkrYBHrKr"
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "__BezierCurve3DRenderer",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 179
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 186
+      }
+    ],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "b9V4KZ41ZKi4zhbh+lkooZ"
+  },
+  {
+    "__type__": "cc.MeshRenderer",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 185
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "_materials": [
+      {
+        "__uuid__": "cdda2d48-12ea-4da9-bfeb-a99c49be751c",
+        "__expectedType__": "cc.Material"
+      }
+    ],
+    "_visFlags": 0,
+    "bakeSettings": {
+      "__id__": 187
+    },
+    "_mesh": null,
+    "_shadowCastingMode": 0,
+    "_shadowReceivingMode": 1,
+    "_shadowBias": 0,
+    "_shadowNormalBias": 0,
+    "_reflectionProbeId": -1,
+    "_reflectionProbeBlendId": -1,
+    "_reflectionProbeBlendWeight": 0,
+    "_enabledGlobalStandardSkinObject": false,
+    "_enableMorph": true,
+    "_id": "51zw4/RKVMZawf2GCUCXnk"
+  },
+  {
+    "__type__": "cc.ModelBakeSettings",
+    "texture": null,
+    "uvParam": {
+      "__type__": "cc.Vec4",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 0
+    },
+    "_bakeable": false,
+    "_castShadow": false,
+    "_receiveShadow": false,
+    "_recieveShadow": false,
+    "_lightmapSize": 64,
+    "_useLightProbe": false,
+    "_bakeToLightProbe": true,
+    "_reflectionProbeType": 0,
+    "_bakeToReflectionProbe": true
+  },
+  {
+    "__type__": "1312bHZvJVH6YyPAn1bTgQZ",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 179
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "controlPoints": [
+      {
+        "__id__": 180
+      },
+      {
+        "__id__": 181
+      },
+      {
+        "__id__": 182
+      },
+      {
+        "__id__": 183
+      },
+      {
+        "__id__": 184
+      }
+    ],
+    "showCurve": true,
+    "segments": 40,
+    "lineWidth": 0.15,
+    "lineMaterial": {
+      "__uuid__": "cdda2d48-12ea-4da9-bfeb-a99c49be751c",
+      "__expectedType__": "cc.Material"
+    },
+    "upAxis": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 1,
+      "z": 0
+    },
+    "_id": "53uqLDoa9HpJ1szwMtym23"
+  },
+  {
+    "__type__": "cc.MeshRenderer",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 179
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "_materials": [],
+    "_visFlags": 0,
+    "bakeSettings": {
+      "__id__": 190
+    },
+    "_mesh": null,
+    "_shadowCastingMode": 0,
+    "_shadowReceivingMode": 1,
+    "_shadowBias": 0,
+    "_shadowNormalBias": 0,
+    "_reflectionProbeId": -1,
+    "_reflectionProbeBlendId": -1,
+    "_reflectionProbeBlendWeight": 0,
+    "_enabledGlobalStandardSkinObject": false,
+    "_enableMorph": true,
+    "_id": "d0fzniZjNIwJaVME5jPTS1"
+  },
+  {
+    "__type__": "cc.ModelBakeSettings",
+    "texture": null,
+    "uvParam": {
+      "__type__": "cc.Vec4",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 0
+    },
+    "_bakeable": false,
+    "_castShadow": false,
+    "_receiveShadow": false,
+    "_recieveShadow": false,
+    "_lightmapSize": 64,
+    "_useLightProbe": false,
+    "_bakeToLightProbe": true,
+    "_reflectionProbeType": 0,
+    "_bakeToReflectionProbe": true
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "Spawner",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -3777,7 +4238,10 @@
     },
     "_children": [
       {
-        "__id__": 180
+        "__id__": 192
+      },
+      {
+        "__id__": 207
       }
     ],
     "_active": true,
@@ -3814,17 +4278,17 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Spawner1",
+    "_name": "EnemySpawner1",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
-      "__id__": 179
+      "__id__": 191
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 181
+        "__id__": 193
       }
     ],
     "_prefab": null,
@@ -3863,25 +4327,25 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 180
+      "__id__": 192
     },
     "_enabled": true,
     "__prefab": null,
     "spawnWaves": [
       {
-        "__id__": 182
+        "__id__": 194
       },
       {
-        "__id__": 184
+        "__id__": 196
       },
       {
-        "__id__": 187
+        "__id__": 199
       },
       {
-        "__id__": 190
+        "__id__": 202
       },
       {
-        "__id__": 193
+        "__id__": 205
       }
     ],
     "enemiesPerGroup": 7,
@@ -3898,7 +4362,7 @@
     "waveName": "第一波怪",
     "enemyUnits": [
       {
-        "__id__": 183
+        "__id__": 195
       }
     ],
     "activeStage": 0,
@@ -3918,10 +4382,10 @@
     "waveName": "第二波怪",
     "enemyUnits": [
       {
-        "__id__": 185
+        "__id__": 197
       },
       {
-        "__id__": 186
+        "__id__": 198
       }
     ],
     "activeStage": 0,
@@ -3949,10 +4413,10 @@
     "waveName": "第三波怪",
     "enemyUnits": [
       {
-        "__id__": 188
+        "__id__": 200
       },
       {
-        "__id__": 189
+        "__id__": 201
       }
     ],
     "activeStage": 3,
@@ -3980,10 +4444,10 @@
     "waveName": "第四波怪",
     "enemyUnits": [
       {
-        "__id__": 191
+        "__id__": 203
       },
       {
-        "__id__": 192
+        "__id__": 204
       }
     ],
     "activeStage": 8,
@@ -4011,7 +4475,7 @@
     "waveName": "第五波怪",
     "enemyUnits": [
       {
-        "__id__": 194
+        "__id__": 206
       }
     ],
     "activeStage": 9,
@@ -4027,6 +4491,118 @@
     "count": 7
   },
   {
+    "__type__": "cc.Node",
+    "_name": "ActorSpawner1",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 191
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 208
+      }
+    ],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 11.62,
+      "y": 0,
+      "z": -43.257
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "b62hSBjKFNHag/hsMZW7R7"
+  },
+  {
+    "__type__": "08eee8rV75OZottCRDx+2Yl",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 207
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "spawnWaves": [
+      {
+        "__id__": 209
+      },
+      {
+        "__id__": 211
+      }
+    ],
+    "enemiesPerGroup": 5,
+    "currentStage": 0,
+    "bezierCurve": {
+      "__id__": 188
+    },
+    "speedMultiplier": 1,
+    "autoStart": true,
+    "_id": "ea4oZV7IROzYzjN4MWn4yo"
+  },
+  {
+    "__type__": "SpawnWave",
+    "waveName": "第一波士兵",
+    "enemyUnits": [
+      {
+        "__id__": 210
+      }
+    ],
+    "activeStage": 0,
+    "spawnIntervalInGroup": 0.3,
+    "intervalBetweenGroups": 0.3
+  },
+  {
+    "__type__": "EnemyUnitConfig",
+    "prefab": {
+      "__uuid__": "f8fe262b-b920-4456-9951-b22303f3f685",
+      "__expectedType__": "cc.Prefab"
+    },
+    "count": 5
+  },
+  {
+    "__type__": "SpawnWave",
+    "waveName": "第二波士兵",
+    "enemyUnits": [
+      {
+        "__id__": 212
+      }
+    ],
+    "activeStage": 11,
+    "spawnIntervalInGroup": 0.3,
+    "intervalBetweenGroups": 0.3
+  },
+  {
+    "__type__": "EnemyUnitConfig",
+    "prefab": {
+      "__uuid__": "f8fe262b-b920-4456-9951-b22303f3f685",
+      "__expectedType__": "cc.Prefab"
+    },
+    "count": 5
+  },
+  {
     "__type__": "cc.PrefabInfo",
     "root": null,
     "asset": null,
@@ -4034,13 +4610,13 @@
     "instance": null,
     "targetOverrides": [
       {
-        "__id__": 196
+        "__id__": 214
       },
       {
-        "__id__": 199
+        "__id__": 217
       },
       {
-        "__id__": 202
+        "__id__": 220
       }
     ],
     "nestedPrefabInstanceRoots": [
@@ -4079,7 +4655,7 @@
       "__id__": 8
     },
     "sourceInfo": {
-      "__id__": 197
+      "__id__": 215
     },
     "propertyPath": [
       "_skinningRoot"
@@ -4088,7 +4664,7 @@
       "__id__": 8
     },
     "targetInfo": {
-      "__id__": 198
+      "__id__": 216
     }
   },
   {
@@ -4111,7 +4687,7 @@
       "__id__": 8
     },
     "sourceInfo": {
-      "__id__": 200
+      "__id__": 218
     },
     "propertyPath": [
       "_skinningRoot"
@@ -4120,7 +4696,7 @@
       "__id__": 8
     },
     "targetInfo": {
-      "__id__": 201
+      "__id__": 219
     }
   },
   {
@@ -4143,7 +4719,7 @@
       "__id__": 122
     },
     "sourceInfo": {
-      "__id__": 203
+      "__id__": 221
     },
     "propertyPath": [
       "_skinningRoot"
@@ -4152,7 +4728,7 @@
       "__id__": 122
     },
     "targetInfo": {
-      "__id__": 204
+      "__id__": 222
     }
   },
   {
@@ -4172,28 +4748,28 @@
   {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 206
+      "__id__": 224
     },
     "shadows": {
-      "__id__": 207
+      "__id__": 225
     },
     "_skybox": {
-      "__id__": 208
+      "__id__": 226
     },
     "fog": {
-      "__id__": 209
+      "__id__": 227
     },
     "octree": {
-      "__id__": 210
+      "__id__": 228
     },
     "skin": {
-      "__id__": 211
+      "__id__": 229
     },
     "lightProbeInfo": {
-      "__id__": 212
+      "__id__": 230
     },
     "postSettings": {
-      "__id__": 213
+      "__id__": 231
     },
     "bakedWithStationaryMainLight": false,
     "bakedWithHighpLightmap": false
