@@ -29,8 +29,8 @@ export class BezierFollower extends Component {
         if (!this.curve) return;
 
         // 自动找到最近的t
-        this.t = this.curve.getClosestT(this.node.getPosition());
-        this.node.setPosition(this.curve.getPoint(this.t));
+        this.t = this.getClosestTByWorldPosition(this.node.worldPosition);
+        this.node.setWorldPosition(this.curve.getWorldPoint(this.t));
 
         if (this.autoStart) {
             this._moving = true;
@@ -42,7 +42,7 @@ export class BezierFollower extends Component {
         if (GameManager.Instance && GameManager.Instance.CurrentState !== GameState.Playing) return;
 
         // 计算曲线总长度
-        const totalLength = this.getCurveLength();
+        const totalLength = this.getCurveLengthByWorld();
         if (totalLength <= Number.EPSILON) {
             this.t = 1;
             this._moving = false;
@@ -56,8 +56,8 @@ export class BezierFollower extends Component {
         while (remainingDistance > 0) {
             const stepT = remainingDistance / totalLength;
             const nextT = Math.min(this.t + stepT, 1);
-            const currentPos = this.curve.getPoint(this.t);
-            const nextPos = this.curve.getPoint(nextT);
+            const currentPos = this.curve.getWorldPoint(this.t);
+            const nextPos = this.curve.getWorldPoint(nextT);
             const segmentLength = Vec3.distance(currentPos, nextPos);
 
             if (segmentLength <= Number.EPSILON) {
@@ -81,12 +81,12 @@ export class BezierFollower extends Component {
         }
 
         // 更新位置
-        const pos = this.curve.getPoint(this.t);
-        this.node.setPosition(pos);
+        const pos = this.curve.getWorldPoint(this.t);
+        this.node.setWorldPosition(pos);
 
         // 设置朝向
         const lookAheadT = Math.min(this.t + 0.01, 1);
-        const lookAheadPos = this.curve.getPoint(lookAheadT);
+        const lookAheadPos = this.curve.getWorldPoint(lookAheadT);
         const dir = Vec3.subtract(new Vec3(), lookAheadPos, pos);
 
         if (dir.lengthSqr() > 0.0001) {
@@ -113,9 +113,40 @@ export class BezierFollower extends Component {
     /**
      * 近似计算曲线长度
      */
-    private getCurveLength(steps: number = 50): number {
+    private getCurveLengthByWorld(steps: number = 50): number {
         if (!this.curve) return 0;
-        return this.curve.getLength(steps);
+
+        let length = 0;
+        let prevPoint = this.curve.getWorldPoint(0);
+
+        for (let i = 1; i <= steps; i++) {
+            const t = i / steps;
+            const point = this.curve.getWorldPoint(t);
+            length += Vec3.distance(prevPoint, point);
+            prevPoint = point;
+        }
+
+        return length;
+    }
+
+    private getClosestTByWorldPosition(position: Readonly<Vec3>, samples: number = 50): number {
+        if (!this.curve) return 0;
+
+        let closestT = 0;
+        let minDistance = Infinity;
+
+        for (let i = 0; i <= samples; i++) {
+            const t = i / samples;
+            const point = this.curve.getWorldPoint(t);
+            const distance = Vec3.distance(point, position);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestT = t;
+            }
+        }
+
+        return closestT;
     }
 
     /**
@@ -123,7 +154,7 @@ export class BezierFollower extends Component {
      */
     public setInitialPosition(position: Vec3): void {
         if (!this.curve) return;
-        this.t = this.curve.getClosestT(position);
-        this.node.setPosition(this.curve.getPoint(this.t));
+        this.t = this.getClosestTByWorldPosition(position);
+        this.node.setWorldPosition(this.curve.getWorldPoint(this.t));
     }
 }

@@ -29,8 +29,15 @@ export class GameManager extends Component {
 
     private _currentState: GameStateValue = GameState.WaitingToStart;
     private _playerHealth: number = 100;
+    private _gameStateChangedListeners: Set<(newState: GameStateValue) => void> = new Set();
 
-    public OnGameStateChanged: ((newState: GameStateValue) => void) | null = null;
+    public addGameStateChangedListener(listener: (newState: GameStateValue) => void): void {
+        this._gameStateChangedListeners.add(listener);
+    }
+
+    public removeGameStateChangedListener(listener: (newState: GameStateValue) => void): void {
+        this._gameStateChangedListeners.delete(listener);
+    }
 
     public get CurrentState(): GameStateValue {
         return this._currentState;
@@ -68,8 +75,8 @@ export class GameManager extends Component {
     private setGameState(newState: GameStateValue): void {
         if (this._currentState !== newState) {
             this._currentState = newState;
-            if (this.OnGameStateChanged) {
-                this.OnGameStateChanged(newState);
+            for (const listener of this._gameStateChangedListeners) {
+                listener(newState);
             }
         }
     }

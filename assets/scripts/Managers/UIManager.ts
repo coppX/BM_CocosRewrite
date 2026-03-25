@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Button, director, EventTouch, input, Input } from 'cc';
-import { GameManager } from './GameManager';
+import { GameManager, GameStateValue } from './GameManager';
 import { PoolManager } from './PoolManager';
 
 const { ccclass, property } = _decorator;
@@ -39,7 +39,7 @@ export class UIManager extends Component {
     public tutorialText: Node | null = null;
 
     private static _instance: UIManager | null = null;
-    private readonly _onGameStateChangedHandler = (newState: number): void => {
+    private readonly _onGameStateChangedHandler = (newState: GameStateValue): void => {
         this.onGameStateChanged(newState);
     };
 
@@ -68,7 +68,7 @@ export class UIManager extends Component {
     protected start(): void {
         // 订阅游戏状态变化事件
         if (GameManager.Instance) {
-            GameManager.Instance.OnGameStateChanged = this._onGameStateChangedHandler;
+            GameManager.Instance.addGameStateChangedListener(this._onGameStateChangedHandler);
         }
 
         // 绑定按钮点击事件
@@ -89,8 +89,8 @@ export class UIManager extends Component {
      */
     protected onDestroy(): void {
         // 取消订阅，防止内存泄漏
-        if (GameManager.Instance && GameManager.Instance.OnGameStateChanged === this._onGameStateChangedHandler) {
-            GameManager.Instance.OnGameStateChanged = null;
+        if (GameManager.Instance) {
+            GameManager.Instance.removeGameStateChangedListener(this._onGameStateChangedHandler);
         }
 
         // 清理单例引用
@@ -102,7 +102,7 @@ export class UIManager extends Component {
     /**
      * 游戏状态变化回调
      */
-    private onGameStateChanged(newState: number): void {
+    private onGameStateChanged(newState: GameStateValue): void {
         switch (newState) {
             case UIManager.STATE_WAITING_TO_START:
                 this.showStartPanel();
