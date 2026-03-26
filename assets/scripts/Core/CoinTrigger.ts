@@ -1,16 +1,18 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Enum } from 'cc';
 import { EventCenter } from '../Core/EventCenter';
 import { EventName } from '../Core/EventName';
-import { GlobalVariables } from '../Core/GlobalVariables';
+import { GlobalVariables, Stage } from '../Core/GlobalVariables';
+import { DeliverTargetManager } from '../Managers/DeliverTargetManager';
 const { ccclass, property } = _decorator;
+const StageEnum = Enum(GlobalVariables.Stage);
 
 /**
  * 金币触发器
  */
 @ccclass('CoinTrigger')
 export class CoinTrigger extends Component {
-    @property
-    public StageTag: number = GlobalVariables.Stage.TowerDefense1;
+    @property({ type: StageEnum, tooltip: '触发后升级到的阶段' })
+    public StageTag: Stage = GlobalVariables.Stage.TowerDefense1;
 
     @property
     public triggerCount: number = 10;
@@ -34,11 +36,12 @@ export class CoinTrigger extends Component {
     }
 
     protected onDisable(): void {
-        // TODO: DeliverTargetManager.Instance?.UnregisterTarget(this);
+        this.unschedule(this.register);
+        DeliverTargetManager.Instance?.unregisterTarget(this);
     }
 
     private register(): void {
-        // TODO: DeliverTargetManager.Instance?.RegisterTarget(this);
+        DeliverTargetManager.Instance?.registerTarget(this);
     }
 
     public addMovingCoin(): void {
