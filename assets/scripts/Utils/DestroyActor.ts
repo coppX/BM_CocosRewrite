@@ -1,9 +1,10 @@
-import { _decorator, Component, CCInteger } from 'cc';
+import { _decorator, Component, Enum } from 'cc';
 import { EventCenter } from '../Core/EventCenter';
 import { EventName } from '../Core/EventName';
 import { GlobalVariables, Stage } from '../Core/GlobalVariables';
 import { GameManager } from '../Managers/GameManager';
 const { ccclass, property } = _decorator;
+const StageEnum = Enum(GlobalVariables.Stage);
 
 /**
  * 摧毁角色组件
@@ -17,8 +18,8 @@ export class DestroyActor extends Component {
     @property
     public detectionRadius: number = 1;
 
-    @property(CCInteger)
-    public triggerStage: number = GlobalVariables.Stage.Basic;
+    @property({ type: StageEnum, tooltip: '触发阶段' })
+    public triggerStage: Stage = GlobalVariables.Stage.Basic;
 
     @property
     public checkInterval: number = 0.5;

@@ -1,6 +1,7 @@
 import { _decorator, Component, Node, Vec3 } from 'cc';
 import { EnemyController } from '../Enemy/EnemyController';
 import { EnemyManager } from '../Managers/EnemyManager';
+import { Building } from '../Building/Building';
 const { ccclass, property } = _decorator;
 
 /**
@@ -18,16 +19,13 @@ export class DestroyEnemy extends Component {
     @property
     public checkInterval: number = 0.5;
 
+    @property(Building)
+    public build: Building | null = null;
+
     @property({ type: [EnemyController] })
     public preEnemies: EnemyController[] = [];
 
     private _checkTimer: number = 0;
-    private _building: Component | null = null;
-
-    protected start(): void {
-        // TODO: 获取Building组件
-        // this._building = this.getComponent('Building');
-    }
 
     protected update(dt: number): void {
         this._checkTimer -= dt;
@@ -47,9 +45,8 @@ export class DestroyEnemy extends Component {
 
             const distance = Vec3.squaredDistance(selfPos, enemy.node.getPosition());
             if (distance < this.detectionRadius * this.detectionRadius) {
-                // 建筑受击（如果有Building组件）
-                if (this._building && typeof (this._building as any).beHit === 'function') {
-                    (this._building as any).beHit(enemy.node);
+                if (this.build) {
+                    this.build.beHit(enemy.node);
                 }
 
                 enemy.releaseToPool();
@@ -67,9 +64,8 @@ export class DestroyEnemy extends Component {
 
                 const distance = Vec3.squaredDistance(selfPos, enemy.node.getPosition());
                 if (distance < this.detectionRadius * this.detectionRadius) {
-                    // 建筑受击（如果有Building组件）
-                    if (this._building && typeof (this._building as any).beHit === 'function') {
-                        (this._building as any).beHit(enemy.node);
+                    if (this.build) {
+                        this.build.beHit(enemy.node);
                     }
 
                     enemy.releaseToPool();
