@@ -207,7 +207,7 @@ export class CoinCollection extends Component {
 
             const coinNode = coin.node;
             // 检查距离
-            const distanceSqr = Vec3.squaredDistance(this.node.getPosition(), coinNode.getPosition());
+            const distanceSqr = Vec3.squaredDistance(this.node.getWorldPosition(), coinNode.getWorldPosition());
             if (distanceSqr > this.collectDetectRadius * this.collectDetectRadius) return;
 
             // 检查是否正在移动
@@ -226,9 +226,9 @@ export class CoinCollection extends Component {
 
         // 查找或更新投递目标
         if (!this.lastDeliverTarget ||
-            Vec3.squaredDistance(this.node.getPosition(), this.lastDeliverTarget.getPosition()) > this.deliverCheckRadius * this.deliverCheckRadius) {
+            Vec3.squaredDistance(this.node.getWorldPosition(), this.lastDeliverTarget.getWorldPosition()) > this.deliverCheckRadius * this.deliverCheckRadius) {
 
-            this.lastDeliverTarget = DeliverTargetManager.Instance?.getNearestTarget(this.node.getPosition(), this.deliverCheckRadius) || null;
+            this.lastDeliverTarget = DeliverTargetManager.Instance?.getNearestTarget(this.node.getWorldPosition(), this.deliverCheckRadius) || null;
             if (this.lastDeliverTarget) {
                 this.deliverTimer = 0;
             }
@@ -250,7 +250,7 @@ export class CoinCollection extends Component {
                 if (!coinObj) return;
                 this.overflowCollectCount--;
                 coinObj.active = true;
-                coinObj.setPosition(this.slot!.getPosition().add(this.getNextSlotPosition()));
+                coinObj.setPosition(this.slot!.getWorldPosition().add(this.getNextSlotPosition()));
                 this.executeDeliver(this.lastDeliverTarget!, coinObj, coinTrigger);
             });
         } else {
@@ -274,7 +274,7 @@ export class CoinCollection extends Component {
 
         // 查找或更新转移目标
         if (!this.lastTransferTarget ||
-            Vec3.squaredDistance(this.node.getPosition(), this.lastTransferTarget.node.getPosition()) > this.transferRadius * this.transferRadius) {
+            Vec3.squaredDistance(this.node.getWorldPosition(), this.lastTransferTarget.node.getWorldPosition()) > this.transferRadius * this.transferRadius) {
 
             this.lastTransferTarget = this.findNewTransferTarget();
             if (this.lastTransferTarget) {
@@ -289,7 +289,7 @@ export class CoinCollection extends Component {
     }
 
     private findNewTransferTarget(): CoinCollection | null {
-        const nearbyCollections = CoinCollectionManager.Instance?.getNearbyCollections(this.node.getPosition(), this.transferRadius);
+        const nearbyCollections = CoinCollectionManager.Instance?.getNearbyCollections(this.node.getWorldPosition(), this.transferRadius);
         if (!nearbyCollections || nearbyCollections.length === 0) return null;
 
         for (const collection of nearbyCollections) {
@@ -331,7 +331,7 @@ export class CoinCollection extends Component {
                 if (!coinObj) return;
                 coinObj.active = true;
                 this.overflowCollectCount--;
-                coinObj.setPosition(this.slot!.getPosition().add(this.getNextSlotPosition()));
+                coinObj.setPosition(this.slot!.getWorldPosition().add(this.getNextSlotPosition()));
                 this.executeTransfer(coinObj);
             });
         } else {
@@ -347,7 +347,7 @@ export class CoinCollection extends Component {
      * 执行投递
      */
     private executeDeliver(target: Node, coin: Node, coinTrigger: CoinTrigger): void {
-        coin.setParent(null);
+        coin.setParent(this.node.scene);
         const coinComponent = coin.getComponent(Coin);
         if (coinComponent) {
             CoinManager.Instance?.unregisterCoin(coinComponent);
@@ -362,7 +362,7 @@ export class CoinCollection extends Component {
             0,
             (Math.random() * 2 - 1) * this.deliverRandomRange
         );
-        const randomTargetPosition = target.getPosition().add(randomOffset);
+        const randomTargetPosition = target.getWorldPosition().add(randomOffset);
 
         // 创建跳跃动画
         const jumpTween = this.createJumpTween(coin, randomTargetPosition, this.deliverJumpPower, this.deliverDuration);
@@ -393,7 +393,7 @@ export class CoinCollection extends Component {
             coinComponent.isBeingDelivered = true;
             coinComponent.startMove();
         }
-        coin.setParent(null);
+        coin.setParent(this.node.scene);
 
         const target = this.lastTransferTarget;
         if (!target) {
@@ -410,7 +410,7 @@ export class CoinCollection extends Component {
                     progress = obj.value;
                     if (!coin || !coin.isValid || !target || !target.isValid) return;
 
-                    const currentTargetPosition = target.slot!.getPosition().add(target.getNextSlotPosition());
+                    const currentTargetPosition = target.slot!.getWorldPosition().add(target.getNextSlotPosition());
                     const targetStackHeight = target.coinCount * target.coinHeight;
                     const dynamicJumpPower = Math.max(this.transferJumpPower, targetStackHeight + 2);
 

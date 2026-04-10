@@ -1,4 +1,4 @@
-import { _decorator, Component, Vec3 } from 'cc';
+import { _decorator, Component, Node, Vec3, director } from 'cc';
 const { ccclass } = _decorator;
 
 /**
@@ -10,6 +10,14 @@ export class CoinCollectionManager extends Component {
     private static _instance: CoinCollectionManager | null = null;
 
     public static get Instance(): CoinCollectionManager | null {
+        if (!this._instance) {
+            const scene = director.getScene();
+            if (scene) {
+                const node = new Node('CoinCollectionManager');
+                scene.addChild(node);
+                this._instance = node.addComponent(CoinCollectionManager);
+            }
+        }
         return this._instance;
     }
 
@@ -50,7 +58,7 @@ export class CoinCollectionManager extends Component {
         const radiusSqr = radius * radius;
 
         for (const collection of this._collections) {
-            const disSqr = Vec3.squaredDistance(position, collection.node.getPosition());
+            const disSqr = Vec3.squaredDistance(position, collection.node.getWorldPosition());
             if (disSqr <= radiusSqr) {
                 nearbyCollections.push(collection);
             }

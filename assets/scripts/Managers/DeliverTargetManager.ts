@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3 } from 'cc';
+import { _decorator, Component, Node, Vec3, director } from 'cc';
 import { CoinTrigger } from '../Core/CoinTrigger';
 const { ccclass } = _decorator;
 
@@ -11,6 +11,14 @@ export class DeliverTargetManager extends Component {
     private static _instance: DeliverTargetManager | null = null;
 
     public static get Instance(): DeliverTargetManager | null {
+        if (!this._instance) {
+            const scene = director.getScene();
+            if (scene) {
+                const node = new Node('DeliverTargetManager');
+                scene.addChild(node);
+                this._instance = node.addComponent(DeliverTargetManager);
+            }
+        }
         return this._instance;
     }
 
@@ -57,7 +65,7 @@ export class DeliverTargetManager extends Component {
                 continue;
             }
 
-            const distance = Vec3.squaredDistance(position, target.node.getPosition());
+            const distance = Vec3.squaredDistance(position, target.node.getWorldPosition());
             if (distance < minDistance && distance <= radiusSqr) {
                 minDistance = distance;
                 nearestTarget = target;
