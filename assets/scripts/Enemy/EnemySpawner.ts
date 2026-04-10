@@ -70,6 +70,7 @@ export class EnemySpawner extends Component {
     private _currentWaveSpawnQueue: Prefab[] = [];
     private _spawnedInWaveCount: number = 0;
     private _nextSpawnTime: number = 0;
+    private _boundOnMapLevelUpgrade: ((stage: Stage) => void) | null = null;
 
     protected start(): void {
         if (this.autoStart && GameManager.Instance?.CurrentState === GameState.Playing) {
@@ -83,7 +84,8 @@ export class EnemySpawner extends Component {
             GameManager.Instance.addGameStateChangedListener(this.onGameStateChanged);
         }
         // 监听地图升级事件
-        EventCenter.Instance?.AddEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade);
+        this._boundOnMapLevelUpgrade = this.onMapLevelUpgrade.bind(this);
+        EventCenter.Instance?.AddEventListener(EventName.MapLevelUpgrade, this._boundOnMapLevelUpgrade);
     }
 
     protected onDisable(): void {
@@ -92,7 +94,10 @@ export class EnemySpawner extends Component {
             GameManager.Instance.removeGameStateChangedListener(this.onGameStateChanged);
         }
         // 移除地图升级事件监听
-        EventCenter.Instance?.RemoveEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade);
+        if (this._boundOnMapLevelUpgrade) {
+            EventCenter.Instance?.RemoveEventListener(EventName.MapLevelUpgrade, this._boundOnMapLevelUpgrade);
+            this._boundOnMapLevelUpgrade = null;
+        }
     }
 
     protected update(dt: number): void {
