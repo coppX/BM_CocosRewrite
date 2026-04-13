@@ -70,7 +70,6 @@ export class DestroyEnemy extends Component {
                         enemy.releaseToPool();
                     }
                 }
-                console.log("fdc 检测到左侧敌人");
             }
 
             if (rightEnemies.length > 0) {
@@ -84,9 +83,7 @@ export class DestroyEnemy extends Component {
                         enemy.releaseToPool();
                     }
                 }
-                    console.log("fdc 检测到右侧敌人");
             }
-            console.log("fdc EnemyManager中左侧敌人数量:", leftEnemies.length, "右侧敌人数量:", rightEnemies.length);
         }
     }
 }

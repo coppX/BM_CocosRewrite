@@ -444,7 +444,7 @@
   },
   {
     "__type__": "cc.animation.BindableBoolean",
-    "variable": "IsMoving",
+    "variable": "IsAttack",
     "value": false
   },
   {

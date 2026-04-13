@@ -1,4 +1,4 @@
-import { _decorator, Component, Material, MeshRenderer, tween, Vec3 } from 'cc';
+import { _decorator, Component, Material, MeshRenderer, Color, tween, Vec3 } from 'cc';
 import { HealthSystem } from '../Core/HealthSystem';
 import { PoolManager } from '../Managers/PoolManager';
 import { EventCenter } from '../Core/EventCenter';
@@ -78,7 +78,7 @@ export class Teammate extends Component {
         // 使用EnemyManager获取范围内的敌人
         if (EnemyManager.Instance) {
             const enemies = EnemyManager.Instance.getTargetsInRange(
-                this.node.getPosition(),
+                this.node.getWorldPosition(),
                 this.detectionRadius
             );
 
@@ -87,8 +87,8 @@ export class Teammate extends Component {
                 if (!enemy || !enemy.node.active || enemy.isDeadState()) continue;
 
                 const distance = Vec3.squaredDistance(
-                    this.node.getPosition(),
-                    enemy.node.getPosition()
+                    this.node.getWorldPosition(),
+                    enemy.node.getWorldPosition()
                 );
 
                 if (distance < this.detectionRadius * this.detectionRadius) {
@@ -145,19 +145,26 @@ export class Teammate extends Component {
     }
 
     /**
-     * 设置材质溶解值
+     * 设置材质溶解值（通过 mainColor alpha 模拟）
+     * @param dissolveValue 0=正常显示, 1=完全消失
      */
     private setMaterialDissolve(dissolveValue: number): void {
         const allRenderers = this.getComponentsInChildren(MeshRenderer);
+        const alpha = Math.round((1 - dissolveValue) * 255);
 
         allRenderers.forEach(renderer => {
-            if (renderer) {
-                const materials = renderer.materials;
-                materials.forEach(mat => {
-                    if (mat && mat.getProperty('_Dissolve') !== undefined) {
-                        mat.setProperty('_Dissolve', dissolveValue);
+            if (!renderer) return;
+            for (let i = 0; i < renderer.materials.length; i++) {
+                const matInst = renderer.getMaterialInstance(i);
+                if (!matInst) continue;
+                try {
+                    const color = matInst.getProperty('mainColor') as Color;
+                    if (color) {
+                        matInst.setProperty('mainColor', new Color(color.r, color.g, color.b, alpha));
+                    } else {
+                        matInst.setProperty('mainColor', new Color(255, 255, 255, alpha));
                     }
-                });
+                } catch {}
             }
         });
     }

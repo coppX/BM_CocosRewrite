@@ -2,9 +2,11 @@ import { _decorator, Component, Node, Prefab, instantiate, Vec3, Enum } from 'cc
 import { GameManager, GameState, GameStateValue } from '../Managers/GameManager';
 import { BezierCurve } from '../Utils/BezierCurve';
 import { BezierFollower } from '../Utils/BezierFollower';
+import { EnemyController } from './EnemyController';
 import { GlobalVariables, Stage } from '../Core/GlobalVariables';
 import { EventCenter } from '../Core/EventCenter';
 import { EventName } from '../Core/EventName';
+import { PoolManager } from '../Managers/PoolManager';
 const { ccclass, property } = _decorator;
 const StageEnum = Enum(GlobalVariables.Stage);
 
@@ -163,15 +165,26 @@ export class EnemySpawner extends Component {
 
         // 根据当前阶段找到对应的波次
         this._activeWave = null;
+        let closestWave: SpawnWave | null = null;
         for (const wave of this.spawnWaves) {
             if (wave.activeStage === this.currentStage) {
                 this._activeWave = wave;
                 break;
             }
+            // 记录阶段最接近（不超过当前阶段）的波次作为fallback
+            if (wave.activeStage <= this.currentStage) {
+                if (!closestWave || wave.activeStage > closestWave.activeStage) {
+                    closestWave = wave;
+                }
+            }
+        }
+
+        // 如果当前阶段没有配置，使用最近的低阶段波次
+        if (!this._activeWave) {
+            this._activeWave = closestWave;
         }
 
         if (!this._activeWave) {
-            console.error(`没有为当前阶段 ${this.currentStage} 配置激活的波次！`);
             return;
         }
 
@@ -226,24 +239,33 @@ export class EnemySpawner extends Component {
     private spawnEnemy(prefab: Prefab): void {
         if (!prefab) return;
 
-        // 实例化敌人
-        const enemy = instantiate(prefab);
-        enemy.setPosition(this.node.getWorldPosition());
-        enemy.setParent(this.node.scene);
+        PoolManager.Instance.getObj(prefab.name, (enemy) => {
+            if (!enemy) return;
 
-        // 设置敌人的贝塞尔曲线路径
-        if (this.bezierCurve) {
-            const follower = enemy.getComponent(BezierFollower);
-            if (follower) {
-                follower.curve = this.bezierCurve;
-                follower.speedMultiplier = this.speedMultiplier;
+            enemy.setPosition(this.node.getWorldPosition());
+            enemy.setParent(this.node.scene);
+            enemy.active = true;
 
-                // 设置初始位置为生成点
-                follower.setInitialPosition(this.node.getWorldPosition());
-
-                // 开始移动
-                follower.startMove();
+            // 重置敌人状态
+            const enemyCtl = enemy.getComponent(EnemyController);
+            if (enemyCtl) {
+                enemyCtl.onSpawn();
             }
-        }
+
+            // 设置敌人的贝塞尔曲线路径
+            if (this.bezierCurve) {
+                const follower = enemy.getComponent(BezierFollower);
+                if (follower) {
+                    follower.curve = this.bezierCurve;
+                    follower.speedMultiplier = this.speedMultiplier;
+
+                    // 设置初始位置为生成点
+                    follower.setInitialPosition(this.node.getWorldPosition());
+
+                    // 开始移动
+                    follower.startMove();
+                }
+            }
+        }, prefab);
     }
 }

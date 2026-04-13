@@ -27,8 +27,10 @@ export class Coin extends Component {
     public spawnOwner: Node | null = null;
 
     // Private state
-    private _destroyTimeout: number | null = null;
     private _currentTween: Tween<Node> | null = null;
+    private readonly _autoDestroyCallback = () => {
+        this.autoDestroy();
+    };
 
     protected onEnable() {
         // Register coin after 1 second
@@ -52,15 +54,10 @@ export class Coin extends Component {
      */
     public dropOnGround(pos: Vec3) {
         // Stop any existing auto-destroy timer
-        if (this._destroyTimeout !== null) {
-            clearTimeout(this._destroyTimeout);
-            this._destroyTimeout = null;
-        }
+        this.unschedule(this._autoDestroyCallback);
 
         // Start new auto-destroy timer
-        this._destroyTimeout = setTimeout(() => {
-            this.autoDestroy();
-        }, this.lifeTime * 1000) as any;
+        this.scheduleOnce(this._autoDestroyCallback, this.lifeTime);
 
         // Mark coin as moving
         this.isMoving = true;
@@ -143,10 +140,7 @@ export class Coin extends Component {
         this.isMoving = true;
 
         // Stop auto-destroy timer
-        if (this._destroyTimeout !== null) {
-            clearTimeout(this._destroyTimeout);
-            this._destroyTimeout = null;
-        }
+        this.unschedule(this._autoDestroyCallback);
     }
 
     public stopMove() {
@@ -168,10 +162,7 @@ export class Coin extends Component {
         }
 
         // Stop auto-destroy timer
-        if (this._destroyTimeout !== null) {
-            clearTimeout(this._destroyTimeout);
-            this._destroyTimeout = null;
-        }
+        this.unschedule(this._autoDestroyCallback);
 
         // Reset parent
         this.node.setParent(null);

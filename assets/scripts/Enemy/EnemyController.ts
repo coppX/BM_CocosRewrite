@@ -195,10 +195,10 @@ export class EnemyController extends Component {
         // 确定朝向
         let faceDir = new Vec3();
         if (this._healthSystem && this._healthSystem.LastDamager) {
-            Vec3.subtract(faceDir, this._healthSystem.LastDamager.getPosition(), this.node.getPosition());
+            Vec3.subtract(faceDir, this._healthSystem.LastDamager.getWorldPosition(), this.node.getWorldPosition());
             faceDir.normalize();
         } else if (this._player) {
-            Vec3.subtract(faceDir, this._player.getPosition(), this.node.getPosition());
+            Vec3.subtract(faceDir, this._player.getWorldPosition(), this.node.getWorldPosition());
             faceDir.normalize();
         } else {
             faceDir = new Vec3(math.randomRange(-1, 1), 0, math.randomRange(-1, 1));
@@ -216,7 +216,7 @@ export class EnemyController extends Component {
     }
 
     private dropItems(): void {
-        const dropOrigin = this.node.getPosition().clone();
+        const dropOrigin = this.node.getWorldPosition().clone();
 
         for (let i = 0; i < this.dropAmount; i++) {
             if (Math.random() > this.dropChance * this.dropChanceMultiplier) continue;

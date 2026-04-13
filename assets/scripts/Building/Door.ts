@@ -3,6 +3,7 @@ import { Building } from './Building';
 import { DoorManager } from '../Managers/DoorManager';
 import { TeamManager } from '../Managers/TeamManager';
 import { EnemyManager } from '../Managers/EnemyManager';
+import { EnemyController } from '../Enemy/EnemyController';
 const { ccclass, property } = _decorator;
 
 /**
@@ -78,9 +79,9 @@ export class Door extends Building {
             const radiusSqr = this._detectionRadius * this._detectionRadius;
 
             if ((teammates[0].length > 0 &&
-                Vec3.squaredDistance(this.node.getPosition(), teammates[0][0].node.getPosition()) <= radiusSqr) ||
+                Vec3.squaredDistance(this.node.getWorldPosition(), teammates[0][0].node.getWorldPosition()) <= radiusSqr) ||
                 (teammates[1].length > 0 &&
-                Vec3.squaredDistance(this.node.getPosition(), teammates[1][0].node.getPosition()) <= radiusSqr)) {
+                Vec3.squaredDistance(this.node.getWorldPosition(), teammates[1][0].node.getWorldPosition()) <= radiusSqr)) {
                 shouldOpen = true;
                 this._isPermanentlyOpen = true; // 队友触碰后永久打开
             }
@@ -89,7 +90,7 @@ export class Door extends Building {
         // 检测玩家
         if (!this._isPermanentlyOpen && playerTransform) {
             const radiusSqr = this._detectionRadius * this._detectionRadius;
-            if (Vec3.squaredDistance(this.node.getPosition(), playerTransform.getPosition()) <= radiusSqr) {
+            if (Vec3.squaredDistance(this.node.getWorldPosition(), playerTransform.getWorldPosition()) <= radiusSqr) {
                 shouldOpen = true;
             }
         }
@@ -108,13 +109,15 @@ export class Door extends Building {
             const radiusSqr = enemyRadius * enemyRadius;
 
             if (enemies[0].length > 0 &&
-                Vec3.squaredDistance(this.node.getPosition(), enemies[0][0].node.getPosition()) < radiusSqr) {
+                Vec3.squaredDistance(this.node.getWorldPosition(), enemies[0][0].node.getWorldPosition()) < radiusSqr) {
                 this.beHit(enemies[0][0].node);
+                enemies[0][0].releaseToPool();
             }
 
             if (enemies[1].length > 0 &&
-                Vec3.squaredDistance(this.node.getPosition(), enemies[1][0].node.getPosition()) < radiusSqr) {
+                Vec3.squaredDistance(this.node.getWorldPosition(), enemies[1][0].node.getWorldPosition()) < radiusSqr) {
                 this.beHit(enemies[1][0].node);
+                enemies[1][0].releaseToPool();
             }
         }
     }

@@ -19,30 +19,23 @@ export class FxAutoReturnToPool extends Component {
     })
     public effectType: EffectType = GlobalVariables.EffectType.None;
 
-    private _timeoutHandle: number | null = null;
+    private readonly _returnToPool = () => {
+        if (this.node && this.node.isValid && this.node.active) {
+            PoolManager.Instance?.pushObj(this.node.name, this.node);
+
+            if (this.effectType === GlobalVariables.EffectType.HitEffect) {
+                GlobalVariables.activeHitEffectsCount--;
+            } else if (this.effectType === GlobalVariables.EffectType.FireEffect) {
+                GlobalVariables.activeMuzzleEffectsCount--;
+            }
+        }
+    };
 
     protected onEnable(): void {
-        this.scheduleReturnToPool();
+        this.scheduleOnce(this._returnToPool, this.lifeTime);
     }
 
     protected onDisable(): void {
-        if (this._timeoutHandle !== null) {
-            clearTimeout(this._timeoutHandle);
-            this._timeoutHandle = null;
-        }
-    }
-
-    private scheduleReturnToPool(): void {
-        this._timeoutHandle = setTimeout(() => {
-            if (this.node.active) {
-                PoolManager.Instance?.pushObj(this.node.name, this.node);
-
-                if (this.effectType === GlobalVariables.EffectType.HitEffect) {
-                    GlobalVariables.activeHitEffectsCount--;
-                } else if (this.effectType === GlobalVariables.EffectType.FireEffect) {
-                    GlobalVariables.activeMuzzleEffectsCount--;
-                }
-            }
-        }, this.lifeTime * 1000) as any;
+        this.unschedule(this._returnToPool);
     }
 }

@@ -1,6 +1,5 @@
 import { _decorator, Component, Prefab, Node, MeshRenderer, Material, Color, Vec3, instantiate, game } from 'cc';
 import { HealthBar } from '../UI/HealthBar';
-import { PoolManager } from '../Managers/PoolManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -114,10 +113,13 @@ export class Building extends Component {
      * 闪白效果
      */
     protected shine(): void {
-        if (this._meshRenderers.length > 0 && !this._isFlashing) {
-            this._isFlashing = true;
+        if (this._meshRenderers.length > 0) {
             this._flashElapsed = 0;
-            Vec3.copy(this._originalScale, this.node.scale);
+
+            if (!this._isFlashing) {
+                Vec3.copy(this._originalScale, this.node.scale);
+            }
+            this._isFlashing = true;
 
             if (this.needScale) {
                 this.node.setScale(
@@ -127,6 +129,7 @@ export class Building extends Component {
                 );
             }
 
+            this.unschedule(this._updateFlash);
             this.schedule(this._updateFlash, 0);
         }
     }
@@ -231,8 +234,5 @@ export class Building extends Component {
         }
 
         this.shine();
-
-        // 将敌人返回对象池
-        PoolManager.Instance?.pushObj(other.name, other);
     }
 }

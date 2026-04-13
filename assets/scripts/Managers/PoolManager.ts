@@ -72,10 +72,11 @@ export class PoolManager {
 
     /**
      * 从对象池获取对象（异步）
-     * @param name 预制体路径（相对于resources目录）
+     * @param name 预制体名称/路径
      * @param callback 回调函数，参数为获取到的节点（未激活状态）
+     * @param prefab 可选，传入Prefab引用，pool为空时用它实例化（不走resources.load）
      */
-    public getObj(name: string, callback: (obj: Node) => void): void {
+    public getObj(name: string, callback: (obj: Node) => void, prefab?: Prefab): void {
         // 如果池中有对象，直接取出
         if (this.poolDic.has(name)) {
             const poolData = this.poolDic.get(name)!;
@@ -88,15 +89,24 @@ export class PoolManager {
             }
         }
 
-        // 池中没有对象，异步加载预制体
-        resources.load(name, Prefab, (err, prefab: Prefab) => {
+        // 池中没有对象，优先用传入的Prefab实例化
+        if (prefab) {
+            const obj = instantiate(prefab);
+            obj.name = name;
+            obj.active = false;
+            callback(obj);
+            return;
+        }
+
+        // 没有传入Prefab，异步加载预制体
+        resources.load(name, Prefab, (err, loadedPrefab: Prefab) => {
             if (err) {
                 console.error(`Failed to load prefab: ${name}`, err);
                 return;
             }
 
             // 实例化预制体
-            const obj = instantiate(prefab);
+            const obj = instantiate(loadedPrefab);
             obj.name = name;
 
             // 确保对象是未激活状态
@@ -121,6 +131,12 @@ export class PoolManager {
         // 检查是否超过最大容量
         if (this.poolDic.has(name)) {
             const poolData = this.poolDic.get(name)!;
+
+            // 防止重复入池
+            if (poolData.poolList.indexOf(obj) !== -1) {
+                return;
+            }
+
             if (poolData.poolList.length >= this.maxPoolSize) {
                 // 超过容量，直接销毁对象
                 obj.destroy();
