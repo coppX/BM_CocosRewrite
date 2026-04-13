@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "骑兵营",
+    "_name": "士兵1",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -13,26 +13,26 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "骑兵营",
+    "_name": "士兵1",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
     "_children": [
       {
         "__id__": 2
-      },
-      {
-        "__id__": 10
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 12
+        "__id__": 15
+      },
+      {
+        "__id__": 17
       }
     ],
     "_prefab": {
-      "__id__": 18
+      "__id__": 19
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -43,9 +43,9 @@
     "_lrot": {
       "__type__": "cc.Quat",
       "x": 0,
-      "y": -0.3826834323650898,
+      "y": 0,
       "z": 0,
-      "w": 0.9238795325112867
+      "w": 1
     },
     "_lscale": {
       "__type__": "cc.Vec3",
@@ -58,7 +58,7 @@
     "_euler": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -45,
+      "y": 0,
       "z": 0
     },
     "_id": ""
@@ -80,10 +80,10 @@
       "__id__": 2
     },
     "asset": {
-      "__uuid__": "0b849898-22eb-4664-8baa-02392ff6723c@bdffa",
+      "__uuid__": "fdf8b274-cd90-4825-830b-7d4237b9cda3@461e1",
       "__expectedType__": "cc.Prefab"
     },
-    "fileId": "03FbYzsA5VLJMKRxPHmrxH",
+    "fileId": "1641GgyVBUNK/mKLhpc4yD",
     "instance": {
       "__id__": 4
     },
@@ -91,48 +91,103 @@
   },
   {
     "__type__": "cc.PrefabInstance",
-    "fileId": "78aApV7F1OEoSuTCynVrJU",
+    "fileId": "e9CktPSwBGLp5V9nJIM/HZ",
     "prefabRootNode": {
       "__id__": 1
     },
     "mountedChildren": [],
-    "mountedComponents": [],
-    "propertyOverrides": [
+    "mountedComponents": [
       {
         "__id__": 5
-      },
-      {
-        "__id__": 7
-      },
-      {
-        "__id__": 8
-      },
-      {
-        "__id__": 9
       }
     ],
-    "removedComponents": []
+    "propertyOverrides": [
+      {
+        "__id__": 9
+      },
+      {
+        "__id__": 11
+      },
+      {
+        "__id__": 12
+      },
+      {
+        "__id__": 13
+      }
+    ],
+    "removedComponents": [
+      {
+        "__id__": 14
+      }
+    ]
   },
   {
-    "__type__": "CCPropertyOverrideInfo",
+    "__type__": "cc.MountedComponentsInfo",
     "targetInfo": {
       "__id__": 6
     },
-    "propertyPath": [
-      "_name"
-    ],
-    "value": "A_build_cheku_01_1_B"
+    "components": [
+      {
+        "__id__": 7
+      }
+    ]
   },
   {
     "__type__": "cc.TargetInfo",
     "localID": [
-      "03FbYzsA5VLJMKRxPHmrxH"
+      "1641GgyVBUNK/mKLhpc4yD"
+    ]
+  },
+  {
+    "__type__": "cc.animation.AnimationController",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {
+      "mountedRoot": {
+        "__id__": 2
+      }
+    },
+    "node": {
+      "__id__": 2
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 8
+    },
+    "_graph": {
+      "__uuid__": "f209137a-c6e5-4001-903b-ec2827ce9b03",
+      "__expectedType__": "cc.animation.AnimationGraph"
+    },
+    "graph": {
+      "__uuid__": "f209137a-c6e5-4001-903b-ec2827ce9b03",
+      "__expectedType__": "cc.animation.AnimationGraph"
+    },
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "d9ZQhfp7dHfL/5lwV+nwdm"
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 10
+    },
+    "propertyPath": [
+      "_name"
+    ],
+    "value": "士兵优化_LOD_跑"
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "1641GgyVBUNK/mKLhpc4yD"
     ]
   },
   {
     "__type__": "CCPropertyOverrideInfo",
     "targetInfo": {
-      "__id__": 6
+      "__id__": 10
     },
     "propertyPath": [
       "_lpos"
@@ -147,7 +202,7 @@
   {
     "__type__": "CCPropertyOverrideInfo",
     "targetInfo": {
-      "__id__": 6
+      "__id__": 10
     },
     "propertyPath": [
       "_lrot"
@@ -163,7 +218,7 @@
   {
     "__type__": "CCPropertyOverrideInfo",
     "targetInfo": {
-      "__id__": 6
+      "__id__": 10
     },
     "propertyPath": [
       "_euler"
@@ -176,63 +231,13 @@
     }
   },
   {
-    "__type__": "cc.Node",
-    "_name": "HPBarSlot",
-    "_objFlags": 0,
-    "__editorExtras__": {},
-    "_parent": {
-      "__id__": 1
-    },
-    "_children": [],
-    "_active": true,
-    "_components": [],
-    "_prefab": {
-      "__id__": 11
-    },
-    "_lpos": {
-      "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 3.187,
-      "z": 0
-    },
-    "_lrot": {
-      "__type__": "cc.Quat",
-      "x": 0,
-      "y": 0,
-      "z": 0,
-      "w": 1
-    },
-    "_lscale": {
-      "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
-      "z": 1
-    },
-    "_mobility": 0,
-    "_layer": 1073741824,
-    "_euler": {
-      "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
-      "z": 0
-    },
-    "_id": ""
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "68j9XsQ9pbordqz4mBlLh0"
+    ]
   },
   {
-    "__type__": "cc.PrefabInfo",
-    "root": {
-      "__id__": 1
-    },
-    "asset": {
-      "__id__": 0
-    },
-    "fileId": "dcdd0D/VFAeoC6M5Yl4kUt",
-    "instance": null,
-    "targetOverrides": null,
-    "nestedPrefabInstanceRoots": null
-  },
-  {
-    "__type__": "08eee8rV75OZottCRDx+2Yl",
+    "__type__": "d82dbCbjZxAWJRAk/HxZdsR",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -241,66 +246,40 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 13
+      "__id__": 16
     },
-    "spawnWaves": [
-      {
-        "__id__": 14
-      },
-      {
-        "__id__": 16
-      }
-    ],
-    "enemiesPerGroup": 5,
-    "currentStage": 0,
-    "bezierCurve": null,
-    "speedMultiplier": 1,
-    "autoStart": true,
+    "damage": 20,
+    "maxHealth": 20,
+    "detectionRadius": 1,
+    "isLeftMinion": false,
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "b87PDxM1tBvImQj/sKVV7M"
+    "fileId": "c0NKUh33RICJ3wBB/0Uhgj"
   },
   {
-    "__type__": "SpawnWave",
-    "waveName": "第一波骑兵",
-    "enemyUnits": [
-      {
-        "__id__": 15
-      }
-    ],
-    "activeStage": 0,
-    "spawnIntervalInGroup": 0.3,
-    "intervalBetweenGroups": 0.3
-  },
-  {
-    "__type__": "EnemyUnitConfig",
-    "prefab": {
-      "__uuid__": "f8fe262b-b920-4456-9951-b22303f3f685",
-      "__expectedType__": "cc.Prefab"
+    "__type__": "d0285kqqVtGK5LNkPtKDb6v",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
     },
-    "count": 5
-  },
-  {
-    "__type__": "SpawnWave",
-    "waveName": "第二波骑兵",
-    "enemyUnits": [
-      {
-        "__id__": 17
-      }
-    ],
-    "activeStage": 11,
-    "spawnIntervalInGroup": 0.3,
-    "intervalBetweenGroups": 0.3
-  },
-  {
-    "__type__": "EnemyUnitConfig",
-    "prefab": {
-      "__uuid__": "afd6719f-cdfd-4ed8-99cc-155b33fb2f04",
-      "__expectedType__": "cc.Prefab"
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 18
     },
-    "count": 5
+    "curve": null,
+    "speed": 8,
+    "t": 0,
+    "autoStart": true,
+    "speedMultiplier": 1,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "7eRCHB9LdKkqr++7AmL8bT"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -310,7 +289,8 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "e4kTYqpnhMQZt5BMU7OyBs",
+    "fileId": "2crfsFCAhPWY+yzQXGzCD4",
+    "instance": null,
     "targetOverrides": null,
     "nestedPrefabInstanceRoots": [
       {
