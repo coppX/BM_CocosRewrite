@@ -41,7 +41,6 @@ export class CoinGenerate extends Component {
 
     private _spawnTimer: number = 0;
     private _spawnedCount: number = 0;
-    private _batchCoroutineRunning: boolean = false;
 
     private readonly _boundSetGenerate = this._setGenerate.bind(this);
     private readonly _boundStopGenerating = this.stopGenerating.bind(this);
@@ -69,21 +68,16 @@ export class CoinGenerate extends Component {
         if (this._spawnTimer >= this.spawnInterval) {
             this._spawnTimer -= this.spawnInterval;
             this._spawnBatch();
-            this._spawnedCount += this.spawnBatchCount;
-            if (this._spawnedCount >= this.maxSpawnCount) {
-                this.canGenerate = false;
-            }
         }
     }
 
     private _spawnBatch(): void {
-        if (this._batchCoroutineRunning) return;
-        this._batchCoroutineRunning = true;
-
         let i = 0;
         const spawnNext = () => {
-            if (i >= this.spawnBatchCount || !this.canGenerate) {
-                this._batchCoroutineRunning = false;
+            if (i >= this.spawnBatchCount || !this.canGenerate || this._spawnedCount >= this.maxSpawnCount) {
+                if (this._spawnedCount >= this.maxSpawnCount) {
+                    this.canGenerate = false;
+                }
                 return;
             }
 
@@ -119,6 +113,7 @@ export class CoinGenerate extends Component {
                         coin.dropOnGround(spawnPos);
                     }
                 }
+                this._spawnedCount++;
             });
 
             i++;
@@ -138,6 +133,5 @@ export class CoinGenerate extends Component {
     public stopGenerating(): void {
         this.canGenerate = false;
         this.unscheduleAllCallbacks();
-        this._batchCoroutineRunning = false;
     }
 }

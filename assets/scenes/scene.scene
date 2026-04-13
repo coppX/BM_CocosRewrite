@@ -604,7 +604,7 @@
     },
     "minDelayFrames": 3,
     "maxDelayFrames": 9,
-    "_id": "79ItQN945NnKtz6TvIH0hz"
+    "_id": "55VA+lSbpEKorKx5vZ7uC/"
   },
   {
     "__type__": "cc.Node",
@@ -20828,7 +20828,7 @@
     "spawnInterval": 1,
     "maxSpawnCount": 800,
     "spawnBatchCount": 3,
-    "spawnRadius": 1,
+    "spawnRadius": 0,
     "batchMinDelay": 0,
     "batchMaxDelay": 0.2,
     "throwTarget": {
@@ -21075,7 +21075,7 @@
     "spawnInterval": 1,
     "maxSpawnCount": 800,
     "spawnBatchCount": 3,
-    "spawnRadius": 1,
+    "spawnRadius": 0,
     "batchMinDelay": 0,
     "batchMaxDelay": 0.2,
     "throwTarget": {
@@ -23833,7 +23833,7 @@
         "__id__": 1414
       },
       {
-        "__id__": 560
+        "__id__": 627
       }
     ],
     "afterBounceObjects": []
@@ -24712,7 +24712,7 @@
     "_priority": 1073741824,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 505.1088201603666,
+    "_orthoHeight": 414.0469483568075,
     "_near": 1,
     "_far": 2000,
     "_color": {
