@@ -22,7 +22,7 @@ export class DestroyEnemy extends Component {
     @property(Building)
     public build: Building | null = null;
 
-    @property({ type: [EnemyController] })
+    @property({ type: [EnemyController], tooltip: '场景预置敌人，单独判断碰撞' })
     public preEnemies: EnemyController[] = [];
 
     private _checkTimer: number = 0;
@@ -36,42 +36,57 @@ export class DestroyEnemy extends Component {
     }
 
     private checkCollision(): void {
-        const selfPos = this.node.getPosition();
+        const selfPos = this.node.getWorldPosition();
+        const radiusSqr = this.detectionRadius * this.detectionRadius;
 
         // 检测预设敌人
         for (let i = this.preEnemies.length - 1; i >= 0; i--) {
             const enemy = this.preEnemies[i];
             if (!enemy || !enemy.node) continue;
 
-            const distance = Vec3.squaredDistance(selfPos, enemy.node.getPosition());
-            if (distance < this.detectionRadius * this.detectionRadius) {
+            const distance = Vec3.distance(selfPos, enemy.node.getWorldPosition());
+            if (distance < radiusSqr) {
                 if (this.build) {
                     this.build.beHit(enemy.node);
                 }
-
                 enemy.releaseToPool();
                 this.preEnemies.splice(i, 1);
                 return;
             }
         }
 
-        // 检测EnemyManager中的敌人
+        // 检测EnemyManager中的敌人（匹配Unity GetMinions逻辑）
         if (EnemyManager.Instance) {
-            const enemies = EnemyManager.Instance.getTargetsInRange(selfPos, this.detectionRadius);
+            const [leftEnemies, rightEnemies] = EnemyManager.Instance.getMinions();
 
-            for (const enemy of enemies) {
-                if (!enemy || !enemy.node.active || enemy.isDeadState()) continue;
-
-                const distance = Vec3.squaredDistance(selfPos, enemy.node.getPosition());
-                if (distance < this.detectionRadius * this.detectionRadius) {
-                    if (this.build) {
-                        this.build.beHit(enemy.node);
+            if (leftEnemies.length > 0) {
+                const enemy = leftEnemies[0];
+                if (enemy && enemy.node.active && !enemy.isDeadState()) {
+                    const distance = Vec3.distance(selfPos, enemy.node.getWorldPosition());
+                    if (distance < radiusSqr) {
+                        if (this.build) {
+                            this.build.beHit(enemy.node);
+                        }
+                        enemy.releaseToPool();
                     }
-
-                    enemy.releaseToPool();
-                    return;
                 }
+                console.log("fdc 检测到左侧敌人");
             }
+
+            if (rightEnemies.length > 0) {
+                const enemy = rightEnemies[0];
+                if (enemy && enemy.node.active && !enemy.isDeadState()) {
+                    const distance = Vec3.distance(selfPos, enemy.node.getWorldPosition());
+                    if (distance < radiusSqr) {
+                        if (this.build) {
+                            this.build.beHit(enemy.node);
+                        }
+                        enemy.releaseToPool();
+                    }
+                }
+                    console.log("fdc 检测到右侧敌人");
+            }
+            console.log("fdc EnemyManager中左侧敌人数量:", leftEnemies.length, "右侧敌人数量:", rightEnemies.length);
         }
     }
 }

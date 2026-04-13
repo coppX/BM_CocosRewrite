@@ -39,8 +39,13 @@ export class AttackLogic extends Component {
 
         // 正在播放攻击动画，持续驱动动画状态，等子弹发射
         if (this._waitingForAttack) {
-            if (this._weapon.currentTarget) {
+            if (this._weapon.currentTarget && this._weapon.currentTarget.isValid) {
                 this._weapon.attack(this._weapon.currentTarget);
+            } else {
+                // 目标已失效，重置攻击状态
+                this._waitingForAttack = false;
+                this._weapon.stopAttacking();
+                this._searchTimer = this.searchInterval;
             }
             return;
         }
@@ -49,7 +54,7 @@ export class AttackLogic extends Component {
         if (this._searchTimer <= 0) {
             this._weapon.tryAttack();
 
-            if (this._weapon.currentTarget) {
+            if (this._weapon.currentTarget && this._weapon.currentTarget.isValid) {
                 // 找到敌人，驱动攻击动画，等子弹发射后再重置计时
                 this._waitingForAttack = true;
                 this._weapon.attack(this._weapon.currentTarget);

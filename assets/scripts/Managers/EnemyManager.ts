@@ -52,7 +52,7 @@ export class EnemyManager extends Component {
 
         for (const target of this._targets) {
             if (target && target.node.active) {
-                const disSqr = Vec3.squaredDistance(center, target.node.getPosition());
+                const disSqr = Vec3.squaredDistance(center, target.node.getWorldPosition());
                 if (disSqr <= rangeSqr) {
                     targetsInRange.push(target);
                 }

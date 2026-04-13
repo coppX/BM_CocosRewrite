@@ -158,13 +158,13 @@ export abstract class Weapon extends Component {
             const arrowTarget = this._directionalArrow.CurrentTarget;
 
             // 优先使用箭头指向的敌人目标
-            if (arrowTarget && arrowTarget.getComponent(EnemyController)) {
+            if (arrowTarget && arrowTarget.isValid && arrowTarget.getComponent(EnemyController)) {
                 newTarget = arrowTarget;
             } else {
                 // 如果箭头没指向敌人，则武器尝试寻找最近的敌人
                 const closestEnemy = this._directionalArrow.GetClosestAttackableTarget?.();
                 // 只有在确实找到了一个可攻击的敌人时，才更新目标
-                if (closestEnemy) {
+                if (closestEnemy && closestEnemy.isValid) {
                     newTarget = closestEnemy;
                 }
             }
@@ -176,6 +176,12 @@ export abstract class Weapon extends Component {
         // 如果找到了新目标，更新currentTarget
         if (newTarget) {
             this.currentTarget = newTarget;
+        }
+
+        // 清理已失效的目标
+        if (this.currentTarget && !this.currentTarget.isValid) {
+            this.currentTarget = null;
+            return;
         }
 
         // 检查是否在攻击范围内
@@ -205,7 +211,7 @@ export abstract class Weapon extends Component {
      * 检查目标是否有效
      */
     protected isValidTarget(target: Node): boolean {
-        if (!target) return false;
+        if (!target || !target.isValid) return false;
 
         const enemy = target.getComponent(EnemyController);
         if (enemy) {
@@ -219,7 +225,7 @@ export abstract class Weapon extends Component {
      * 检查目标是否在攻击范围内
      */
     public isInAttackRange(): boolean {
-        if (!this.currentTarget || !this._attackLogic) return false;
+        if (!this.currentTarget || !this.currentTarget.isValid || !this._attackLogic) return false;
 
         const distance = Vec3.squaredDistance(
             this.node.getWorldPosition(),

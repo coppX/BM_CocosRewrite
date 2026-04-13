@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, Node, MeshRenderer, Material, Color, tween, instantiate } from 'cc';
+import { _decorator, Component, Prefab, Node, MeshRenderer, Material, Color, Vec3, instantiate, game } from 'cc';
 import { HealthBar } from '../UI/HealthBar';
 import { PoolManager } from '../Managers/PoolManager';
 const { ccclass, property } = _decorator;
@@ -47,9 +47,11 @@ export class Building extends Component {
     protected healthBar: HealthBar | null = null;
 
     private _meshRenderers: MeshRenderer[] = [];
-    private _originalMaterials: Material[][] = [];
-    private _flashMaterials: Material[][] = [];
+    private _originalColors: Color[][] = [];
+    private _originalEmissiveColors: Color[][] = [];
     private _isFlashing: boolean = false;
+    private _flashElapsed: number = 0;
+    private _originalScale: Vec3 = new Vec3();
 
     protected start(): void {
         this.currentHealth = this.maxHealth;
@@ -57,23 +59,41 @@ export class Building extends Component {
         // 收集所有MeshRenderer
         this._meshRenderers = this.getComponentsInChildren(MeshRenderer);
 
-        // 缓存原始材质
-        this._originalMaterials = [];
-        this._flashMaterials = [];
-
+        // 缓存原始主颜色和发光颜色
+        this._originalColors = [];
+        this._originalEmissiveColors = [];
         for (let i = 0; i < this._meshRenderers.length; i++) {
             const renderer = this._meshRenderers[i];
-            const mats = renderer.materials;
-            this._originalMaterials[i] = [...mats];
-            this._flashMaterials[i] = mats.map(mat => {
-                const newMat = new Material();
-                newMat.copy(mat);
-                return newMat;
-            });
+            const matColors: Color[] = [];
+            const emissiveColors: Color[] = [];
+            for (let j = 0; j < renderer.materials.length; j++) {
+                const matInst = renderer.getMaterialInstance(j);
+                if (matInst) {
+                    // 缓存mainColor
+                    try {
+                        const color = matInst.getProperty('mainColor') as Color;
+                        matColors.push(color ? new Color(color) : Color.WHITE.clone());
+                    } catch {
+                        matColors.push(Color.WHITE.clone());
+                    }
+                    // 缓存emissive
+                    try {
+                        const emissive = matInst.getProperty('emissive') as Color;
+                        emissiveColors.push(emissive ? new Color(emissive) : Color.BLACK.clone());
+                    } catch {
+                        emissiveColors.push(Color.BLACK.clone());
+                    }
+                } else {
+                    matColors.push(Color.WHITE.clone());
+                    emissiveColors.push(Color.BLACK.clone());
+                }
+            }
+            this._originalColors[i] = matColors;
+            this._originalEmissiveColors[i] = emissiveColors;
         }
 
         // 延迟初始化血条
-        setTimeout(() => this.initializeHealthBar(), 1000);
+        this.scheduleOnce(() => this.initializeHealthBar(), 1);
     }
 
     protected initializeHealthBar(): void {
@@ -95,53 +115,91 @@ export class Building extends Component {
      */
     protected shine(): void {
         if (this._meshRenderers.length > 0 && !this._isFlashing) {
-            this.shineCoroutine();
+            this._isFlashing = true;
+            this._flashElapsed = 0;
+            Vec3.copy(this._originalScale, this.node.scale);
+
+            if (this.needScale) {
+                this.node.setScale(
+                    this._originalScale.x * 1.1,
+                    this._originalScale.y * 1.1,
+                    this._originalScale.z * 1.1
+                );
+            }
+
+            this.schedule(this._updateFlash, 0);
         }
     }
 
-    private shineCoroutine(): void {
-        this._isFlashing = true;
-        const originalScale = this.node.scale.clone();
+    private _updateFlash = (dt: number): void => {
+        if (!this.node || !this.node.isValid) {
+            this._isFlashing = false;
+            this.unschedule(this._updateFlash);
+            return;
+        }
 
-        // 应用闪白材质
+        this._flashElapsed += dt;
+        const t = this._flashElapsed / Math.max(0.01, this.flashDuration);
+
+        if (t >= 1) {
+            // 恢复原始颜色和缩放
+            this._restoreOriginalColors();
+            this.node.setScale(this._originalScale);
+            this._isFlashing = false;
+            this.unschedule(this._updateFlash);
+            return;
+        }
+
+        const intensity = Math.sin(t * Math.PI) * this.maxIntensity;
+        this._applyFlashColor(intensity);
+    };
+
+    private _applyFlashColor(intensity: number): void {
         for (let i = 0; i < this._meshRenderers.length; i++) {
-            this._meshRenderers[i].materials = this._flashMaterials[i];
-        }
+            const renderer = this._meshRenderers[i];
+            if (!renderer || !renderer.isValid) continue;
 
-        if (this.needScale) {
-            this.node.setScale(originalScale.multiplyScalar(1.1));
-        }
+            for (let j = 0; j < renderer.materials.length; j++) {
+                const matInst = renderer.getMaterialInstance(j);
+                if (!matInst) continue;
 
-        let elapsed = 0;
-        const updateFlash = () => {
-            elapsed += 0.016; // 约60fps
-            const t = elapsed / this.flashDuration;
+                // Lerp mainColor
+                const origColor = this._originalColors[i]?.[j] ?? Color.WHITE;
+                const r = origColor.r + (this.flashColor.r - origColor.r) * intensity;
+                const g = origColor.g + (this.flashColor.g - origColor.g) * intensity;
+                const b = origColor.b + (this.flashColor.b - origColor.b) * intensity;
+                const a = origColor.a + (this.flashColor.a - origColor.a) * intensity;
+                try { matInst.setProperty('mainColor', new Color(r, g, b, a)); } catch {}
 
-            if (t >= 1) {
-                // 恢复原始材质和缩放
-                for (let i = 0; i < this._meshRenderers.length; i++) {
-                    this._meshRenderers[i].materials = this._originalMaterials[i];
-                }
-                this.node.setScale(originalScale);
-                this._isFlashing = false;
-                return;
+                // 设置emissive发光
+                const origEmissive = this._originalEmissiveColors[i]?.[j] ?? Color.BLACK;
+                const er = origEmissive.r + (this.flashColor.r - origEmissive.r) * intensity;
+                const eg = origEmissive.g + (this.flashColor.g - origEmissive.g) * intensity;
+                const eb = origEmissive.b + (this.flashColor.b - origEmissive.b) * intensity;
+                try {
+                    matInst.setProperty('emissive', new Color(er, eg, eb, 255));
+                    matInst.setProperty('emissiveScale', intensity);
+                } catch {}
             }
+        }
+    }
 
-            const intensity = Math.sin(t * Math.PI) * this.maxIntensity;
+    private _restoreOriginalColors(): void {
+        for (let i = 0; i < this._meshRenderers.length; i++) {
+            const renderer = this._meshRenderers[i];
+            if (!renderer || !renderer.isValid) continue;
 
-            // 设置发光颜色
-            for (let i = 0; i < this._flashMaterials.length; i++) {
-                for (let j = 0; j < this._flashMaterials[i].length; j++) {
-                    const mat = this._flashMaterials[i][j];
-                    mat.setProperty('emissive', this.flashColor);
-                    mat.setProperty('emissiveScale', intensity);
-                }
+            for (let j = 0; j < renderer.materials.length; j++) {
+                const matInst = renderer.getMaterialInstance(j);
+                if (!matInst) continue;
+
+                try { matInst.setProperty('mainColor', this._originalColors[i]?.[j] ?? Color.WHITE); } catch {}
+                try {
+                    matInst.setProperty('emissive', this._originalEmissiveColors[i]?.[j] ?? Color.BLACK);
+                    matInst.setProperty('emissiveScale', 0);
+                } catch {}
             }
-
-            requestAnimationFrame(updateFlash);
-        };
-
-        requestAnimationFrame(updateFlash);
+        }
     }
 
     /**
@@ -160,11 +218,11 @@ export class Building extends Component {
             this.healthBar.setHealth(this.currentHealth, this.maxHealth);
 
             // 2秒后隐藏血条
-            setTimeout(() => {
+            this.scheduleOnce(() => {
                 if (this.healthBar) {
                     this.healthBar.node.active = false;
                 }
-            }, 2000);
+            }, 2);
 
             if (this.currentHealth <= 0) {
                 this.healthBar.node.active = false;

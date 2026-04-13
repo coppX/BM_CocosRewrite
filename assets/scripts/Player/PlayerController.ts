@@ -75,7 +75,7 @@ export class PlayerController extends Component {
 
     private handleMovement(dt: number): void {
         const canAttack = this._attackLogic?.canAttack;
-        const hasTarget = this.currentWeapon?.currentTarget != null && this.currentWeapon?.isInAttackRange();
+        const hasTarget = this.currentWeapon?.currentTarget != null && this.currentWeapon?.currentTarget?.isValid && this.currentWeapon?.isInAttackRange();
         const targetNode = this.currentWeapon?.currentTarget;
 
         const shouldFaceTarget = canAttack && hasTarget;
