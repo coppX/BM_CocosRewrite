@@ -347,7 +347,9 @@ export class CoinCollection extends Component {
      * 执行投递
      */
     private executeDeliver(target: Node, coin: Node, coinTrigger: CoinTrigger): void {
+        const worldPos = coin.getWorldPosition();
         coin.setParent(this.node.scene);
+        coin.setWorldPosition(worldPos);
         const coinComponent = coin.getComponent(Coin);
         if (coinComponent) {
             CoinManager.Instance?.unregisterCoin(coinComponent);
@@ -393,7 +395,9 @@ export class CoinCollection extends Component {
             coinComponent.isBeingDelivered = true;
             coinComponent.startMove();
         }
+        const worldPos = coin.getWorldPosition();
         coin.setParent(this.node.scene);
+        coin.setWorldPosition(worldPos);
 
         const target = this.lastTransferTarget;
         if (!target) {

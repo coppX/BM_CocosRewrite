@@ -75,7 +75,7 @@ export class PlayerController extends Component {
 
     private handleMovement(dt: number): void {
         const canAttack = this._attackLogic?.canAttack;
-        const hasTarget = this.currentWeapon?.isInAttackRange();
+        const hasTarget = this.currentWeapon?.currentTarget != null && this.currentWeapon?.isInAttackRange();
         const targetNode = this.currentWeapon?.currentTarget;
 
         const shouldFaceTarget = canAttack && hasTarget;
@@ -85,7 +85,7 @@ export class PlayerController extends Component {
             // 如果正在攻击且目标在范围内，朝向攻击目标
             const directionToTarget = targetNode.getWorldPosition().subtract(this.node.getWorldPosition());
             directionToTarget.y = 0; // 保持在水平面上
-            
+
             if (directionToTarget.lengthSqr() > 0.0001)
             {
                 directionToTarget.normalize();
@@ -100,14 +100,14 @@ export class PlayerController extends Component {
         else
         {
             if (isMovingNow) {
-                // 朝向移动方向
+                // 朝向移动方向（平滑旋转）
                 const dir = this._moveDirection.clone().normalize();
-                const targetRotation = new Vec3();
-                Vec3.transformQuat(targetRotation, Vec3.FORWARD, this.node.getRotation());
-
-                // 简单的朝向处理
                 const angle = Math.atan2(dir.x, dir.z);
-                this.node.setRotationFromEuler(0, angle * 180 / Math.PI, 0);
+                const toRotation = new Quat();
+                Quat.fromEuler(toRotation, 0, angle * 180 / Math.PI, 0);
+                const smoothRotation = new Quat();
+                Quat.slerp(smoothRotation, this.node.getRotation(), toRotation, this.rotationSpeed * dt);
+                this.node.setRotation(smoothRotation);
             }
         }
 

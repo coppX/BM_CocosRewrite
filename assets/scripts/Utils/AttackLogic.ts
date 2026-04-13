@@ -1,7 +1,8 @@
-import { _decorator, Component, Node, Vec3 } from 'cc';
+import { _decorator, Component, Node, Vec3, game } from 'cc';
 import { Weapon } from '../Weapons/Weapon';
 import { EnemyManager } from '../Managers/EnemyManager';
 import { EnemyController } from '../Enemy/EnemyController';
+import { GameManager, GameState } from '../Managers/GameManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -16,16 +17,56 @@ export class AttackLogic extends Component {
     @property
     public canAttack: boolean = true;
 
+    @property({ tooltip: '攻击间隔（秒），发射子弹后开始计时' })
+    public searchInterval: number = 0.5;
+
     private _weapon: Weapon | null = null;
+    private _searchTimer: number = 0;
+    private _waitingForAttack: boolean = false;
 
     protected onLoad(): void {
         this._weapon = this.getComponent(Weapon);
     }
 
     protected update(dt: number): void {
-        if (this.canAttack && this._weapon) {
-            this._weapon.tryAttack();
+        if (!this.canAttack || !this._weapon) return;
+
+        if (GameManager.Instance && GameManager.Instance.CurrentState === GameState.GameOver) {
+            this._waitingForAttack = false;
+            this._weapon.stopAttacking();
+            return;
         }
+
+        // 正在播放攻击动画，持续驱动动画状态，等子弹发射
+        if (this._waitingForAttack) {
+            if (this._weapon.currentTarget) {
+                this._weapon.attack(this._weapon.currentTarget);
+            }
+            return;
+        }
+
+        this._searchTimer -= dt;
+        if (this._searchTimer <= 0) {
+            this._weapon.tryAttack();
+
+            if (this._weapon.currentTarget) {
+                // 找到敌人，驱动攻击动画，等子弹发射后再重置计时
+                this._waitingForAttack = true;
+                this._weapon.attack(this._weapon.currentTarget);
+            } else {
+                // 没找到敌人，停止攻击动画，继续下一轮计时
+                this._weapon.stopAttacking();
+                this._searchTimer = this.searchInterval;
+            }
+        }
+    }
+
+    /**
+     * 子弹发射后调用，重置攻击间隔计时
+     */
+    public onAttackFired(): void {
+        this._waitingForAttack = false;
+        this._searchTimer = this.searchInterval;
     }
 
     /**
@@ -44,6 +85,10 @@ export class AttackLogic extends Component {
      * 触发一次攻击（由动画事件调用）
      */
     public tryAttackOnce(): void {
+        if (GameManager.Instance && GameManager.Instance.CurrentState === GameState.GameOver) {
+            return;
+        }
+
         if (this._weapon) {
             this._weapon.onAttackAnimEvent();
         }
@@ -89,7 +134,7 @@ export class AttackLogic extends Component {
         let shortestDistance = Number.MAX_VALUE;
 
         for (const target of targets) {
-            const distance = Vec3.squaredDistance(searchCenter, target.getPosition());
+            const distance = Vec3.squaredDistance(searchCenter, target.getWorldPosition());
 
             if (distance < shortestDistance) {
                 shortestDistance = distance;
@@ -110,7 +155,7 @@ export class AttackLogic extends Component {
 
         // 如果敌人已被瞄准，则跳过
         if (enemy.aimer) {
-            // 清理失效瞄准引用，避免子弹销毁后目标被长期占用
+            // 清理失效瞄准引用
             if (!enemy.aimer.isValid || !enemy.aimer.active) {
                 enemy.aimer = null;
             } else {

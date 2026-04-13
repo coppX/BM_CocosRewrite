@@ -80,6 +80,9 @@ export abstract class Weapon extends Component {
     }
 
     protected update(dt: number): void {
+        // 有AttackLogic时，由它控制搜索和攻击节奏，这里不主动驱动
+        if (this._attackLogic) return;
+
         // 更新目标
         this.updateTarget();
 
@@ -136,6 +139,12 @@ export abstract class Weapon extends Component {
      */
     public onAttackAnimEvent(): void {
         this.updateTarget();
+
+        // 通知AttackLogic子弹已发射，开始下一轮攻击间隔计时
+        if (this._attackLogic) {
+            this._attackLogic.onAttackFired();
+        }
+
         this._isAttacking = false;
     }
 
@@ -213,8 +222,8 @@ export abstract class Weapon extends Component {
         if (!this.currentTarget || !this._attackLogic) return false;
 
         const distance = Vec3.squaredDistance(
-            this.node.getPosition(),
-            this.currentTarget.getPosition()
+            this.node.getWorldPosition(),
+            this.currentTarget.getWorldPosition()
         );
 
         return distance <= this._attackLogic.attackRange * this._attackLogic.attackRange;
