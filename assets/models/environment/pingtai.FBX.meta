@@ -2,18 +2,18 @@
   "ver": "2.3.14",
   "importer": "fbx",
   "imported": true,
-  "uuid": "afef18b9-e1e3-4634-be10-ae56da5cd52f",
+  "uuid": "1869ce41-40a2-48c5-96c8-6590d6165c4f",
   "files": [],
   "subMetas": {
-    "83c35": {
+    "0a348": {
       "importer": "gltf-mesh",
-      "uuid": "afef18b9-e1e3-4634-be10-ae56da5cd52f@83c35",
+      "uuid": "1869ce41-40a2-48c5-96c8-6590d6165c4f@0a348",
       "displayName": "",
-      "id": "83c35",
-      "name": "jinkuang_002.mesh",
+      "id": "0a348",
+      "name": "平台01.mesh",
       "userData": {
         "gltfIndex": 0,
-        "triangleCount": 476
+        "triangleCount": 204
       },
       "ver": "1.1.1",
       "imported": true,
@@ -23,55 +23,12 @@
       ],
       "subMetas": {}
     },
-    "ace8f": {
-      "importer": "gltf-embeded-image",
-      "uuid": "afef18b9-e1e3-4634-be10-ae56da5cd52f@ace8f",
-      "displayName": "",
-      "id": "ace8f",
-      "name": "Map #4.image",
-      "userData": {
-        "gltfIndex": 0,
-        "fixAlphaTransparencyArtifacts": true,
-        "hasAlpha": true,
-        "type": "texture"
-      },
-      "ver": "1.0.3",
-      "imported": true,
-      "files": [
-        ".json",
-        ".png"
-      ],
-      "subMetas": {}
-    },
-    "f8008": {
-      "importer": "texture",
-      "uuid": "afef18b9-e1e3-4634-be10-ae56da5cd52f@f8008",
-      "displayName": "",
-      "id": "f8008",
-      "name": "Map #4.texture",
-      "userData": {
-        "wrapModeS": "repeat",
-        "wrapModeT": "repeat",
-        "minfilter": "linear",
-        "magfilter": "linear",
-        "mipfilter": "none",
-        "anisotropy": 0,
-        "isUuid": true,
-        "imageUuidOrDatabaseUri": "afef18b9-e1e3-4634-be10-ae56da5cd52f@ace8f"
-      },
-      "ver": "1.0.22",
-      "imported": true,
-      "files": [
-        ".json"
-      ],
-      "subMetas": {}
-    },
-    "0dc51": {
+    "25d8a": {
       "importer": "gltf-material",
-      "uuid": "afef18b9-e1e3-4634-be10-ae56da5cd52f@0dc51",
+      "uuid": "1869ce41-40a2-48c5-96c8-6590d6165c4f@25d8a",
       "displayName": "",
-      "id": "0dc51",
-      "name": "Material #281.material",
+      "id": "25d8a",
+      "name": "M_LOA_Pingtai01.material",
       "userData": {
         "gltfIndex": 0
       },
@@ -82,12 +39,12 @@
       ],
       "subMetas": {}
     },
-    "5a33c": {
+    "dfe0c": {
       "importer": "gltf-scene",
-      "uuid": "afef18b9-e1e3-4634-be10-ae56da5cd52f@5a33c",
+      "uuid": "1869ce41-40a2-48c5-96c8-6590d6165c4f@dfe0c",
       "displayName": "",
-      "id": "5a33c",
-      "name": "jinkuang_002.prefab",
+      "id": "dfe0c",
+      "name": "pingtai.prefab",
       "userData": {
         "gltfIndex": 0
       },
@@ -100,12 +57,7 @@
     }
   },
   "userData": {
-    "imageMetas": [
-      {
-        "name": "Map #4",
-        "uri": "afef18b9-e1e3-4634-be10-ae56da5cd52f@ace8f"
-      }
-    ],
+    "imageMetas": [],
     "fbx": {
       "smartMaterialEnabled": true
     },
@@ -129,21 +81,19 @@
     },
     "assetFinder": {
       "meshes": [
-        "afef18b9-e1e3-4634-be10-ae56da5cd52f@83c35"
+        "1869ce41-40a2-48c5-96c8-6590d6165c4f@0a348"
       ],
       "skeletons": [],
-      "textures": [
-        "afef18b9-e1e3-4634-be10-ae56da5cd52f@f8008"
-      ],
+      "textures": [],
       "materials": [
-        "afef18b9-e1e3-4634-be10-ae56da5cd52f@0dc51"
+        "1869ce41-40a2-48c5-96c8-6590d6165c4f@25d8a"
       ],
       "scenes": [
-        "afef18b9-e1e3-4634-be10-ae56da5cd52f@5a33c"
+        "1869ce41-40a2-48c5-96c8-6590d6165c4f@dfe0c"
       ]
     },
     "materials": {
-      "afef18b9-e1e3-4634-be10-ae56da5cd52f@0dc51": {
+      "1869ce41-40a2-48c5-96c8-6590d6165c4f@25d8a": {
         "__type__": "cc.Material",
         "_name": "",
         "_objFlags": 0,
@@ -204,26 +154,25 @@
         "_props": [
           {
             "mainTexture": {
-              "__uuid__": "944ce1bf-968e-4d4e-8820-f1cda6e87b7b@6c48a",
+              "__uuid__": "41a9d084-9e31-4cb3-9b9e-0a146026ea9d@6c48a",
               "__expectedType__": "cc.Texture2D"
             },
             "mainColor": {
               "__type__": "cc.Color",
-              "r": 202,
-              "g": 202,
-              "b": 202,
+              "r": 128,
+              "g": 128,
+              "b": 128,
               "a": 255
             },
             "emissiveScale": 0,
-            "shininessExponent": 2,
+            "shininessExponent": 19.999998092651367,
             "specularColor": {
               "__type__": "cc.Color",
-              "r": 243,
-              "g": 243,
-              "b": 243,
+              "r": 124,
+              "g": 124,
+              "b": 124,
               "a": 255
-            },
-            "specularFactor": 0
+            }
           },
           {},
           {},

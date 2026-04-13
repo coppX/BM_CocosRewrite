@@ -6,6 +6,7 @@ export class EventName {
     public static readonly MapLevelUpgrade: string = "MapLevelUpgrade";
     public static readonly ChangeDirectionalArrowTarget: string = "ChangeDirectionalArrowTarget";
     public static readonly CoinCollected: string = "CoinCollected";
+    public static readonly CoinGenerate: string = "CoinGenerate";
     public static readonly EnemyDeath: string = "EnemyDeath";
     public static readonly PlayerDamaged: string = "PlayerDamaged";
     public static readonly MinionsCollision: string = "MinionsCollision";
