@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Sprite } from 'cc';
+import { _decorator, Component, Label, Node, Sprite } from 'cc';
 import { CoinTrigger } from '../Core/CoinTrigger';
 const { ccclass, property } = _decorator;
 
@@ -16,8 +16,11 @@ export class CoinNumber extends Component {
         // 获取子节点中的Label组件
         this.coinCountLabel = this.getComponentInChildren(Label);
 
-        // 获取子节点中的Sprite组件
-        this.coinSprite = this.getComponentInChildren(Sprite);
+        // 递归查找名为"遮罩"的后代节点获取Sprite组件
+        const maskNode = this.findChildByName(this.node, '遮罩');
+        if (maskNode) {
+            this.coinSprite = maskNode.getComponent(Sprite);
+        }
 
         // 获取同节点上的CoinTrigger组件
         this.coinTrigger = this.getComponent(CoinTrigger);
@@ -54,5 +57,14 @@ export class CoinNumber extends Component {
                 }
             }
         }
+    }
+
+    private findChildByName(root: Node, name: string): Node | null {
+        for (const child of root.children) {
+            if (child.name === name) return child;
+            const found = this.findChildByName(child, name);
+            if (found) return found;
+        }
+        return null;
     }
 }
