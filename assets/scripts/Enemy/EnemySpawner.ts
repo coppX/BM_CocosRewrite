@@ -201,7 +201,7 @@ export class EnemySpawner extends Component {
             console.warn(`当前波次 '${this._activeWave.waveName}' 没有配置任何敌人。`);
         }
 
-        console.log(`切换到波次: ${this._activeWave.waveName}, 队列长度: ${this._currentWaveSpawnQueue.length}`);
+        // console.log(`切换到波次: ${this._activeWave.waveName}, 队列长度: ${this._currentWaveSpawnQueue.length}`);
     }
 
     /**

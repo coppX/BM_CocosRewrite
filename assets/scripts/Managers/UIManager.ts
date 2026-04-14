@@ -72,13 +72,13 @@ export class UIManager extends Component {
         }
 
         // 绑定按钮点击事件
-        // if (this.retryButton) {
-        //     this.retryButton.node.on(Button.EventType.CLICK, this.onRetryClicked, this);
-        // }
-        //
-        // if (this.downloadButton) {
-        //     this.downloadButton.node.on(Button.EventType.CLICK, this.onDownloadClicked, this);
-        // }
+        if (this.retryButton) {
+            this.retryButton.node.on(Button.EventType.CLICK, this.onRetryClicked, this);
+        }
+        
+        if (this.downloadButton) {
+            this.downloadButton.node.on(Button.EventType.CLICK, this.onDownloadClicked, this);
+        }
 
         // 显示开始界面
         this.showStartPanel();

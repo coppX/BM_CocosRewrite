@@ -32,8 +32,7 @@ export class IconUI extends Component {
         // 查找PlayerController
         const player = PlayerController.Instance;
         if (player) {
-            // TODO: 获取CoinCollection组件
-            // this._coinCollection = player.getComponent('CoinCollection');
+            this._coinCollection = player.getComponent('CoinCollection');
         } else {
             console.error('IconUI: 场景中未找到PlayerController');
             this.enabled = false;
@@ -42,10 +41,7 @@ export class IconUI extends Component {
 
     protected update(dt: number): void {
         if (this._coinCollection && this._coinText) {
-            // TODO: 获取金币数量
-            // const coinCount = (this._coinCollection as any).getCoinCount();
-            const coinCount = 0;
-
+            const coinCount = (this._coinCollection as any).getCoinCount();
             this._coinText.string = coinCount.toString();
 
             if (this._lastCoinCount !== -1 && coinCount !== this._lastCoinCount) {
