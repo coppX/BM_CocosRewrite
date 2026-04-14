@@ -22,17 +22,17 @@
         "__id__": 2
       },
       {
-        "__id__": 10
+        "__id__": 14
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 12
+        "__id__": 16
       }
     ],
     "_prefab": {
-      "__id__": 18
+      "__id__": 22
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -109,6 +109,15 @@
       },
       {
         "__id__": 9
+      },
+      {
+        "__id__": 10
+      },
+      {
+        "__id__": 12
+      },
+      {
+        "__id__": 13
       }
     ],
     "removedComponents": []
@@ -176,6 +185,44 @@
     }
   },
   {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 11
+    },
+    "propertyPath": [
+      "bakeSettings",
+      "_castShadow"
+    ],
+    "value": true
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "d0VS5fkF1Wy4pu/jVtVM9C"
+    ]
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 11
+    },
+    "propertyPath": [
+      "bakeSettings",
+      "_receiveShadow"
+    ],
+    "value": true
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 11
+    },
+    "propertyPath": [
+      "_shadowCastingMode"
+    ],
+    "value": 1
+  },
+  {
     "__type__": "cc.Node",
     "_name": "HPBarSlot",
     "_objFlags": 0,
@@ -187,7 +234,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 11
+      "__id__": 15
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -241,14 +288,14 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 13
+      "__id__": 17
     },
     "spawnWaves": [
       {
-        "__id__": 14
+        "__id__": 18
       },
       {
-        "__id__": 16
+        "__id__": 20
       }
     ],
     "enemiesPerGroup": 5,
@@ -267,7 +314,7 @@
     "waveName": "第一波骑兵",
     "enemyUnits": [
       {
-        "__id__": 15
+        "__id__": 19
       }
     ],
     "activeStage": 0,
@@ -287,7 +334,7 @@
     "waveName": "第二波骑兵",
     "enemyUnits": [
       {
-        "__id__": 17
+        "__id__": 21
       }
     ],
     "activeStage": 11,
@@ -311,6 +358,7 @@
       "__id__": 0
     },
     "fileId": "e4kTYqpnhMQZt5BMU7OyBs",
+    "instance": null,
     "targetOverrides": null,
     "nestedPrefabInstanceRoots": [
       {

@@ -25,11 +25,11 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 10
+        "__id__": 14
       }
     ],
     "_prefab": {
-      "__id__": 12
+      "__id__": 16
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -106,6 +106,15 @@
       },
       {
         "__id__": 9
+      },
+      {
+        "__id__": 10
+      },
+      {
+        "__id__": 12
+      },
+      {
+        "__id__": 13
       }
     ],
     "removedComponents": []
@@ -173,6 +182,44 @@
     }
   },
   {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 11
+    },
+    "propertyPath": [
+      "bakeSettings",
+      "_castShadow"
+    ],
+    "value": true
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "a9ciDKVi9dS4ljnnLW60uz"
+    ]
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 11
+    },
+    "propertyPath": [
+      "bakeSettings",
+      "_receiveShadow"
+    ],
+    "value": true
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 11
+    },
+    "propertyPath": [
+      "_shadowCastingMode"
+    ],
+    "value": 1
+  },
+  {
     "__type__": "649e8ipeipIRoQQ+xESBhAm",
     "_name": "",
     "_objFlags": 0,
@@ -182,7 +229,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 11
+      "__id__": 15
     },
     "lifeTime": 2,
     "stayProbability": 0.2,
