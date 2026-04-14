@@ -329,9 +329,10 @@ export class CoinCollection extends Component {
         if (this.overflowCollectCount > 0) {
             PoolManager.Instance.getObj("Coin", (coinObj) => {
                 if (!coinObj) return;
+                coinObj.setParent(this.node.scene);
+                coinObj.setWorldPosition(this.slot!.getWorldPosition().add(this.getNextSlotPosition()));
                 coinObj.active = true;
                 this.overflowCollectCount--;
-                coinObj.setPosition(this.slot!.getWorldPosition().add(this.getNextSlotPosition()));
                 this.executeTransfer(coinObj);
             });
         } else {
@@ -473,7 +474,10 @@ export class CoinCollection extends Component {
 
         const targetLocalPos = this.getNextSlotPosition();
         const rotatedPos = this.rotateVector(targetLocalPos, this.stackRotationAngle);
+        // 保存世界坐标，reparent后恢复（Cocos setParent默认保留local坐标，不同于Unity保留world坐标）
+        const worldPos = coin.getWorldPosition();
         coin.setParent(this.slot);
+        coin.setWorldPosition(worldPos);
 
         // 使用Cocos Tween替代DoTween
         const jumpTween = this.createJumpTween(coin, rotatedPos, this.collectJumpPower, this.moveDuration);

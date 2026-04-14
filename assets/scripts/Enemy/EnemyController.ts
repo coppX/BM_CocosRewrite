@@ -243,16 +243,12 @@ export class EnemyController extends Component {
                         coin.isBearByGenerator = false;
                     }
 
-                    // 设置金币初始位置（对象此时是禁用的）
-                    coinObj.setPosition(startPos);
-
-                    // 激活金币
-                    coinObj.active = true;
-
-                    // 添加到场景
+                    // 先设置父节点，再设置世界坐标，最后激活
                     if (this.node.scene) {
-                        this.node.scene.addChild(coinObj);
+                        coinObj.setParent(this.node.scene);
                     }
+                    coinObj.setWorldPosition(startPos);
+                    coinObj.active = true;
 
                     // 开始下落动画
                     if (coin) {

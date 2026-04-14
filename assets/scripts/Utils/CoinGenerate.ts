@@ -94,8 +94,6 @@ export class CoinGenerate extends Component {
             PoolManager.Instance.getObj('Coin', (coinObj) => {
                 if (!coinObj) return;
 
-                coinObj.setWorldPosition(spawnPos);
-
                 const coin = coinObj.getComponent(Coin);
                 if (coin) {
                     coin.resetState();
@@ -103,8 +101,10 @@ export class CoinGenerate extends Component {
                     coin.spawnOwner = null;
                 }
 
-                coinObj.active = true;
+                // 先设置父节点，再设置世界坐标，最后激活
                 coinObj.setParent(this.node.scene);
+                coinObj.setWorldPosition(spawnPos);
+                coinObj.active = true;
 
                 if (coin) {
                     if (this.throwTarget) {

@@ -50,7 +50,7 @@ export class Coin extends Component {
 
     /**
      * Drop coin on ground with bounce animation
-     * @param pos Target position to drop to
+     * @param pos Target world position to drop to
      */
     public dropOnGround(pos: Vec3) {
         // Stop any existing auto-destroy timer
@@ -75,19 +75,18 @@ export class Coin extends Component {
             .by(duration, { eulerAngles: new Vec3(0, 360, 0) })
             .start();
 
-        // Jump animation with bounce
+        // Jump animation with bounce (use world position throughout, matching Unity DOJump)
         const jumpHeight = 3.5;
-        const startPos = this.node.position.clone();
+        const startPos = this.node.getWorldPosition().clone();
 
         this._currentTween = tween(this.node)
-            .to(duration, { position: pos }, {
-                // Custom easing for jump arc
+            .to(duration, {}, {
                 onUpdate: (target: Node, ratio: number) => {
                     const x = startPos.x + (pos.x - startPos.x) * ratio;
                     const z = startPos.z + (pos.z - startPos.z) * ratio;
                     // Parabolic jump curve
                     const y = pos.y + jumpHeight * (4 * ratio * (1 - ratio));
-                    target.setPosition(x, y, z);
+                    target.setWorldPosition(x, y, z);
                 }
             })
             .call(() => {
@@ -102,17 +101,40 @@ export class Coin extends Component {
         const secondBounceHeight = 0.3;
         const firstDuration = 0.1;
         const secondDuration = 0.05;
+        const totalDuration = (firstDuration + secondDuration) * 2;
 
         this._currentTween = tween(this.node)
-            // First bounce up
-            .to(firstDuration, { position: new Vec3(finalPos.x, finalPos.y + firstBounceHeight, finalPos.z) })
-            // First bounce down
-            .to(firstDuration, { position: finalPos })
-            // Second bounce up
-            .to(secondDuration, { position: new Vec3(finalPos.x, finalPos.y + secondBounceHeight, finalPos.z) })
-            // Second bounce down
-            .to(secondDuration, { position: finalPos })
+            .to(totalDuration, {}, {
+                onUpdate: (target: Node, ratio: number) => {
+                    // Calculate which phase of bounce we're in
+                    const phase1End = firstDuration / totalDuration;
+                    const phase2End = (firstDuration * 2) / totalDuration;
+                    const phase3End = (firstDuration * 2 + secondDuration) / totalDuration;
+
+                    let y: number;
+                    if (ratio <= phase1End) {
+                        // First bounce up
+                        const t = ratio / phase1End;
+                        y = finalPos.y + firstBounceHeight * Math.sin(t * Math.PI / 2);
+                    } else if (ratio <= phase2End) {
+                        // First bounce down
+                        const t = (ratio - phase1End) / (phase2End - phase1End);
+                        y = finalPos.y + firstBounceHeight * Math.cos(t * Math.PI / 2);
+                    } else if (ratio <= phase3End) {
+                        // Second bounce up
+                        const t = (ratio - phase2End) / (phase3End - phase2End);
+                        y = finalPos.y + secondBounceHeight * Math.sin(t * Math.PI / 2);
+                    } else {
+                        // Second bounce down
+                        const t = (ratio - phase3End) / (1 - phase3End);
+                        y = finalPos.y + secondBounceHeight * Math.cos(t * Math.PI / 2);
+                    }
+
+                    target.setWorldPosition(finalPos.x, y, finalPos.z);
+                }
+            })
             .call(() => {
+                this.node.setWorldPosition(finalPos);
                 this.isMoving = false;
             })
             .start();
@@ -163,8 +185,5 @@ export class Coin extends Component {
 
         // Stop auto-destroy timer
         this.unschedule(this._autoDestroyCallback);
-
-        // Reset parent
-        this.node.setParent(null);
     }
 }
