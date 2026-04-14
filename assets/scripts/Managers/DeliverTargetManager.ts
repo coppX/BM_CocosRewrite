@@ -52,6 +52,13 @@ export class DeliverTargetManager extends Component {
     }
 
     /**
+     * 获取所有已注册的投递目标
+     */
+    public getTargets(): readonly CoinTrigger[] {
+        return this._deliverTargets;
+    }
+
+    /**
      * 获取最近的投递目标
      */
     public getNearestTarget(position: Vec3, radius: number): Node | null {

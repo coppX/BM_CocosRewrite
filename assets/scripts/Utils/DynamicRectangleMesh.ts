@@ -133,18 +133,18 @@ export class DynamicRectangleMesh extends Component {
             v3.x, v3.y, v3.z
         ];
 
-        // 三角形索引
+        // 三角形索引 (CCW winding from above for correct front face)
         const indices = [
-            0, 2, 1,  // 第一个三角形
-            1, 2, 3   // 第二个三角形
+            0, 1, 2,  // 第一个三角形
+            1, 3, 2   // 第二个三角形
         ];
 
-        // UV 坐标
+        // UV 坐标（翻转V方向，使箭头纹理从起点指向终点）
         const uvs = [
-            0, 0,           // v0
-            1, 0,           // v1
-            0, distance,    // v2
-            1, distance     // v3
+            0, distance,    // v0 (起点)
+            1, distance,    // v1 (起点)
+            0, 0,           // v2 (终点)
+            1, 0            // v3 (终点)
         ];
 
         // 计算法线

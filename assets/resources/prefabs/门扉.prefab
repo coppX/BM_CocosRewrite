@@ -292,7 +292,7 @@
     "propertyPath": [
       "_name"
     ],
-    "value": "LeftDoor-001"
+    "value": "RightDoor"
   },
   {
     "__type__": "cc.TargetInfo",
@@ -457,7 +457,6 @@
       "__expectedType__": "cc.Prefab"
     },
     "maxHealth": 1000,
-    "enemyTag": "Enemy",
     "hpBarTransform": {
       "__id__": 26
     },
@@ -473,8 +472,6 @@
     },
     "maxIntensity": 1,
     "needScale": true,
-    "playerTag": "Hero",
-    "teammateTag": "Player",
     "doorOpenAngle": 60,
     "doorRotationDuration": 0.5,
     "_id": ""

@@ -10,8 +10,6 @@ const { ccclass, property } = _decorator;
  */
 @ccclass('DestroyEnemy')
 export class DestroyEnemy extends Component {
-    @property
-    public actorTag: string = 'Enemy';
 
     @property
     public detectionRadius: number = 1;

@@ -25,13 +25,10 @@
       },
       {
         "__id__": 4
-      },
-      {
-        "__id__": 6
       }
     ],
     "_prefab": {
-      "__id__": 9
+      "__id__": 7
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -63,37 +60,6 @@
     "_id": ""
   },
   {
-    "__type__": "128afDNgnFOiZEdqCAqwjeY",
-    "_name": "",
-    "_objFlags": 0,
-    "__editorExtras__": {},
-    "node": {
-      "__id__": 1
-    },
-    "_enabled": true,
-    "__prefab": {
-      "__id__": 3
-    },
-    "startPoint": {
-      "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
-      "z": 0
-    },
-    "endPoint": {
-      "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
-      "z": 5
-    },
-    "width": 1,
-    "_id": ""
-  },
-  {
-    "__type__": "cc.CompPrefabInfo",
-    "fileId": "95K0mIK4hIAaX6X+aRGNCo"
-  },
-  {
     "__type__": "3cf4bt5c+5BC4773nKclu1J",
     "_name": "",
     "_objFlags": 0,
@@ -103,7 +69,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 5
+      "__id__": 3
     },
     "startPoint": {
       "__type__": "cc.Vec3",
@@ -138,7 +104,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 7
+      "__id__": 5
     },
     "_materials": [
       {
@@ -148,7 +114,7 @@
     ],
     "_visFlags": 0,
     "bakeSettings": {
-      "__id__": 8
+      "__id__": 6
     },
     "_mesh": null,
     "_shadowCastingMode": 0,

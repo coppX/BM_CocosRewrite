@@ -15,7 +15,7 @@ CCEffect %{
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
       rasterizerState:
-        cullMode: back
+        cullMode: none
       properties:
         mainTexture:      { value: white }
         tilingOffset:     { value: [1.0, 1.0, 0.0, 0.0] }
@@ -51,7 +51,7 @@ CCProgram fx-arrow-vs %{
     v_uv = a_texCoord;
     v_uv.y *= worldScale;
     v_uv = v_uv * tilingOffset.xy + tilingOffset.zw;
-    v_uv.y -= rowSpeed * cc_time.x;
+    v_uv.y += rowSpeed * cc_time.x;
 
     return pos;
   }

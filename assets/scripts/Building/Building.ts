@@ -14,9 +14,6 @@ export class Building extends Component {
     @property
     public maxHealth: number = 100;
 
-    @property
-    public enemyTag: string = 'Enemy';
-
     @property(Node)
     public hpBarTransform: Node | null = null;
 

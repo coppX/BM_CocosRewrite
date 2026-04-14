@@ -1,5 +1,6 @@
 import { _decorator, Component, Node } from 'cc';
 import { PlayerController } from '../Player/PlayerController';
+import { TeamManager } from '../Managers/TeamManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -68,7 +69,7 @@ export class DoorManager extends Component {
      * 检查所有门的接近情况
      */
     private checkDoors(): void {
-        if (!this._playerTransform) return;
+        if (!TeamManager.Instance) return;
 
         for (const door of this._doors) {
             if (door && door.node.active) {

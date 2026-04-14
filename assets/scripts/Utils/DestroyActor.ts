@@ -12,8 +12,6 @@ const StageEnum = Enum(GlobalVariables.Stage);
  */
 @ccclass('DestroyActor')
 export class DestroyActor extends Component {
-    @property
-    public actorTag: string = 'Player';
 
     @property
     public detectionRadius: number = 1;
