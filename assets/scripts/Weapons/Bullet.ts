@@ -1,8 +1,9 @@
-import { _decorator, Component, Node, Vec3, Prefab, instantiate, Quat, ParticleSystem } from 'cc';
+import { _decorator, Component, Node, Vec3, Prefab, Quat, ParticleSystem } from 'cc';
 import { HealthSystem } from '../Core/HealthSystem';
 import { EnemyController } from '../Enemy/EnemyController';
 import { GlobalVariables } from '../Core/GlobalVariables';
 import { BulletManager } from '../Managers/BulletManager';
+import { PoolManager } from '../Managers/PoolManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -214,7 +215,8 @@ export class Bullet extends Component {
         this._hasResolvedHit = true;
         this._arrivedAtTarget = false;
         this.stopAndClearParticleSystems();
-        this.node.destroy();
+        this.node.active = false;
+        PoolManager.Instance?.pushObj(this.node.name, this.node);
     }
 
     private stopAndClearParticleSystems(): void {
@@ -342,15 +344,17 @@ export class Bullet extends Component {
         }
 
         if (this.hitEffectPrefab) {
-            const fx = instantiate(this.hitEffectPrefab);
-            fx.setWorldPosition(attackPoint.getWorldPosition());
-            fx.setScale(5, 5, 5);
-            fx.active = true;
-            GlobalVariables.activeHitEffectsCount++;
+            PoolManager.Instance?.getObj(this.hitEffectPrefab.name, (fx) => {
+                if (!fx) return;
+                fx.setWorldPosition(attackPoint.getWorldPosition());
+                fx.setScale(5, 5, 5);
+                fx.active = true;
+                GlobalVariables.activeHitEffectsCount++;
 
-            if (bulletScene) {
-                bulletScene.addChild(fx);
-            }
+                if (bulletScene) {
+                    fx.setParent(bulletScene);
+                }
+            }, this.hitEffectPrefab);
         }
     }
 }

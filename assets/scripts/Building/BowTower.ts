@@ -1,7 +1,8 @@
-import { _decorator, Node, Vec3, Prefab, instantiate } from 'cc';
+import { _decorator, Node, Vec3, Prefab } from 'cc';
 import { TowerBase } from './TowerBase';
 import { Bullet } from '../Weapons/Bullet';
 import { EnemyController } from '../Enemy/EnemyController';
+import { PoolManager } from '../Managers/PoolManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('BowTower')
@@ -18,28 +19,31 @@ export class BowTower extends TowerBase {
             return;
         }
 
-        const arrow = instantiate(this.arrowPrefab);
-        arrow.active = false;
-
-        if (this.node.scene) {
-            this.node.scene.addChild(arrow);
-        }
-
         const spawnPos = this.firePoint.getWorldPosition();
-        arrow.setWorldPosition(spawnPos);
-
         const shootDir = this.buildShootDirection(target, spawnPos);
 
-        const arrowComponent = arrow.getComponent(Bullet);
-        if (arrowComponent) {
-            arrowComponent.setBulletStartPosition(spawnPos);
-            arrowComponent.setInitialDirection(shootDir);
-            arrowComponent.setBulletDamage(this.damage);
-            arrowComponent.shooter = this.node;
-            arrowComponent.setTarget(target);
-        }
+        PoolManager.Instance.getObj(this.arrowPrefab.name, (arrow) => {
+            if (!arrow) return;
 
-        arrow.active = true;
+            arrow.active = false;
+
+            if (this.node.scene) {
+                arrow.setParent(this.node.scene);
+            }
+
+            arrow.setWorldPosition(spawnPos);
+
+            const arrowComponent = arrow.getComponent(Bullet);
+            if (arrowComponent) {
+                arrowComponent.setBulletStartPosition(spawnPos);
+                arrowComponent.setInitialDirection(shootDir);
+                arrowComponent.setBulletDamage(this.damage);
+                arrowComponent.shooter = this.node;
+                arrowComponent.setTarget(target);
+            }
+
+            arrow.active = true;
+        }, this.arrowPrefab);
     }
 
     private buildShootDirection(target: Node, spawnPos: Vec3): Vec3 {

@@ -1,4 +1,4 @@
-import { _decorator, Vec2, Vec3, Quat, instantiate } from 'cc';
+import { _decorator, Vec2, Vec3, Quat } from 'cc';
 import { Weapon } from './Weapon';
 import { Bullet } from './Bullet';
 import { EnemyController } from '../Enemy/EnemyController';
@@ -112,42 +112,43 @@ export class Bow extends Weapon {
             shootDir.normalize();
         }
 
-        const bulletObj = instantiate(this.bulletPrefab);
-        if (!bulletObj) {
-            return;
-        }
+        PoolManager.Instance.getObj(this.bulletPrefab.name, (bulletObj) => {
+            if (!bulletObj) {
+                return;
+            }
 
-        bulletObj.active = false;
+            bulletObj.active = false;
 
-        const parentNode = this.node.scene ?? this.node.parent;
-        if (parentNode) {
-            parentNode.addChild(bulletObj);
-        }
+            const parentNode = this.node.scene ?? this.node.parent;
+            if (parentNode) {
+                bulletObj.setParent(parentNode);
+            }
 
-        bulletObj.setWorldPosition(spawnPosition);
+            bulletObj.setWorldPosition(spawnPosition);
 
-        const rotation = new Quat();
-        Quat.fromViewUp(rotation, shootDir);
-        bulletObj.setWorldRotation(rotation);
+            const rotation = new Quat();
+            Quat.fromViewUp(rotation, shootDir);
+            bulletObj.setWorldRotation(rotation);
 
-        const bullet = bulletObj.getComponent(Bullet);
-        if (bullet) {
-            bullet.setBulletStartPosition(spawnPosition);
-            bullet.setInitialDirection(shootDir);
-            bullet.shooter = this.ownerPlayer ? this.ownerPlayer.node : this.node;
-            bullet.setBulletDamage(this.damage);
+            const bullet = bulletObj.getComponent(Bullet);
+            if (bullet) {
+                bullet.setBulletStartPosition(spawnPosition);
+                bullet.setInitialDirection(shootDir);
+                bullet.shooter = this.ownerPlayer ? this.ownerPlayer.node : this.node;
+                bullet.setBulletDamage(this.damage);
 
-            if (targetNode && targetNode.isValid) {
-                bullet.setTarget(targetNode);
+                if (targetNode && targetNode.isValid) {
+                    bullet.setTarget(targetNode);
 
-                const enemy = targetNode.getComponent(EnemyController);
-                if (enemy) {
-                    enemy.aimer = bulletObj;
+                    const enemy = targetNode.getComponent(EnemyController);
+                    if (enemy) {
+                        enemy.aimer = bulletObj;
+                    }
                 }
             }
-        }
 
-        bulletObj.active = true;
+            bulletObj.active = true;
+        }, this.bulletPrefab);
 
         if (this.muzzlePrefab && this.muzzle) {
             if (GlobalVariables.activeMuzzleEffectsCount < GlobalVariables.maxMuzzleEffects) {

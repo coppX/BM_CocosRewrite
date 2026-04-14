@@ -1,7 +1,8 @@
-import { _decorator, Node, Vec3, Prefab, instantiate, Animation } from 'cc';
+import { _decorator, Node, Vec3, Prefab, Animation } from 'cc';
 import { TowerBase } from './TowerBase';
 import { Bullet } from '../Weapons/Bullet';
 import { EnemyController } from '../Enemy/EnemyController';
+import { PoolManager } from '../Managers/PoolManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('MachineGunTower')
@@ -64,28 +65,31 @@ export class MachineGunTower extends TowerBase {
             return;
         }
 
-        const bullet = instantiate(this.bulletPrefab);
-        bullet.active = false;
-
-        if (this.node.scene) {
-            this.node.scene.addChild(bullet);
-        }
-
         const spawnPos = this.firePoint.getWorldPosition();
-        bullet.setWorldPosition(spawnPos);
-
         const shootDir = this.buildShootDirection(this._currentTarget, spawnPos);
 
-        const bulletComponent = bullet.getComponent(Bullet);
-        if (bulletComponent) {
-            bulletComponent.setBulletStartPosition(spawnPos);
-            bulletComponent.setInitialDirection(shootDir);
-            bulletComponent.setBulletDamage(this.damage);
-            bulletComponent.shooter = this.node;
-            bulletComponent.setTarget(this._currentTarget);
-        }
+        PoolManager.Instance.getObj(this.bulletPrefab.name, (bullet) => {
+            if (!bullet) return;
 
-        bullet.active = true;
+            bullet.active = false;
+
+            if (this.node.scene) {
+                bullet.setParent(this.node.scene);
+            }
+
+            bullet.setWorldPosition(spawnPos);
+
+            const bulletComponent = bullet.getComponent(Bullet);
+            if (bulletComponent) {
+                bulletComponent.setBulletStartPosition(spawnPos);
+                bulletComponent.setInitialDirection(shootDir);
+                bulletComponent.setBulletDamage(this.damage);
+                bulletComponent.shooter = this.node;
+                bulletComponent.setTarget(this._currentTarget);
+            }
+
+            bullet.active = true;
+        }, this.bulletPrefab);
     }
 
     private buildShootDirection(target: Node, spawnPos: Vec3): Vec3 {
