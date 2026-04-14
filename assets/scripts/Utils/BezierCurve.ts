@@ -31,9 +31,23 @@ export class BezierCurve extends Component {
     private _meshRenderer: MeshRenderer | null = null;
     private _mesh: Mesh | null = null;
 
+    /** Runtime check — true only when in editor edit mode (not preview/play). */
+    private get _isEditorEditMode(): boolean {
+        const g = globalThis as any;
+        // Must be in editor environment
+        if (!g.Editor) return false;
+        // Engine sets globalThis.isPreviewProcess = true during "Preview in Editor"
+        if (g.isPreviewProcess) return false;
+        return true;
+    }
+
     protected onEnable(): void {
-        this.ensureMeshRenderer();
-        this.redraw();
+        if (this._isEditorEditMode) {
+            this.ensureMeshRenderer();
+            this.redraw();
+        } else {
+            this.clear();
+        }
     }
 
     protected onDisable(): void {
@@ -41,6 +55,8 @@ export class BezierCurve extends Component {
     }
 
     protected update(): void {
+        if (!this._isEditorEditMode) return;
+
         if (!this.showCurve) {
             this.clear();
             return;
