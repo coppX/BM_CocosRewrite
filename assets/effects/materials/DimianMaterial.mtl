@@ -91,6 +91,7 @@
         "b": 133,
         "a": 255
       },
+      "specularIntensity": 0,
       "mainTexture": {
         "__uuid__": "e06799b1-6f4b-45d1-bda2-8cfc673b72c2@6c48a",
         "__expectedType__": "cc.Texture2D"

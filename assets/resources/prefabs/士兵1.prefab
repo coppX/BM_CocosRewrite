@@ -310,8 +310,8 @@
     "__prefab": {
       "__id__": 21
     },
-    "damage": 20,
-    "maxHealth": 20,
+    "damage": 50,
+    "maxHealth": 80,
     "detectionRadius": 1,
     "isLeftMinion": false,
     "_id": ""

@@ -3,7 +3,6 @@ import { Building } from './Building';
 import { DoorManager } from '../Managers/DoorManager';
 import { TeamManager } from '../Managers/TeamManager';
 import { EnemyManager } from '../Managers/EnemyManager';
-import { EnemyController } from '../Enemy/EnemyController';
 import { Teammate } from '../Utils/Teammate';
 const { ccclass, property } = _decorator;
 
@@ -58,44 +57,48 @@ export class Door extends Building {
      * 检查玩家和队友的接近情况
      */
     public checkProximity(playerTransform: Node | null): void {
-        // 如果门已永久打开
+        // 门的开关逻辑
         if (this._isPermanentlyOpen) {
             if (!this._isDoorOpen) {
                 this.openTheDoor();
             }
-            return;
-        }
+        } else {
+            let shouldOpen = false;
+            const detectionRadiusSqr = this._detectionRadius * this._detectionRadius;
 
-        let shouldOpen = false;
-        const detectionRadiusSqr = this._detectionRadius * this._detectionRadius;
-
-        // 1. 检测队友
-        const teammates = TeamManager.Instance!.getMinions();
-        if (this.hasTeammateInRange(teammates[0], detectionRadiusSqr) ||
-            this.hasTeammateInRange(teammates[1], detectionRadiusSqr)) {
-            shouldOpen = true;
-            this._isPermanentlyOpen = true;
-        }
-        // 2. 如果没有被队友永久打开，再检测玩家
-        else if (playerTransform) {
-            if (Vec3.squaredDistance(this.node.getWorldPosition(), playerTransform.getWorldPosition()) <= detectionRadiusSqr) {
+            // 1. 检测队友
+            const teammates = TeamManager.Instance!.getMinions();
+            if (this.hasTeammateInRange(teammates[0], detectionRadiusSqr) ||
+                this.hasTeammateInRange(teammates[1], detectionRadiusSqr)) {
                 shouldOpen = true;
+                this._isPermanentlyOpen = true;
             }
-        }
+            // 2. 如果没有被队友永久打开，再检测玩家
+            else if (playerTransform) {
+                if (Vec3.squaredDistance(this.node.getWorldPosition(), playerTransform.getWorldPosition()) <= detectionRadiusSqr) {
+                    shouldOpen = true;
+                }
+            }
 
-        // 更新门状态
-        if (shouldOpen && !this._isDoorOpen) {
-            this.openTheDoor();
-        } else if (!shouldOpen && this._isDoorOpen) {
-            this.closeTheDoor();
+            // 更新门状态
+            if (shouldOpen && !this._isDoorOpen) {
+                this.openTheDoor();
+            } else if (!shouldOpen && this._isDoorOpen) {
+                this.closeTheDoor();
+            }
         }
 
         // 检测敌人
         if (EnemyManager.Instance) {
-            const enemyRadiusSqr = (this._detectionRadius * 0.5) * (this._detectionRadius * 0.5);
-            const enemies = EnemyManager.Instance.getMinions();
-            this.tryBeHitByEnemy(enemies[0], enemyRadiusSqr);
-            this.tryBeHitByEnemy(enemies[1], enemyRadiusSqr);
+            const doorPos = this.node.getWorldPosition();
+            const enemies = EnemyManager.Instance.getTargetsInRange(doorPos, this._detectionRadius);
+            for (const enemy of enemies) {
+                if (!enemy.isDeadState()) {
+                    this.beHit(enemy.node);
+                    enemy.releaseToPool();
+                    break;
+                }
+            }
         }
     }
 
@@ -108,18 +111,6 @@ export class Door extends Building {
             }
         }
         return false;
-    }
-
-    private tryBeHitByEnemy(enemies: EnemyController[], radiusSqr: number): void {
-        const doorPos = this.node.getWorldPosition();
-        for (const enemy of enemies) {
-            if (!enemy || !enemy.node.active) continue;
-            if (Vec3.squaredDistance(doorPos, enemy.node.getWorldPosition()) < radiusSqr) {
-                this.beHit(enemy.node);
-                enemy.releaseToPool();
-                return;
-            }
-        }
     }
 
     private openTheDoor(): void {

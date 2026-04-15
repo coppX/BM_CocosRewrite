@@ -206,7 +206,7 @@ export class Building extends Component {
      * 受到攻击
      */
     public beHit(other: Node): void {
-        if (!other) return;
+        if (!other || !this.node || !this.node.isValid) return;
 
         const percent = this.currentHealth / this.maxHealth;
         if (!this.lockBloodAtLowerHp || percent > 0.1) {
@@ -223,11 +223,14 @@ export class Building extends Component {
                     this.healthBar.node.active = false;
                 }
             }, 2);
+        }
 
-            if (this.currentHealth <= 0) {
+        if (this.currentHealth <= 0) {
+            if (this.healthBar) {
                 this.healthBar.node.active = false;
-                this.node.destroy();
             }
+            this.node.destroy();
+            return;
         }
 
         this.shine();

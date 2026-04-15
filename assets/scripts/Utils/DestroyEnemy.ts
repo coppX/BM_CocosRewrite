@@ -34,6 +34,8 @@ export class DestroyEnemy extends Component {
     }
 
     private checkCollision(): void {
+        if (!this.build || !this.build.isValid) return;
+
         const selfPos = this.node.getWorldPosition();
         const radiusSqr = this.detectionRadius * this.detectionRadius;
 
@@ -44,42 +46,22 @@ export class DestroyEnemy extends Component {
 
             const distance = Vec3.distance(selfPos, enemy.node.getWorldPosition());
             if (distance < radiusSqr) {
-                if (this.build) {
-                    this.build.beHit(enemy.node);
-                }
+                this.build.beHit(enemy.node);
                 enemy.releaseToPool();
                 this.preEnemies.splice(i, 1);
                 return;
             }
         }
 
-        // 检测EnemyManager中的敌人（匹配Unity GetMinions逻辑）
+        // 检测EnemyManager中的敌人
         if (EnemyManager.Instance) {
-            const [leftEnemies, rightEnemies] = EnemyManager.Instance.getMinions();
-
-            if (leftEnemies.length > 0) {
-                const enemy = leftEnemies[0];
-                if (enemy && enemy.node.active && !enemy.isDeadState()) {
-                    const distance = Vec3.distance(selfPos, enemy.node.getWorldPosition());
-                    if (distance < radiusSqr) {
-                        if (this.build) {
-                            this.build.beHit(enemy.node);
-                        }
-                        enemy.releaseToPool();
-                    }
-                }
-            }
-
-            if (rightEnemies.length > 0) {
-                const enemy = rightEnemies[0];
-                if (enemy && enemy.node.active && !enemy.isDeadState()) {
-                    const distance = Vec3.distance(selfPos, enemy.node.getWorldPosition());
-                    if (distance < radiusSqr) {
-                        if (this.build) {
-                            this.build.beHit(enemy.node);
-                        }
-                        enemy.releaseToPool();
-                    }
+            const selfPos2 = this.node.getWorldPosition();
+            const enemies = EnemyManager.Instance.getTargetsInRange(selfPos2, this.detectionRadius);
+            for (const enemy of enemies) {
+                if (!enemy.isDeadState()) {
+                    this.build.beHit(enemy.node);
+                    enemy.releaseToPool();
+                    return;
                 }
             }
         }

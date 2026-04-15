@@ -151,7 +151,7 @@
     ],
     "value": {
       "__type__": "cc.Vec3",
-      "x": 0,
+      "x": -0.785,
       "y": 0,
       "z": 0
     }
@@ -310,7 +310,7 @@
     ],
     "value": {
       "__type__": "cc.Vec3",
-      "x": 1.56,
+      "x": 0.77,
       "y": 0,
       "z": 0
     }
@@ -456,7 +456,7 @@
       "__uuid__": "a7c5ad6f-4f57-4d8c-b7e7-f362a381e6f5",
       "__expectedType__": "cc.Prefab"
     },
-    "maxHealth": 1000,
+    "maxHealth": 300,
     "hpBarTransform": {
       "__id__": 26
     },
