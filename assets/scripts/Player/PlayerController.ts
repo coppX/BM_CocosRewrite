@@ -1,4 +1,4 @@
-import { _decorator, Component, Vec3, Node, animation, Quat } from 'cc';
+import { _decorator, Component, Vec3, Node, animation, Quat, PhysicsSystem, geometry } from 'cc';
 import { HealthSystem } from '../Core/HealthSystem';
 import { GameManager, GameState } from '../Managers/GameManager';
 import { AttackLogic } from '../Utils/AttackLogic';
@@ -34,9 +34,10 @@ export class PlayerController extends Component {
     private _animationController: AnimationControllerLike | null = null;
     private _healthSystem: HealthSystem | null = null;
     private _attackLogic: AttackLogic | null = null;
+    private _ray: geometry.Ray = new geometry.Ray();
 
     private _initialPosition: Vec3 = new Vec3();
-    private _initialRotation: any = null;
+    private _initialRotation: Quat | null = null;
 
     protected onLoad(): void {
         // 单例模式
@@ -47,8 +48,8 @@ export class PlayerController extends Component {
         PlayerController._instance = this;
 
         // 记录初始位置和旋转
-        this._initialPosition = this.node.getPosition().clone();
-        this._initialRotation = this.node.getRotation().clone();
+        this._initialPosition = this.node.getWorldPosition().clone();
+        this._initialRotation = this.node.getWorldRotation().clone();
     }
 
     protected start(): void {
@@ -113,8 +114,24 @@ export class PlayerController extends Component {
 
         if (isMovingNow) {
             const moveVec = this._moveDirection.clone().multiplyScalar(this.moveSpeed * dt);
-            const newPos = this.node.getPosition().clone().add(moveVec);
-            this.node.setPosition(newPos);
+            const currentPos = this.node.getWorldPosition();
+            const moveDir = this._moveDirection.clone().normalize();
+            const moveDist = moveVec.length();
+
+            // 射线检测：检查移动方向上是否有碰撞体阻挡
+            geometry.Ray.set(this._ray, currentPos.x, currentPos.y + 0.5, currentPos.z, moveDir.x, 0, moveDir.z);
+            if (PhysicsSystem.instance.raycastClosest(this._ray, 0xffffffff, moveDist + 0.5)) {
+                const hit = PhysicsSystem.instance.raycastClosestResult;
+                if (hit.collider && hit.collider.node !== this.node && !hit.collider.node.isChildOf(this.node)) {
+                    const safeDistance = Math.max(0, hit.distance - 0.5);
+                    if (safeDistance < moveDist) {
+                        moveVec.set(moveDir).multiplyScalar(safeDistance);
+                    }
+                }
+            }
+
+            const newPos = currentPos.clone().add(moveVec);
+            this.node.setWorldPosition(newPos);
         }
 
         this.setAnimationBool('IsMoving', isMovingNow);
@@ -151,8 +168,8 @@ export class PlayerController extends Component {
      * 重置玩家状态
      */
     public resetState(): void {
-        this.node.setPosition(this._initialPosition);
-        this.node.setRotation(this._initialRotation);
+        this.node.setWorldPosition(this._initialPosition);
+        this.node.setWorldRotation(this._initialRotation);
 
         if (this._healthSystem) {
             this._healthSystem.resetHealth();
@@ -160,7 +177,7 @@ export class PlayerController extends Component {
 
         this.setAnimationBool('IsMoving', false);
         this.setAnimationBool('IsAttack', false);
-        
+
         this._moveDirection = new Vec3();
     }
 

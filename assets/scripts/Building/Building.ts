@@ -96,7 +96,7 @@ export class Building extends Component {
         if (!this.healthBarPrefab || !this.hpBarTransform) return;
 
         const healthBarNode = instantiate(this.healthBarPrefab);
-        healthBarNode.setPosition(this.hpBarTransform.getPosition());
+        healthBarNode.setWorldPosition(this.hpBarTransform.getWorldPosition());
         healthBarNode.setScale(healthBarNode.scale.multiplyScalar(this.healthBarScale));
 
         this.healthBar = healthBarNode.getComponent(HealthBar);

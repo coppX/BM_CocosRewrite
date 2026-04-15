@@ -35,7 +35,7 @@ export class CameraFollowManager extends Component {
             console.error('Follow target is not set in CameraFollowManager.');
         } else {
             // 计算初始偏移距离
-            const offset = this.node.getPosition().clone().subtract(this.followTarget.getPosition());
+            const offset = this.node.getWorldPosition().clone().subtract(this.followTarget.getWorldPosition());
 
             // 水平距离：去掉y分量后长度
             const horizontalOffset = new Vec3(offset.x, 0, offset.z);
@@ -50,7 +50,7 @@ export class CameraFollowManager extends Component {
         if (!this.followTarget) return;
 
         // 计算目标位置
-        const targetPosition = this.followTarget.getPosition().clone();
+        const targetPosition = this.followTarget.getWorldPosition().clone();
 
         // 根据屏幕方向计算偏移（横屏和竖屏使用相同偏移）
         const visibleSize = view.getVisibleSize();
@@ -67,13 +67,13 @@ export class CameraFollowManager extends Component {
         targetPosition.add(offset);
 
         // 平滑移动到目标位置
-        const currentPos = this.node.getPosition();
+        const currentPos = this.node.getWorldPosition();
         const newPos = new Vec3();
         Vec3.lerp(newPos, currentPos, targetPosition, this.followSpeed * dt);
-        this.node.setPosition(newPos);
+        this.node.setWorldPosition(newPos);
 
         // 如果需要相机始终看向目标，可以取消下面的注释
-        // this.node.lookAt(this.followTarget.getPosition());
+        // this.node.lookAt(this.followTarget.getWorldPosition());
     }
 
     protected onDestroy(): void {
