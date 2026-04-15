@@ -47,8 +47,8 @@ export class ArrowManager extends Component {
         }
 
         this._arrow.active = true;
-        const targetPos = target.getPosition().add(this.arrowOffset);
-        this._arrow.setPosition(targetPos);
+        const targetPos = target.getWorldPosition().add(this.arrowOffset);
+        this._arrow.setWorldPosition(targetPos);
     }
 
     protected onDestroy(): void {
