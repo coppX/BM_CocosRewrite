@@ -3,6 +3,7 @@ import { EventCenter } from '../Core/EventCenter';
 import { EventName } from '../Core/EventName';
 import { GlobalVariables, Stage } from '../Core/GlobalVariables';
 import { GameManager } from '../Managers/GameManager';
+import { TeamManager } from '../Managers/TeamManager';
 const { ccclass, property } = _decorator;
 const StageEnum = Enum(GlobalVariables.Stage);
 
@@ -24,13 +25,17 @@ export class DestroyActor extends Component {
 
     private _enableCheckCollision: boolean = false;
     private _checkTimer: number = 0;
+    private _boundOnMapLevelUpgrade: ((stage: Stage) => void) | null = null;
 
     protected start(): void {
-        EventCenter.Instance.AddEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade.bind(this));
+        this._boundOnMapLevelUpgrade = this.onMapLevelUpgrade.bind(this);
+        EventCenter.Instance.AddEventListener(EventName.MapLevelUpgrade, this._boundOnMapLevelUpgrade);
     }
 
     protected onDisable(): void {
-        EventCenter.Instance.RemoveEventListener(EventName.MapLevelUpgrade, this.onMapLevelUpgrade.bind(this));
+        if (this._boundOnMapLevelUpgrade) {
+            EventCenter.Instance.RemoveEventListener(EventName.MapLevelUpgrade, this._boundOnMapLevelUpgrade);
+        }
     }
 
     protected update(dt: number): void {
@@ -44,12 +49,19 @@ export class DestroyActor extends Component {
     }
 
     private checkCollision(): void {
-        // TODO: 使用TeamManager获取队友并检测碰撞
-        // const teammates = TeamManager.Instance.getMinions();
-        // 检测碰撞后触发胜利
-        // GlobalVariables.GameResult = GlobalVariables.GameResultType.Victory;
-        // GameManager.Instance.GameOver();
-        // EventCenter.Instance.eventTrigger(EventName.GameOver);
+        if (!TeamManager.Instance) return;
+
+        const teammates = TeamManager.Instance.getTeammatesInRange(
+            this.node.getWorldPosition(),
+            this.detectionRadius
+        );
+
+        if (teammates.length > 0) {
+            GlobalVariables.GameResult = GlobalVariables.GameResultType.Victory;
+            GameManager.Instance?.gameOver();
+            EventCenter.Instance.eventTrigger(EventName.GameOver);
+            this._enableCheckCollision = false;
+        }
     }
 
     private onMapLevelUpgrade(stage: Stage): void {

@@ -195,7 +195,7 @@ export class CoinCollection extends Component {
 
         const activeCoins = CoinManager.Instance.AvailableCoins;
         activeCoins.forEach(coin => {
-            if (!coin || !coin.node.active) return;
+            if (!coin || !coin.node || !coin.node.active) return;
             if (coin.spawnOwner !== null) return;
 
             // 检查是否允许收集生成器生成的金币
@@ -267,6 +267,7 @@ export class CoinCollection extends Component {
 
         // 检查是否有非移动状态的金币
         const hasStaticCoin = this.collectedCoins.some(coinNode => {
+            if (!coinNode || !coinNode.isValid) return false;
             const coinComp = coinNode.getComponent(Coin);
             return coinComp && !coinComp.isMoving;
         });

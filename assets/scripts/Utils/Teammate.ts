@@ -5,6 +5,7 @@ import { EventCenter } from '../Core/EventCenter';
 import { EventName } from '../Core/EventName';
 import { GlobalVariables } from '../Core/GlobalVariables';
 import { EnemyManager } from '../Managers/EnemyManager';
+import { TeamManager } from '../Managers/TeamManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -58,8 +59,11 @@ export class Teammate extends Component {
         this.resetHealthMultiplier();
         this.damageMultiplier = 1;
 
-        // TODO: 注册到TeamManager
-        // TeamManager.Instance?.registerTeammate(this);
+        TeamManager.Instance?.registerTeammate(this);
+    }
+
+    protected onDisable(): void {
+        TeamManager.Instance?.unregisterTeammate(this);
     }
 
     protected onDestroy(): void {
@@ -109,9 +113,7 @@ export class Teammate extends Component {
      * 处理死亡
      */
     private handleDeath(): void {
-        // TODO: 从TeamManager注销
-        // TeamManager.Instance?.unregisterTeammate(this);
-
+        TeamManager.Instance?.unregisterTeammate(this);
         this.dissolveAndDeathSequence();
     }
 
