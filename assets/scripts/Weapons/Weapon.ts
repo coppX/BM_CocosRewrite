@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3, Prefab, instantiate, director } from 'cc';
+import { _decorator, Component, Node, Vec3, Prefab, instantiate, director, animation } from 'cc';
 import { EnemyController } from '../Enemy/EnemyController';
 import { AttackLogic } from '../Utils/AttackLogic';
 const { ccclass, property } = _decorator;
@@ -44,10 +44,10 @@ export abstract class Weapon extends Component {
         // 获取AttackLogic组件
         this._attackLogic = this.getComponent(AttackLogic);
 
-        // 获取动画控制器
-        this._actorAnimator = this.getComponentInChildren('cc.animation.AnimationController') as any;
+        // 获取动画控制器（使用类引用，字符串查找在3.x不可靠）
+        this._actorAnimator = this.getComponentInChildren(animation.AnimationController) as any;
         if (!this._actorAnimator) {
-            this._actorAnimator = this.getComponent('cc.animation.AnimationController') as any;
+            this._actorAnimator = this.getComponent(animation.AnimationController) as any;
         }
 
         // 查找DirectionalArrow
@@ -168,8 +168,10 @@ export abstract class Weapon extends Component {
                     newTarget = closestEnemy;
                 }
             }
-        } else if (this._attackLogic) {
-            // Fallback to old logic if arrow is missing
+        }
+
+        // 回退：DirectionalArrow 未提供目标时，使用 AttackLogic 自主搜敌
+        if (!newTarget && this._attackLogic) {
             newTarget = this._attackLogic.findNearestTarget(true);
         }
 
@@ -178,8 +180,8 @@ export abstract class Weapon extends Component {
             this.currentTarget = newTarget;
         }
 
-        // 清理已失效的目标
-        if (this.currentTarget && !this.currentTarget.isValid) {
+        // 清理已失效的目标（包括被对象池回收的inactive节点）
+        if (this.currentTarget && (!this.currentTarget.isValid || !this.currentTarget.active)) {
             this.currentTarget = null;
             return;
         }
@@ -211,11 +213,11 @@ export abstract class Weapon extends Component {
      * 检查目标是否有效
      */
     protected isValidTarget(target: Node): boolean {
-        if (!target || !target.isValid) return false;
+        if (!target || !target.isValid || !target.active) return false;
 
         const enemy = target.getComponent(EnemyController);
         if (enemy) {
-            return !enemy.isDeadState() && target.active;
+            return !enemy.isDeadState();
         }
 
         return true;
@@ -225,7 +227,7 @@ export abstract class Weapon extends Component {
      * 检查目标是否在攻击范围内
      */
     public isInAttackRange(): boolean {
-        if (!this.currentTarget || !this.currentTarget.isValid || !this._attackLogic) return false;
+        if (!this.currentTarget || !this.currentTarget.isValid || !this.currentTarget.active || !this._attackLogic) return false;
 
         const distance = Vec3.squaredDistance(
             this.node.getWorldPosition(),

@@ -40,7 +40,7 @@ export class Fangyuta extends Component {
 
         const target = this._logic.findNearestTarget(false);
 
-        if (target) {
+        if (target && target.active) {
             const dir = new Vec3();
             Vec3.subtract(dir, target.getWorldPosition(), this.aimingBone.getWorldPosition());
             dir.normalize();
@@ -51,15 +51,9 @@ export class Fangyuta extends Component {
             const finalRotation = new Quat();
             Quat.multiply(finalRotation, lookRotation, this._correctionRotation);
 
-            // 可选：使用插值使旋转更平滑
-            // const lerpSpeed = 8;
-            // Quat.slerp(finalRotation, this.aimingBone.getRotation(), finalRotation, dt * lerpSpeed);
-
             this.aimingBone.setWorldRotation(finalRotation);
             this._lastAimRotation = finalRotation.clone();
-        } else if (this.aimingBone) {
-            // 保持最后的瞄准方向
-            this.aimingBone.setWorldRotation(this._lastAimRotation);
         }
+        // 没有目标时不再强制保持最后瞄准方向，让骨骼回到动画默认姿态
     }
 }
