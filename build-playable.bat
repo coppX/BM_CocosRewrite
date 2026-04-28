@@ -7,7 +7,7 @@ echo    Playable Ads 渠道包构建
 echo ======================================
 echo.
 
-node tools/playable/pack-single-html.mjs --blob-compression gzip --use-base64 true
+node tools/playable/pack-single-html.mjs --blob-compression gzip --use-base64 false --image-format webp --image-quality 30 --image-max-dimension 512
 
 echo.
 echo ======================================

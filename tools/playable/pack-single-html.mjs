@@ -2,14 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import zlib from 'node:zlib';
-import { createRequire } from 'node:module';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import channelSDKs from './channel-sdks.js';
 
 const SCRIPT_FILE = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_FILE);
 const PROJECT_ROOT = path.resolve(SCRIPT_DIR, '..', '..');
-const requireFromProject = createRequire(path.join(PROJECT_ROOT, 'package.json'));
 const BUILD_DIR = path.join(PROJECT_ROOT, 'build', 'web-mobile');
 const CHANNELS = ['facebook', 'google', 'tiktok', 'mintegral', 'unityads', 'applovin', 'ironsource', 'kwai', 'vungle', 'snap'];
 const BRIDGE_JS = fs.readFileSync(path.join(SCRIPT_DIR, 'bridge.playable-sdk.js'), 'utf8');
@@ -49,9 +48,15 @@ const INLINE_FILES = new Set([
 const COMPRESSIBLE_IMAGE_EXT = new Set(['.png', '.jpg', '.jpeg', '.webp']);
 const BLOB_COMPRESSION_NONE = 'none';
 const BLOB_COMPRESSION_GZIP = 'gzip';
+const IMAGE_FORMAT_ORIGINAL = 'original';
+const IMAGE_FORMAT_WEBP = 'webp';
+const IMAGE_FORMAT_JPEG = 'jpeg';
+const PYTHON_BIN = process.env.PYTHON || 'python';
+const PY_IMAGE_TRANSCODER = path.join(SCRIPT_DIR, 'transcode-image.py');
 
-let jimpModuleCache;
-let jimpLoadErrorCache = null;
+let pythonImageTranscoderChecked = false;
+let pythonImageTranscoderAvailable = false;
+let pythonImageTranscoderWarning = null;
 
 function parseBooleanLike(raw, fallback = true) {
   if (raw === undefined || raw === null || raw === '') return fallback;
@@ -93,6 +98,32 @@ function resolveImageQualityFromArgs(args = process.argv.slice(2)) {
   const n = Number(args[idx + 1]);
   if (!Number.isFinite(n)) return 72;
   return Math.max(1, Math.min(100, Math.round(n)));
+}
+
+function normalizeImageFormat(raw, fallback = IMAGE_FORMAT_ORIGINAL) {
+  if (raw == null) return fallback;
+  const value = String(raw).trim().toLowerCase();
+  if (!value) return fallback;
+  if (value === IMAGE_FORMAT_WEBP) return IMAGE_FORMAT_WEBP;
+  if (value === IMAGE_FORMAT_JPEG || value === 'jpg') return IMAGE_FORMAT_JPEG;
+  if (value === IMAGE_FORMAT_ORIGINAL || value === 'keep') return IMAGE_FORMAT_ORIGINAL;
+  return fallback;
+}
+
+function resolveImageFormatFromArgs(args = process.argv.slice(2)) {
+  const key = '--image-format';
+  const idx = args.indexOf(key);
+  if (idx < 0) return IMAGE_FORMAT_ORIGINAL;
+  return normalizeImageFormat(args[idx + 1], IMAGE_FORMAT_ORIGINAL);
+}
+
+function resolveImageMaxDimensionFromArgs(args = process.argv.slice(2)) {
+  const key = '--image-max-dimension';
+  const idx = args.indexOf(key);
+  if (idx < 0) return 0;
+  const n = Number(args[idx + 1]);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.round(n));
 }
 
 function normalizeBlobCompression(raw, fallback = BLOB_COMPRESSION_NONE) {
@@ -212,37 +243,11 @@ function isCompressibleImage(rel, mime) {
   return /^image\//i.test(String(mime || ''));
 }
 
-async function loadJimpModule() {
-  if (jimpModuleCache !== undefined) return { jimp: jimpModuleCache, error: jimpLoadErrorCache };
-  try {
-    const mod = await import('jimp');
-    jimpModuleCache = mod;
-    jimpLoadErrorCache = null;
-  } catch (importErr) {
-    try {
-      const mod = requireFromProject('jimp');
-      jimpModuleCache = mod;
-      jimpLoadErrorCache = null;
-    } catch (requireErr) {
-      jimpLoadErrorCache = requireErr || importErr || null;
-      jimpModuleCache = null;
-    }
-  }
-  return { jimp: jimpModuleCache, error: jimpLoadErrorCache };
-}
-
 function formatErrorMessage(err) {
   if (!err) return 'unknown error';
   if (typeof err === 'string') return err;
   if (err && typeof err.message === 'string' && err.message.trim()) return err.message;
   return String(err);
-}
-
-function getJimpApi(jimpModule) {
-  if (!jimpModule) return null;
-  const Jimp = jimpModule.Jimp || jimpModule.default || jimpModule;
-  const JimpMime = jimpModule.JimpMime || jimpModule.default?.JimpMime || {};
-  return { Jimp, JimpMime };
 }
 
 function asBuffer(data) {
@@ -252,77 +257,141 @@ function asBuffer(data) {
   return Buffer.from(data);
 }
 
-async function getJimpBuffer(image, mime, options) {
-  if (typeof image.getBufferAsync === 'function') {
-    return asBuffer(await image.getBufferAsync(mime, options));
-  }
-
-  if (typeof image.getBuffer !== 'function') {
-    throw new Error('Jimp image instance does not support getBuffer().');
-  }
-
-  try {
-    const out = await image.getBuffer(mime, options);
-    if (out) return asBuffer(out);
-  } catch {
-    // Fall through to callback-style API handling.
-  }
-
-  return await new Promise((resolve, reject) => {
-    const done = (err, out) => {
-      if (err) return reject(err);
-      resolve(asBuffer(out));
-    };
-    if (image.getBuffer.length >= 3) image.getBuffer(mime, options, done);
-    else image.getBuffer(mime, done);
-  });
+function hashBuffer(buf) {
+  return `${buf.length}:${crypto.createHash('sha1').update(buf).digest('hex')}`;
 }
 
-async function compressImageWithJimp(rel, buf, quality, jimpModule) {
-  const ext = path.extname(rel).toLowerCase();
-  const { Jimp, JimpMime } = getJimpApi(jimpModule) || {};
-  if (!Jimp || typeof Jimp.read !== 'function') {
-    throw new Error('Invalid Jimp module shape.');
-  }
-
-  // Current Jimp ecosystem support for webp is not stable across releases.
-  if (ext === '.webp') {
-    return buf;
-  }
-
-  const image = await Jimp.read(buf);
-
-  if (ext === '.png') {
-    const pngMime = JimpMime?.png || 'image/png';
-    return getJimpBuffer(image, pngMime, { compressionLevel: 9 });
-  }
-
-  if (ext === '.jpg' || ext === '.jpeg') {
-    const jpegMime = JimpMime?.jpeg || JimpMime?.jpg || 'image/jpeg';
-    return getJimpBuffer(image, jpegMime, { quality });
-  }
-
-  return buf;
+function resolveTranscodedMime(imageFormat, fallbackMime) {
+  if (imageFormat === IMAGE_FORMAT_WEBP) return 'image/webp';
+  if (imageFormat === IMAGE_FORMAT_JPEG) return 'image/jpeg';
+  return fallbackMime;
 }
 
-async function resolveImageCompressor(compressImages) {
-  if (!compressImages) return { compressor: null, warning: null };
-  const { jimp, error: jimpErr } = await loadJimpModule();
-  if (jimp) {
+function ensurePythonImageTranscoder() {
+  if (pythonImageTranscoderChecked) {
     return {
-      compressor: {
-        name: 'jimp',
-        encode: (rel, buf, quality) => compressImageWithJimp(rel, buf, quality, jimp),
-      },
-      warning: null,
+      available: pythonImageTranscoderAvailable,
+      warning: pythonImageTranscoderWarning,
     };
   }
 
-  const warning = `[pack-single-html] compression skipped: jimp unavailable (${formatErrorMessage(jimpErr)})`;
-  return { compressor: null, warning };
+  pythonImageTranscoderChecked = true;
+
+  if (!fs.existsSync(PY_IMAGE_TRANSCODER)) {
+    pythonImageTranscoderWarning = `[pack-single-html] compression skipped: missing transcoder script (${PY_IMAGE_TRANSCODER})`;
+    pythonImageTranscoderAvailable = false;
+    return {
+      available: pythonImageTranscoderAvailable,
+      warning: pythonImageTranscoderWarning,
+    };
+  }
+
+  const probe = spawnSync(PYTHON_BIN, ['--version'], {
+    cwd: PROJECT_ROOT,
+    windowsHide: true,
+    encoding: 'utf8',
+  });
+
+  if (probe.error || probe.status !== 0) {
+    pythonImageTranscoderWarning = `[pack-single-html] compression skipped: python unavailable (${formatErrorMessage(probe.error || probe.stderr)})`;
+    pythonImageTranscoderAvailable = false;
+    return {
+      available: pythonImageTranscoderAvailable,
+      warning: pythonImageTranscoderWarning,
+    };
+  }
+
+  pythonImageTranscoderAvailable = true;
+  pythonImageTranscoderWarning = null;
+  return {
+    available: pythonImageTranscoderAvailable,
+    warning: pythonImageTranscoderWarning,
+  };
 }
 
-async function buildBinaryPack(compressImages, imageQuality) {
+async function transcodeImageWithPython(abs, rel, quality, imageFormat, imageMaxDimension, fallbackMime) {
+  const args = [
+    PY_IMAGE_TRANSCODER,
+    '--input',
+    abs,
+    '--format',
+    imageFormat,
+    '--quality',
+    String(quality),
+  ];
+
+  if (Number.isFinite(imageMaxDimension) && imageMaxDimension > 0) {
+    args.push('--max-dimension', String(imageMaxDimension));
+  }
+
+  const result = spawnSync(PYTHON_BIN, args, {
+    cwd: PROJECT_ROOT,
+    windowsHide: true,
+    maxBuffer: 64 * 1024 * 1024,
+  });
+
+  if (result.error) throw result.error;
+  if (result.status !== 0) {
+    const stderr = result.stderr ? result.stderr.toString('utf8').trim() : '';
+    throw new Error(stderr || `python exited with status ${result.status} for ${rel}`);
+  }
+
+  const buffer = asBuffer(result.stdout);
+  if (!buffer || !buffer.length) {
+    throw new Error(`No transcoded bytes returned for ${rel}`);
+  }
+
+  return {
+    buffer,
+    mime: resolveTranscodedMime(imageFormat, fallbackMime),
+  };
+}
+
+async function resolveImageCompressor(compressImages, imageFormat, imageMaxDimension) {
+  if (!compressImages) return { compressor: null, warning: null };
+
+  const shouldTranscode = imageFormat !== IMAGE_FORMAT_ORIGINAL || imageMaxDimension > 0;
+  if (!shouldTranscode) return { compressor: null, warning: null };
+
+  const probe = ensurePythonImageTranscoder();
+  if (!probe.available) {
+    return { compressor: null, warning: probe.warning };
+  }
+
+  return {
+    compressor: {
+      name: `python-pillow:${imageFormat}`,
+      encode: (abs, rel, buf, quality, fallbackMime) =>
+        transcodeImageWithPython(abs, rel, quality, imageFormat, imageMaxDimension, fallbackMime),
+    },
+    warning: null,
+  };
+}
+
+function makeManifestEntry(offset, length, mime, fallbackMime) {
+  if (mime && mime !== fallbackMime) return [offset, length, mime];
+  return [offset, length];
+}
+
+async function compressImageBuffer(abs, rel, buf, quality, compressor, fallbackMime) {
+  const next = await compressor.encode(abs, rel, buf, quality, fallbackMime);
+  const nextBuffer = asBuffer(next?.buffer || next);
+  if (!nextBuffer || nextBuffer.length >= buf.length) {
+    return {
+      buffer: buf,
+      mime: fallbackMime,
+      changed: false,
+    };
+  }
+
+  return {
+    buffer: nextBuffer,
+    mime: next?.mime || fallbackMime,
+    changed: true,
+  };
+}
+
+async function buildBinaryPack(compressImages, imageQuality, imageFormat, imageMaxDimension) {
   const files = walk(BUILD_DIR);
   /** @type {Record<string, [number, number]>} */
   const manifest = {};
@@ -335,40 +404,77 @@ async function buildBinaryPack(compressImages, imageQuality) {
     compressedBytes: 0,
     packedBytes: 0,
     fileCount: 0,
+    uniqueFileCount: 0,
+    reusedSourceCount: 0,
+    dedupedCount: 0,
+    dedupedBytes: 0,
     compressor: 'none',
   };
 
-  const { compressor, warning } = await resolveImageCompressor(compressImages);
+  const { compressor, warning } = await resolveImageCompressor(
+    compressImages,
+    imageFormat,
+    imageMaxDimension
+  );
   if (compressImages && compressor) stats.compressor = compressor.name;
   if (warning) {
     console.warn(warning);
   }
 
+  const processedCache = new Map();
+  const packedCache = new Map();
+
   for (const abs of files) {
     const rel = relFromBuild(abs);
     if (!shouldPack(rel)) continue;
 
-    let buf = readBufByAbs(abs);
-    const mime = guessMime(rel);
+    stats.fileCount += 1;
 
-    if (compressImages && compressor && isCompressibleImage(rel, mime)) {
+    let buf = readBufByAbs(abs);
+    const fallbackMime = guessMime(rel);
+    let actualMime = fallbackMime;
+    const sourceKey = hashBuffer(buf);
+    const cachedProcessed = processedCache.get(sourceKey);
+
+    if (cachedProcessed) {
+      buf = cachedProcessed.buffer;
+      actualMime = cachedProcessed.mime;
+      stats.reusedSourceCount += 1;
+    } else if (compressImages && compressor && isCompressibleImage(rel, fallbackMime)) {
       stats.originalBytes += buf.length;
       try {
-        const compressed = await compressImageBuffer(rel, buf, imageQuality, compressor);
-        if (compressed.length < buf.length) {
-          buf = compressed;
+        const compressed = await compressImageBuffer(abs, rel, buf, imageQuality, compressor, fallbackMime);
+        if (compressed.changed) {
+          buf = compressed.buffer;
+          actualMime = compressed.mime;
           stats.compressedCount += 1;
         }
       } catch (err) {
         console.warn(`[pack-single-html] compress fail ${rel}: ${err && err.message ? err.message : err}`);
       }
       stats.compressedBytes += buf.length;
+      processedCache.set(sourceKey, { buffer: buf, mime: actualMime });
+    } else {
+      processedCache.set(sourceKey, { buffer: buf, mime: actualMime });
     }
 
-    manifest[rel] = [blobOffset, buf.length];
+    const packedKey = hashBuffer(buf);
+    const cachedPacked = packedCache.get(packedKey);
+    if (cachedPacked) {
+      manifest[rel] = makeManifestEntry(cachedPacked.offset, cachedPacked.length, actualMime, fallbackMime);
+      stats.dedupedCount += 1;
+      stats.dedupedBytes += buf.length;
+      continue;
+    }
+
+    manifest[rel] = makeManifestEntry(blobOffset, buf.length, actualMime, fallbackMime);
     chunks.push(buf);
+    packedCache.set(packedKey, {
+      offset: blobOffset,
+      length: buf.length,
+    });
     blobOffset += buf.length;
-    stats.fileCount += 1;
+    stats.uniqueFileCount += 1;
     stats.packedBytes += buf.length;
   }
 
@@ -377,12 +483,6 @@ async function buildBinaryPack(compressImages, imageQuality) {
     blob: Buffer.concat(chunks),
     stats,
   };
-}
-
-async function compressImageBuffer(rel, buf, quality, compressor) {
-  const next = asBuffer(await compressor.encode(rel, buf, quality));
-  if (!next || next.length >= buf.length) return buf;
-  return next;
 }
 
 function chunkString(source, chunkSize) {
@@ -553,6 +653,10 @@ function makeVfsPatchScript() {
   }
 
   function getEntryMime(rel){
+    const hit = getHit(rel);
+    if (Array.isArray(hit) && hit.length >= 3 && typeof hit[2] === 'string' && hit[2]) {
+      return hit[2];
+    }
     return guessMime(rel);
   }
 
@@ -1120,9 +1224,20 @@ export async function packSingleHtml(options = {}) {
   const imageQuality = Number.isFinite(options.imageQuality)
     ? Math.max(1, Math.min(100, Math.round(options.imageQuality)))
     : resolveImageQualityFromArgs();
+  const imageFormat = normalizeImageFormat(
+    typeof options.imageFormat === 'string' ? options.imageFormat : resolveImageFormatFromArgs()
+  );
+  const imageMaxDimension = Number.isFinite(options.imageMaxDimension)
+    ? Math.max(0, Math.round(options.imageMaxDimension))
+    : resolveImageMaxDimensionFromArgs();
   fs.mkdirSync(outDir, { recursive: true });
 
-  const { manifest, blob, stats } = await buildBinaryPack(compressImages, imageQuality);
+  const { manifest, blob, stats } = await buildBinaryPack(
+    compressImages,
+    imageQuality,
+    imageFormat,
+    imageMaxDimension
+  );
   const blobPack = compressBlobForPayload(blob, requestedBlobCompression);
   const writtenFiles = [];
   for (const ch of CHANNELS) {
@@ -1142,7 +1257,15 @@ export async function packSingleHtml(options = {}) {
 
   if (compressImages && stats.compressor !== 'none') {
     const saved = Math.max(0, stats.originalBytes - stats.compressedBytes);
-    console.log(`[pack-single-html] compressed=${stats.compressedCount} saved=${saved}B q=${imageQuality} via=${stats.compressor}`);
+    console.log(
+      `[pack-single-html] compressed=${stats.compressedCount} saved=${saved}B q=${imageQuality} format=${imageFormat} maxDim=${imageMaxDimension} via=${stats.compressor}`
+    );
+  }
+
+  if (stats.dedupedCount > 0) {
+    console.log(
+      `[pack-single-html] deduped=${stats.dedupedCount} saved=${stats.dedupedBytes}B unique=${stats.uniqueFileCount}/${stats.fileCount}`
+    );
   }
 
   return {
@@ -1157,11 +1280,16 @@ export async function packSingleHtml(options = {}) {
     },
     bundle: {
       fileCount: stats.fileCount,
+      uniqueFileCount: stats.uniqueFileCount,
       packedBytes: stats.packedBytes,
+      dedupedCount: stats.dedupedCount,
+      dedupedBytes: stats.dedupedBytes,
     },
     imageCompression: {
       enabled: compressImages,
       quality: imageQuality,
+      format: imageFormat,
+      maxDimension: imageMaxDimension,
       compressor: stats.compressor,
       compressedCount: stats.compressedCount,
       originalBytes: stats.originalBytes,

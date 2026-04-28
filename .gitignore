@@ -8,6 +8,7 @@ local/
 build/
 profiles/
 native
+dist-playable/
 #//////////////////////////
 # NPM
 #//////////////////////////
@@ -22,3 +23,13 @@ node_modules/
 # WebStorm
 #//////////////////////////
 .idea/
+
+#//////////////////////////
+# Local debug artifacts
+#//////////////////////////
+_debug_*
+assets_list.txt
+_models_with_uuid.txt
+_textures_with_uuid.txt
+_unreferenced_models.txt
+_unreferenced_textures.txt
