@@ -1,0 +1,121 @@
+const channelUploadSpecs = {
+  facebook: {
+    officialStatus: 'confirmed',
+    acceptedFormats: ['html', 'zip'],
+    preferredPrimaryArtifact: 'html',
+    emitStandaloneHtmlFile: true,
+    htmlUploadFileName: 'facebook.html',
+    reportNote: 'Public Meta docs allow either an HTML5 file or a zip package. Prefer the direct HTML handoff here for the simplest single-file upload path.',
+    htmlArtifactNote: 'Use this HTML file when you want the direct HTML5 upload path in Meta.',
+    zipArtifactNote: 'Meta also accepts zip uploads, so keep this zip only as a compatibility fallback.',
+  },
+  google: {
+    officialStatus: 'confirmed',
+    acceptedFormats: ['zip'],
+    preferredPrimaryArtifact: 'zip',
+    emitStandaloneHtmlFile: false,
+    htmlUploadFileName: null,
+    reportNote: 'Google Ads expects a zip upload for playable/HTML5 creatives.',
+    htmlArtifactNote: null,
+    zipArtifactNote: null,
+  },
+  tiktok: {
+    officialStatus: 'confirmed',
+    acceptedFormats: ['zip'],
+    preferredPrimaryArtifact: 'zip',
+    emitStandaloneHtmlFile: false,
+    htmlUploadFileName: null,
+    reportNote: 'TikTok expects a zip upload with index.html and config.json at the root.',
+    htmlArtifactNote: null,
+    zipArtifactNote: null,
+  },
+  mintegral: {
+    officialStatus: 'public-docs-unconfirmed',
+    acceptedFormats: ['zip'],
+    preferredPrimaryArtifact: 'zip',
+    emitStandaloneHtmlFile: false,
+    htmlUploadFileName: null,
+    reportNote: 'Public Mintegral docs found in this pass do not clearly state the required upload file format, so the current zip package remains the safest default.',
+    htmlArtifactNote: null,
+    zipArtifactNote: 'Public Mintegral docs were not conclusive in this pass; keep this zip package until the channel console or account rep confirms otherwise.',
+  },
+  unityads: {
+    officialStatus: 'confirmed',
+    acceptedFormats: ['html'],
+    preferredPrimaryArtifact: 'html',
+    emitStandaloneHtmlFile: true,
+    htmlUploadFileName: 'unityads.html',
+    reportNote: 'Unity public specs describe a single inlined playable HTML asset.',
+    htmlArtifactNote: 'Use this standalone HTML file for Unity Ads playable upload.',
+    zipArtifactNote: 'Unity public specs point to a standalone HTML asset. Keep this zip only as a workflow fallback.',
+  },
+  applovin: {
+    officialStatus: 'confirmed',
+    acceptedFormats: ['html'],
+    preferredPrimaryArtifact: 'html',
+    emitStandaloneHtmlFile: true,
+    htmlUploadFileName: 'applovin.html',
+    reportNote: 'AppLovin public specs describe a single inline HTML playable asset.',
+    htmlArtifactNote: 'Use this HTML file for AppLovin playable preview and creative upload.',
+    zipArtifactNote: 'AppLovin preview/upload should use the standalone HTML artifact instead of this zip.',
+  },
+  ironsource: {
+    officialStatus: 'confirmed',
+    acceptedFormats: ['html'],
+    preferredPrimaryArtifact: 'html',
+    emitStandaloneHtmlFile: true,
+    htmlUploadFileName: 'ironsource.html',
+    reportNote: 'Unity/ironSource public docs describe uploading an HTML asset for playable or interactive creatives.',
+    htmlArtifactNote: 'Use this standalone HTML file for ironSource playable upload and QA.',
+    zipArtifactNote: 'Unity/ironSource public docs point to HTML asset upload. Keep this zip only as a legacy workflow fallback.',
+  },
+  kwai: {
+    officialStatus: 'public-docs-unconfirmed',
+    acceptedFormats: ['zip'],
+    preferredPrimaryArtifact: 'zip',
+    emitStandaloneHtmlFile: false,
+    htmlUploadFileName: null,
+    reportNote: 'Public Kwai docs found in this pass did not clearly state the playable upload package format, so the current zip package remains the safest default.',
+    htmlArtifactNote: null,
+    zipArtifactNote: 'Public Kwai docs were not conclusive in this pass; keep this zip package until the channel console or account rep confirms otherwise.',
+  },
+  vungle: {
+    officialStatus: 'confirmed',
+    acceptedFormats: ['html'],
+    preferredPrimaryArtifact: 'html',
+    emitStandaloneHtmlFile: true,
+    htmlUploadFileName: 'vungle.html',
+    reportNote: 'Public Liftoff/Vungle docs describe the playable as a standalone HTML asset. The zip output is kept only as an internal workflow fallback.',
+    htmlArtifactNote: 'Use this standalone HTML file when the Vungle/Liftoff intake expects a direct playable HTML asset.',
+    zipArtifactNote: 'Public Vungle/Liftoff docs point to a standalone HTML asset. Keep this zip only as a workflow fallback.',
+  },
+  snap: {
+    officialStatus: 'confirmed',
+    acceptedFormats: ['zip'],
+    preferredPrimaryArtifact: 'zip',
+    emitStandaloneHtmlFile: false,
+    htmlUploadFileName: null,
+    reportNote: 'Snap public specs expect a zip upload with index.html and config.json at the root.',
+    htmlArtifactNote: null,
+    zipArtifactNote: null,
+  },
+};
+
+export function getChannelUploadSpec(channel) {
+  return channelUploadSpecs[channel] || {
+    officialStatus: 'public-docs-unconfirmed',
+    acceptedFormats: ['zip'],
+    preferredPrimaryArtifact: 'zip',
+    emitStandaloneHtmlFile: false,
+    htmlUploadFileName: null,
+    reportNote: 'No channel-specific upload spec is registered yet.',
+    htmlArtifactNote: null,
+    zipArtifactNote: null,
+  };
+}
+
+export function shouldEmitStandaloneHtmlFile(channel) {
+  return Boolean(getChannelUploadSpec(channel).emitStandaloneHtmlFile);
+}
+
+export default channelUploadSpecs;

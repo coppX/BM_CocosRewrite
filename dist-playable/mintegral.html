@@ -128,60 +128,140 @@ canvas {
 {"imports":{"cc":"./../cocos-js/cc.js"}}
 </script>
 
-<script>window.__CHANNEL__="mintegral";</script>
+<script>window.__CHANNEL__="mintegral";window.__PLAYABLE_DESIGN_SIZE__={"width":1280,"height":720};window.__PLAYABLE_PROJECT_ORIENTATION__="landscape";</script>
 
 <!-- Mintegral Playable Ad SDK -->
+
 <script>
-// Mintegral MRAID 兼容
-window.mraid = window.mraid || {
-  state: 'loading',
-  listeners: {},
+(function () {
+  function resolveTarget(url) {
+    return url ||
+      window.clickTag ||
+      window.ClickTag ||
+      window.__CLICK_URL__ ||
+      window.downloadUrl ||
+      window.installUrl ||
+      window.storeUrl ||
+      window.clickUrl ||
+      '';
+  }
 
-  addEventListener: function(event, listener) {
-    if (!this.listeners[event]) {
-      this.listeners[event] = [];
+  function postToParent(message) {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(message, '*');
+        return true;
+      }
+    } catch (error) {}
+    return false;
+  }
+
+  function navigateTo(url) {
+    if (!url) {
+      return false;
     }
-    this.listeners[event].push(listener);
-  },
+    try {
+      window.location.href = url;
+      return true;
+    } catch (error) {}
+    try {
+      window.open(url, '_blank');
+      return true;
+    } catch (error) {}
+    return false;
+  }
 
-  removeEventListener: function(event, listener) {
-    if (this.listeners[event]) {
-      var idx = this.listeners[event].indexOf(listener);
+  function requestPlayableReady() {
+    if (window.PlayableSDK && typeof window.PlayableSDK.ready === 'function') {
+      window.PlayableSDK.ready();
+    } else {
+      window.__PLAYABLE_READY_PENDING__ = true;
+    }
+  }
+
+  var readySent = false;
+
+  window.mraid = window.mraid || {
+    state: 'loading',
+    listeners: {},
+
+    addEventListener: function (event, listener) {
+      if (!this.listeners[event]) {
+        this.listeners[event] = [];
+      }
+      this.listeners[event].push(listener);
+    },
+
+    removeEventListener: function (event, listener) {
+      var idx;
+      if (!this.listeners[event]) {
+        return;
+      }
+      idx = this.listeners[event].indexOf(listener);
       if (idx > -1) {
         this.listeners[event].splice(idx, 1);
       }
-    }
-  },
+    },
 
-  fireEvent: function(event, data) {
-    if (this.listeners[event]) {
-      for (var i = 0; i < this.listeners[event].length; i++) {
-        this.listeners[event][i](data);
+    fireEvent: function (event, data) {
+      var callbacks = this.listeners[event] || [];
+      var i;
+      for (i = 0; i < callbacks.length; i += 1) {
+        callbacks[i](data);
       }
+    },
+
+    getState: function () {
+      return this.state;
+    },
+
+    open: function (url) {
+      return navigateTo(resolveTarget(url));
+    },
+
+    close: function () {
+      return postToParent({ type: 'close' });
     }
-  },
+  };
 
-  getState: function() {
-    return this.state;
-  },
-
-  open: function(url) {
-    var target = url || window.clickTag || '';
-    window.location.href = target;
-  },
-
-  close: function() {
-    window.parent.postMessage({ type: 'close' }, '*');
+  function signalReady() {
+    if (readySent) {
+      return true;
+    }
+    readySent = true;
+    try {
+      window.mraid.state = 'default';
+    } catch (error) {}
+    if (typeof window.mraid.fireEvent === 'function') {
+      window.mraid.fireEvent('ready');
+    }
+    return true;
   }
-};
 
-// 标记为就绪
-window.addEventListener('load', function() {
-  setTimeout(function() {
-    window.mraid.state = 'default';
-    window.mraid.fireEvent('ready');
-  }, 100);
-});
+  window.__PLAYABLE_CHANNEL_ADAPTER__ = {
+    channel: 'mintegral',
+    ready: signalReady,
+    open: function (url) {
+      if (window.mraid && typeof window.mraid.open === 'function') {
+        window.mraid.open(resolveTarget(url));
+        return true;
+      }
+      return navigateTo(resolveTarget(url));
+    },
+    close: function () {
+      if (window.mraid && typeof window.mraid.close === 'function') {
+        window.mraid.close();
+        return true;
+      }
+      return postToParent({ type: 'close' });
+    }
+  };
+
+  window.addEventListener('load', function () {
+    setTimeout(signalReady, 100);
+  });
+
+})();
 </script>
 
 <script id="__PACK_MANIFEST__" type="application/octet-stream">{"application.js":[0,3302],"assets/internal/config.json":[3302,3300],"assets/internal/import/07/07d3aae9f.json":[6602,1077339],"assets/internal/index.js":[1083941,45110],"assets/main/config.json":[1129051,3054],"assets/main/import/01/01c4014db.json":[1132105,121962],"assets/main/import/fd/fd8ec536-a354-4a17-9c74-4f3883c378c8.json":[1254067,480],"assets/main/index.js":[1254547,192105],"assets/main/native/12/1263d74c-8167-4928-91a6-4e2672411f47@2e76e.bin":[1446652,7976],"assets/main/native/18/1869ce41-40a2-48c5-96c8-6590d6165c4f@0a348.bin":[1454628,20488],"assets/main/native/6f/6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0@40c10.png":[1475116,2366,"image/webp"],"assets/main/native/6f/6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0@74afd.png":[1477482,2178,"image/webp"],"assets/main/native/6f/6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0@7d38f.png":[1479660,1620,"image/webp"],"assets/main/native/6f/6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0@8fd34.png":[1481280,2462,"image/webp"],"assets/main/native/6f/6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0@bb97f.png":[1483742,1988,"image/webp"],"assets/main/native/6f/6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0@e9a6d.png":[1485730,2046,"image/webp"],"assets/main/native/af/afef18b9-e1e3-4634-be10-ae56da5cd52f@83c35.bin":[1487776,36400],"assets/main/native/c3/c3d9efb4-3c97-4fcd-9f8f-f0e033faeba0@d2565.bin":[1524176,42756],"assets/main/native/ca/cafa519d-f9d0-4a85-b5a8-274649f784a2@dd7bf.bin":[1566932,124200],"assets/main/native/d0/d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0@40c10.png":[1691132,5044,"image/webp"],"assets/main/native/d0/d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0@74afd.png":[1696176,5146,"image/webp"],"assets/main/native/d0/d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0@7d38f.png":[1701322,318,"image/webp"],"assets/main/native/d0/d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0@8fd34.png":[1701640,5934,"image/webp"],"assets/main/native/d0/d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0@bb97f.png":[1707574,4032,"image/webp"],"assets/main/native/d0/d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0@e9a6d.png":[1711606,4766,"image/webp"],"assets/main/native/ec/ec90f44d-ee23-48aa-9d19-486ff91102d8@3a566.bin":[1716372,19044],"assets/resources/config.json":[1735416,11954],"assets/resources/import/01/01118d41-370e-4516-ae07-a29f6a17ec6a.json":[1747370,72],"assets/resources/import/01/01c97b6d3.json":[1747442,59792],"assets/resources/import/03/033d100aa.json":[1807234,6596],"assets/resources/import/03/0359bf999.json":[1813830,51162],"assets/resources/import/03/03f7930cc.json":[1864992,41756],"assets/resources/import/04/04884d15d.json":[1906748,3725],"assets/resources/import/05/050028075.json":[1910473,2101],"assets/resources/import/05/05091a3c5.json":[1912574,9529],"assets/resources/import/05/0575caaae.json":[1922103,1524],"assets/resources/import/07/075620b7b.json":[1923627,3737],"assets/resources/import/08/0871c0de7.json":[1927364,3245],"assets/resources/import/09/09459325b.json":[1930609,12482],"assets/resources/import/09/09b963ff-0677-4e65-82a7-b210d6d6fa48.json":[1747370,72],"assets/resources/import/09/09b963ff-0677-4e65-82a7-b210d6d6fa48@f9941.json":[1943091,704],"assets/resources/import/09/09d6e0c50.json":[1943795,2513],"assets/resources/import/0a/0a7f14064.json":[1946308,4092],"assets/resources/import/0c/0c2cc6c4f.json":[1950400,1881],"assets/resources/import/0c/0c358ff12.json":[1952281,1060853],"assets/resources/import/0c/0cfef2b23.json":[3013134,6244],"assets/resources/import/0d/0dc633edf.json":[3019378,8659],"assets/resources/import/0d/0dfb98ac-83d3-40a5-9268-0fefbccfb647.json":[1747370,72],"assets/resources/import/0e/0eefd549f.json":[3028037,565103],"assets/resources/import/0e/0ef39a7bb.json":[3593140,49629],"assets/resources/import/0f/0f36980d8.json":[3642769,3684],"assets/resources/import/0f/0f7d881b2.json":[3646453,4740],"assets/resources/import/13/13640951-9e21-4cc7-a02e-fd167ad3b6ee@73b7f.bin":[3651193,97396],"assets/resources/import/15/15311d6d-841d-42ae-bdea-49bfef8ece6d.json":[1747370,72],"assets/resources/import/1b/1b363691-8901-4cad-a6e4-9909d9e876ee.json":[3748589,2859],"assets/resources/import/2a/2aef7840-7a80-4773-a34f-877e3b502a00.json":[1747370,72],"assets/resources/import/2c/2c4c9eec-d18b-4b3b-bfac-bd98db2ea57a.json":[1747370,72],"assets/resources/import/2e/2e14ab76-806e-487b-a3dd-47b5d9106448.json":[1747370,72],"assets/resources/import/2f/2f44110c-ab95-4b9a-99bc-9822d96a8f08.json":[1747370,72],"assets/resources/import/34/34ef5434-b67e-4daa-94de-7d67aa19a77c@73b7f.bin":[3751448,17784],"assets/resources/import/41/41a9d084-9e31-4cb3-9b9e-0a146026ea9d.json":[3769232,72],"assets/resources/import/4a/4a028ab7-e4f4-403e-9c1b-98ca955b8b4d@73b7f.bin":[3769304,17208],"assets/resources/import/50/50d1ccf0-62a1-419e-8d88-2536696d6a1d@dfe29.json":[1747370,72],"assets/resources/import/58/589be385-f520-48ec-afdb-39d08c7712cc.json":[1747370,72],"assets/resources/import/58/58f86452-7f08-4a0a-958c-fd0c0fcd59e9.json":[3769232,72],"assets/resources/import/59/59053cff-c08b-42ed-8415-6553348f489f.json":[1747370,72],"assets/resources/import/5a/5a6ccf8e-6535-4b79-9d01-58f777a8843a@73b7f.bin":[3786512,16976],"assets/resources/import/67/672eeb78-5e5f-40a0-92fe-88a99e9a1fe5.json":[1747370,72],"assets/resources/import/69/6913d95c-09f0-4f8a-a4db-20d85ae60709@73b7f.bin":[3803488,17488],"assets/resources/import/6a/6a3817f9-dcc6-4cf4-819e-aa2fa913c0c2.json":[1747370,72],"assets/resources/import/71/71cf46c6-2f89-4c26-8e2d-ddce2137f37c.json":[1747370,72],"assets/resources/import/74/74622a8c-3b78-43c7-950c-7237b3dcee3d.json":[1747370,72],"assets/resources/import/75/757f1eab-781e-4631-830a-353b7bec6e50.json":[1747370,72],"assets/resources/import/75/757f1eab-781e-4631-830a-353b7bec6e50@f9941.json":[3820976,587],"assets/resources/import/76/7607956f-f807-40b2-99ca-6c03c11a3c38@43c71.json":[1747370,72],"assets/resources/import/84/844dbefe-8534-4aba-b38c-4301d8281148@73b7f.bin":[3821563,93652],"assets/resources/import/8d/8dfdfc28-6f62-4107-be27-54dba8db64d2@73b7f.bin":[3915215,13036],"assets/resources/import/94/944ce1bf-968e-4d4e-8820-f1cda6e87b7b.json":[3769232,72],"assets/resources/import/94/94d546d9-adff-4663-bcc3-20c09feb82c4.json":[1747370,72],"assets/resources/import/95/95f2871c-85fd-45c3-99cf-977745971b6e@73b7f.bin":[3928251,34820],"assets/resources/import/98/985032fa-3633-4fb9-9f34-53063a537151.json":[1747370,72],"assets/resources/import/99/99bebb2b-6670-4290-9ec2-50be908ef9bc@73b7f.bin":[3963071,88384],"assets/resources/import/9c/9ca7db1e-6263-447c-b8c9-c3ec678ca9d7.json":[1747370,72],"assets/resources/import/a6/a60fead9-8f22-4c4e-9eb8-632c7fe04250.json":[1747370,72],"assets/resources/import/a6/a6ef879a-ecac-4eed-b85d-eb33b3f99a0d.json":[1747370,72],"assets/resources/import/a8/a89c58c1-3959-4973-a403-1ba24942e2c6.json":[3769232,72],"assets/resources/import/c2/c2c1498e-b84e-4dc3-a3d1-d75453638adf.json":[1747370,72],"assets/resources/import/c3/c32ab8f1-3d13-4904-b6d4-863602e3328b.json":[1747370,72],"assets/resources/import/c3/c32ab8f1-3d13-4904-b6d4-863602e3328b@f9941.json":[4051455,711],"assets/resources/import/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@43c71.json":[1747370,72],"assets/resources/import/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@73b7f.bin":[4052166,119572],"assets/resources/import/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@adacb.json":[1747370,72],"assets/resources/import/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@be25d.json":[1747370,72],"assets/resources/import/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@dfe29.json":[1747370,72],"assets/resources/import/d0/d03fbb96-1d95-4b75-8dd8-7044fbd2dbbd.json":[4171738,785],"assets/resources/import/d5/d5555555-5555-4555-a555-555555555555.json":[1747370,72],"assets/resources/import/d6/d60927d9-5b5f-4767-bb67-49d3bd9d752b.json":[1747370,72],"assets/resources/import/dd/dd2ddb79-3409-4400-bc88-e74c5dcf5dcf.json":[1747370,72],"assets/resources/import/dd/dd2ddb79-3409-4400-bc88-e74c5dcf5dcf@f9941.json":[4172523,555],"assets/resources/import/e0/e06799b1-6f4b-45d1-bda2-8cfc673b72c2.json":[1747370,72],"assets/resources/import/e6/e6883f75-7eaf-4808-b29b-acf1233e073c@73b7f.bin":[4173078,96092],"assets/resources/import/e9/e973db47-d46e-4df0-9b20-0fc03bfe414a.json":[1747370,72],"assets/resources/import/ec/ecb838f2-5c4f-449b-91a1-e894e0ba20a2.json":[1747370,72],"assets/resources/import/ee/eebb5ce1-bb58-4ae5-874a-c66bcfc57bd5.json":[3769232,72],"assets/resources/import/f0/f0c9caf7-d834-431c-aef4-cdb73d0fae87@73b7f.bin":[4269170,98672],"assets/resources/import/f3/f31b8106-ba3d-4a19-9c82-d1ea7260c52c.bin":[4367842,350],"assets/resources/import/f4/f4e0789e-b6b9-4396-8522-e2e8c86d912c.json":[4368192,2386],"assets/resources/import/f5/f5193e6b-d19e-4354-b965-b729e61bb672.bin":[4367842,350],"assets/resources/import/f7/f718f422-7604-4d1b-93d6-3bec55c30d97@73b7f.bin":[4370578,90520],"assets/resources/import/f7/f7fa1ac2-984a-4796-aece-61aa5e83d6fb.json":[1747370,72],"assets/resources/import/f7/f7fa1ac2-984a-4796-aece-61aa5e83d6fb@f9941.json":[4461098,570],"assets/resources/import/fa/fa04d75c-c7c3-435f-9ef3-21d5f568b4af.json":[3769232,72],"assets/resources/import/fd/fd9e110f-6d1a-4c08-9410-0fc8f5e010aa@73b7f.bin":[4461668,106044],"assets/resources/import/fd/fdf8b274-cd90-4825-830b-7d4237b9cda3@43c71.json":[1747370,72],"assets/resources/import/fd/fdf8b274-cd90-4825-830b-7d4237b9cda3@73b7f.bin":[4567712,91672],"assets/resources/index.js":[4659384,605],"assets/resources/native/01/01118d41-370e-4516-ae07-a29f6a17ec6a.png":[4659989,14102,"image/webp"],"assets/resources/native/09/09b963ff-0677-4e65-82a7-b210d6d6fa48.png":[4674091,13148,"image/webp"],"assets/resources/native/0b/0b849898-22eb-4664-8baa-02392ff6723c@f53c6.bin":[4687239,227022],"assets/resources/native/0d/0dfb98ac-83d3-40a5-9268-0fefbccfb647.png":[4914261,3054,"image/webp"],"assets/resources/native/0f/0fdcefd3-582f-4edc-ad52-ac71c977cf34@8130b.bin":[4917315,65688],"assets/resources/native/15/15311d6d-841d-42ae-bdea-49bfef8ece6d.png":[4983003,40432,"image/webp"],"assets/resources/native/21/21b3bebc-1957-45a2-8373-4323feaf5ea1@362d2.bin":[5023435,13380],"assets/resources/native/21/21b3bebc-1957-45a2-8373-4323feaf5ea1@3d3f3.bin":[5036815,12488],"assets/resources/native/21/21b3bebc-1957-45a2-8373-4323feaf5ea1@763a2.bin":[5049303,107376],"assets/resources/native/21/21b3bebc-1957-45a2-8373-4323feaf5ea1@c5500.bin":[5156679,15060],"assets/resources/native/2a/2aef7840-7a80-4773-a34f-877e3b502a00.png":[5171739,60,"image/webp"],"assets/resources/native/2c/2c4c9eec-d18b-4b3b-bfac-bd98db2ea57a.png":[5171799,12700,"image/webp"],"assets/resources/native/2e/2e14ab76-806e-487b-a3dd-47b5d9106448.png":[5184499,14106,"image/webp"],"assets/resources/native/2f/2f44110c-ab95-4b9a-99bc-9822d96a8f08.png":[5198605,1452,"image/webp"],"assets/resources/native/41/41a9d084-9e31-4cb3-9b9e-0a146026ea9d.jpg":[5200057,3024,"image/webp"],"assets/resources/native/48/48ae479c-06b6-44b5-ba38-5f229029ab91@12c19.bin":[5203081,40590],"assets/resources/native/50/50d1ccf0-62a1-419e-8d88-2536696d6a1d@a0ec4.bin":[5243671,108054],"assets/resources/native/50/50d1ccf0-62a1-419e-8d88-2536696d6a1d@dfe29.png":[5351725,7630,"image/webp"],"assets/resources/native/58/589be385-f520-48ec-afdb-39d08c7712cc.png":[5359355,196,"image/webp"],"assets/resources/native/58/58f86452-7f08-4a0a-958c-fd0c0fcd59e9.jpg":[5359551,1132,"image/webp"],"assets/resources/native/59/59053cff-c08b-42ed-8415-6553348f489f.png":[5360683,934,"image/webp"],"assets/resources/native/67/672eeb78-5e5f-40a0-92fe-88a99e9a1fe5.png":[5361617,9694,"image/webp"],"assets/resources/native/6a/6a3817f9-dcc6-4cf4-819e-aa2fa913c0c2.png":[5371311,11336,"image/webp"],"assets/resources/native/71/71cf46c6-2f89-4c26-8e2d-ddce2137f37c.png":[5382647,7768,"image/webp"],"assets/resources/native/74/74622a8c-3b78-43c7-950c-7237b3dcee3d.png":[5390415,3912,"image/webp"],"assets/resources/native/75/757f1eab-781e-4631-830a-353b7bec6e50.png":[5394327,3383],"assets/resources/native/76/7607956f-f807-40b2-99ca-6c03c11a3c38@43c71.png":[5171799,12700,"image/webp"],"assets/resources/native/76/7607956f-f807-40b2-99ca-6c03c11a3c38@b2699.bin":[5397710,69992],"assets/resources/native/8e/8e04d162-90d3-4e8c-ab80-a9c022cef2ba@4cd9d.bin":[5467702,7884],"assets/resources/native/93/93a35af7-6fcb-4085-b0c4-621e818d280b@46540.bin":[5475586,3360],"assets/resources/native/94/944ce1bf-968e-4d4e-8820-f1cda6e87b7b.jpg":[5478946,11760,"image/webp"],"assets/resources/native/94/94d546d9-adff-4663-bcc3-20c09feb82c4.png":[5490706,12692,"image/webp"],"assets/resources/native/98/985032fa-3633-4fb9-9f34-53063a537151.png":[5503398,9882,"image/webp"],"assets/resources/native/9c/9ca7db1e-6263-447c-b8c9-c3ec678ca9d7.png":[5513280,11052,"image/webp"],"assets/resources/native/9f/9fbc3ca9-2631-43fd-865d-d6d0ad20e927@6a76c.bin":[5524332,204],"assets/resources/native/a6/a60fead9-8f22-4c4e-9eb8-632c7fe04250.png":[5524536,6226,"image/webp"],"assets/resources/native/a6/a6ef879a-ecac-4eed-b85d-eb33b3f99a0d.png":[5530762,15628,"image/webp"],"assets/resources/native/a8/a89c58c1-3959-4973-a403-1ba24942e2c6.jpg":[5546390,4210,"image/webp"],"assets/resources/native/c2/c2c1498e-b84e-4dc3-a3d1-d75453638adf.png":[5550600,35024,"image/webp"],"assets/resources/native/c3/c32ab8f1-3d13-4904-b6d4-863602e3328b.png":[5585624,947],"assets/resources/native/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@43c71.png":[5586571,1658,"image/webp"],"assets/resources/native/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@56c1e.bin":[5588229,31092],"assets/resources/native/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@6a106.bin":[5619321,37716],"assets/resources/native/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@8130b.bin":[4917315,65688],"assets/resources/native/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@adacb.png":[5657037,5684,"image/webp"],"assets/resources/native/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@be25d.png":[5662721,8958,"image/webp"],"assets/resources/native/c8/c8666c74-c4bc-4ee9-8b1a-41af1e7b89de@dfe29.png":[5671679,5980,"image/webp"],"assets/resources/native/d5/d5555555-5555-4555-a555-555555555555.png":[5677659,560,"image/webp"],"assets/resources/native/d6/d60927d9-5b5f-4767-bb67-49d3bd9d752b.png":[5662721,8958,"image/webp"],"assets/resources/native/dd/dd2ddb79-3409-4400-bc88-e74c5dcf5dcf.png":[5678219,2738,"image/webp"],"assets/resources/native/e0/e06799b1-6f4b-45d1-bda2-8cfc673b72c2.png":[5680957,2870,"image/webp"],"assets/resources/native/e0/e0d0ca99-8fc9-4adc-a11e-081a6a95df1d@91dea.bin":[5683827,302448],"assets/resources/native/e9/e973db47-d46e-4df0-9b20-0fc03bfe414a.png":[5986275,2288,"image/webp"],"assets/resources/native/ec/ecb838f2-5c4f-449b-91a1-e894e0ba20a2.png":[5988563,3712,"image/webp"],"assets/resources/native/ee/eebb5ce1-bb58-4ae5-874a-c66bcfc57bd5.jpg":[5992275,4418,"image/webp"],"assets/resources/native/f7/f7fa1ac2-984a-4796-aece-61aa5e83d6fb.png":[5996693,4530,"image/webp"],"assets/resources/native/fa/fa04d75c-c7c3-435f-9ef3-21d5f568b4af.jpg":[6001223,260,"image/webp"],"assets/resources/native/fd/fdf8b274-cd90-4825-830b-7d4237b9cda3@43c71.png":[5513280,11052,"image/webp"],"assets/resources/native/fd/fdf8b274-cd90-4825-830b-7d4237b9cda3@d2343.bin":[6001483,237240],"cocos-js/assets/bullet.release.wasm-BIzkn7bF.wasm":[6238723,469455],"cocos-js/assets/spine-CC34fKUR.wasm":[6708178,205175],"cocos-js/assets/spine.js.mem-pbmhlDdv.bin":[6913353,19998],"cocos-js/bullet.release.asm-D_68nJYa.js":[6933351,940787],"cocos-js/bullet.release.wasm-BOgvux-R.js":[7874138,26899],"cocos-js/bullet.release.wasm-mT4aJDLq.js":[7901037,133],"cocos-js/cc.js":[7901170,10675],"cocos-js/spine-BGFFnNyc.js":[7911845,119],"cocos-js/spine.asm-BCCB8IGt.js":[7911964,362717],"cocos-js/spine.js-CPHn08RU.js":[8274681,125],"cocos-js/spine.wasm-D2KkhhGP.js":[8274806,22167],"cocos-js/_virtual_cc-CArsJ5Rl.js":[8296973,3133775],"index.js":[11430748,818],"src/chunks/bundle.js":[11431566,9866],"src/effect.bin":[11441432,5755],"src/settings.json":[11447187,21905]}</script>
@@ -783,140 +863,287 @@ window.addEventListener('load', function() {
   install();
 })();</script>
 <script>(function (global) {
-  // 统一对外 API
-  const PlayableSDK = {
-    channel: (global.__CHANNEL__ || 'unknown') + '',
-    isReady: false,
-    ready() {
-      // 部分渠道要求等 mraid ready
-      tryMraidReady(() => {
-        this.isReady = true;
-        this.track('ready');
-      });
-    },
-    // url: 商店链接（可选）。如果渠道要求 clickTag，则可在 html 里注入 window.clickTag
-    open(url) {
-      const target = url || global.clickTag || global.ClickTag || global.__CLICK_URL__ || '';
-      this.track('cta');
-      // 1) MRAID（很多聚合渠道/广告 SDK 使用）
-      if (global.mraid && typeof global.mraid.open === 'function') {
-        try { global.mraid.open(target); return true; } catch (e) {}
-      }
-      // 2) Google ExitApi（Google Ads playable 常见）
-      // 常见形态：ExitApi.exit() 或 ExitApi.exit(url)
-      if (global.ExitApi && typeof global.ExitApi.exit === 'function') {
-        try {
-          // 有的只允许 exit()，有的允许 exit(url)
-          if (target) { global.ExitApi.exit(target); }
-          else { global.ExitApi.exit(); }
-          return true;
-        } catch (e) {}
-      }
-      // 3) Facebook/Meta（历史上常见 clickTag / 以及 playable 事件对象）
-      // 这里做最宽松兜底：优先 window.open
-      // 若你的 Meta 模板有 FbPlayableAd 对象，后续再补精确 API
-      if (global.FbPlayableAd) {
-        // 尝试常见方法名（不同版本/模板差异大）
-        const cand = ['onCTAClick', 'cta', 'click', 'open', 'openStore', 'openUrl', 'openURL'];
-        for (const fn of cand) {
-          try {
-            if (typeof global.FbPlayableAd[fn] === 'function') {
-              global.FbPlayableAd[fn](target);
-              return true;
-            }
-          } catch (e) {}
-        }
-      }
-      // 4) TikTok（常见：可用 clickTag 或 postMessage 给宿主）
-      // 先做 postMessage 尝试
-      try {
-        if (global.parent && global.parent !== global) {
-          global.parent.postMessage({ type: 'open', url: target }, '*');
-        }
-      } catch (e) {}
-      // 5) 终极兜底：window.open（有些 WebView 会拦截弹窗，审核不一定过）
-      try {
-        global.open(target || 'https://example.com', '_blank');
-        return true;
-      } catch (e) {}
-      return false;
-    },
-    // name: 'start' | 'progress' | 'complete' | 'cta' | ...
-    track(name, data) {
-      const evt = String(name || '');
-      const payload = data == null ? {} : data;
-      // MRAID：常见是 mraid.trackEvent / mraid.fireEvent（实现不统一）
-      if (global.mraid) {
-        try {
-          if (typeof global.mraid.trackEvent === 'function') global.mraid.trackEvent(evt, payload);
-        } catch (e) {}
-        // 一些实现可能通过 setExpandProperties/其他，不强求
-      }
-      // Google：部分模板会有 gtag / 或者自定义 reporter
-      // 这里不强依赖
-      // Meta：尝试 FbPlayableAd 的事件上报（名称不统一，尽量探测）
-      if (global.FbPlayableAd) {
-        const cand = ['logEvent', 'track', 'trackEvent', 'sendEvent', 'reportEvent'];
-        for (const fn of cand) {
-          try {
-            if (typeof global.FbPlayableAd[fn] === 'function') {
-              global.FbPlayableAd[fn](evt, payload);
-              break;
-            }
-          } catch (e) {}
-        }
-      }
-      // 通用 postMessage（一些宿主用 message 采集）
-      try {
-        if (global.parent && global.parent !== global) {
-          global.parent.postMessage({ type: 'track', event: evt, data: payload }, '*');
-        }
-      } catch (e) {}
-      // 控制台（本地调试）
-      if (!global.__PLAYABLE_SILENT_LOG__) {
-        try { console.log('[PlayableSDK.track]', evt, payload); } catch (e) {}
-      }
-    },
-    // 常见需求：静音控制（Playable 通常默认静音，用户点击后再打开）
-    setMuted(muted) {
-      this.track(muted ? 'mute' : 'unmute');
-      global.__PLAYABLE_MUTED__ = !!muted;
-      // 这里不直接操作 Cocos Audio，由你在游戏侧监听该变量或直接调用引擎 API
+  var CHANNEL = String(global.__CHANNEL__ || 'unknown');
+
+  function getAdapter() {
+    if (global.__PLAYABLE_CHANNEL_ADAPTER__) {
+      return global.__PLAYABLE_CHANNEL_ADAPTER__;
     }
-  };
-  function tryMraidReady(cb) {
-    const m = global.mraid;
-    if (!m) return cb();
+    if (global.__PLAYABLE_CHANNEL_ADAPTERS__ && global.__PLAYABLE_CHANNEL_ADAPTERS__[CHANNEL]) {
+      return global.__PLAYABLE_CHANNEL_ADAPTERS__[CHANNEL];
+    }
+    return null;
+  }
+
+  function callAdapter(methodName) {
+    var adapter = getAdapter();
+    var args;
+    if (!adapter || typeof adapter[methodName] !== 'function') {
+      return undefined;
+    }
+    args = Array.prototype.slice.call(arguments, 1);
     try {
-      if (typeof m.getState === 'function') {
-        const st = m.getState();
-        if (st === 'loading' && typeof m.addEventListener === 'function') {
-          m.addEventListener('ready', function onReady() {
-            try { m.removeEventListener && m.removeEventListener('ready', onReady); } catch (e) {}
-            cb();
-          });
+      return adapter[methodName].apply(adapter, args);
+    } catch (error) {
+      return undefined;
+    }
+  }
+
+  function resolveTarget(url) {
+    return url ||
+      global.clickTag ||
+      global.ClickTag ||
+      global.__CLICK_URL__ ||
+      global.downloadUrl ||
+      global.installUrl ||
+      global.storeUrl ||
+      global.clickUrl ||
+      '';
+  }
+
+  function safePostMessage(message) {
+    try {
+      if (global.parent && global.parent !== global) {
+        global.parent.postMessage(message, '*');
+        return true;
+      }
+    } catch (error) {}
+    return false;
+  }
+
+  function openWindow(url) {
+    if (!url) {
+      return false;
+    }
+    try {
+      global.open(url, '_blank');
+      return true;
+    } catch (error) {}
+    return false;
+  }
+
+  function fallbackOpen(url) {
+    var target = resolveTarget(url);
+    var methods;
+    var i;
+
+    if (global.mraid && typeof global.mraid.open === 'function') {
+      try {
+        global.mraid.open(target);
+        return true;
+      } catch (error) {}
+    }
+
+    if (global.ExitApi && typeof global.ExitApi.exit === 'function') {
+      try {
+        if (target) {
+          global.ExitApi.exit(target);
+        } else {
+          global.ExitApi.exit();
+        }
+        return true;
+      } catch (error) {}
+    }
+
+    if (global.FbPlayableAd) {
+      methods = ['onCTAClick', 'cta', 'click', 'open', 'openStore', 'openUrl', 'openURL'];
+      for (i = 0; i < methods.length; i += 1) {
+        try {
+          if (typeof global.FbPlayableAd[methods[i]] === 'function') {
+            global.FbPlayableAd[methods[i]](target);
+            return true;
+          }
+        } catch (error) {}
+      }
+    }
+
+    safePostMessage({ type: 'open', url: target });
+    return openWindow(target);
+  }
+
+  function fallbackClose() {
+    if (global.mraid && typeof global.mraid.close === 'function') {
+      try {
+        global.mraid.close();
+        return true;
+      } catch (error) {}
+    }
+    return safePostMessage({ type: 'close' });
+  }
+
+  function fallbackTrack(name, data) {
+    var evt = String(name || '');
+    var payload = data == null ? {} : data;
+    var handled = false;
+    var methods;
+    var i;
+
+    if (global.mraid && typeof global.mraid.trackEvent === 'function') {
+      try {
+        global.mraid.trackEvent(evt, payload);
+        handled = true;
+      } catch (error) {}
+    }
+
+    if (global.FbPlayableAd) {
+      methods = ['logEvent', 'track', 'trackEvent', 'sendEvent', 'reportEvent'];
+      for (i = 0; i < methods.length; i += 1) {
+        try {
+          if (typeof global.FbPlayableAd[methods[i]] === 'function') {
+            global.FbPlayableAd[methods[i]](evt, payload);
+            handled = true;
+            break;
+          }
+        } catch (error) {}
+      }
+    }
+
+    if (safePostMessage({ type: 'track', event: evt, data: payload })) {
+      handled = true;
+    }
+
+    if (!global.__PLAYABLE_SILENT_LOG__) {
+      try {
+        console.log('[PlayableSDK.track]', evt, payload);
+      } catch (error) {}
+    }
+
+    return handled;
+  }
+
+  function tryMraidReady(callback) {
+    var mraid = global.mraid;
+    var onReady;
+    if (!mraid || typeof callback !== 'function') {
+      return;
+    }
+    try {
+      if (typeof mraid.getState === 'function' && mraid.getState() === 'loading' && typeof mraid.addEventListener === 'function') {
+        onReady = function () {
+          try {
+            if (typeof mraid.removeEventListener === 'function') {
+              mraid.removeEventListener('ready', onReady);
+            }
+          } catch (error) {}
+          callback();
+        };
+        mraid.addEventListener('ready', onReady);
+        return;
+      }
+    } catch (error) {}
+    callback();
+  }
+
+  var PlayableSDK = {
+    channel: CHANNEL,
+    isReady: false,
+
+    ready: function () {
+      if (this.isReady) {
+        return true;
+      }
+      tryMraidReady(function () {
+        if (PlayableSDK.isReady) {
           return;
         }
+        callAdapter('ready');
+        PlayableSDK.isReady = true;
+      });
+      return true;
+    },
+
+    open: function (url) {
+      var target = resolveTarget(url);
+      var handled = callAdapter('open', target);
+      if (handled) {
+        return true;
       }
-    } catch (e) {}
-    cb();
-  }
+      return fallbackOpen(target);
+    },
+
+    close: function () {
+      var handled = callAdapter('close');
+      if (handled) {
+        return true;
+      }
+      return fallbackClose();
+    },
+
+    track: function (name, data) {
+      var evt = String(name || '');
+      var payload = data == null ? {} : data;
+      var handled = callAdapter('track', evt, payload);
+      if (handled) {
+        if (!global.__PLAYABLE_SILENT_LOG__) {
+          try {
+            console.log('[PlayableSDK.track]', evt, payload);
+          } catch (error) {}
+        }
+        return true;
+      }
+      return fallbackTrack(evt, payload);
+    },
+
+    setMuted: function (muted) {
+      var nextMuted = !!muted;
+      var handled;
+      global.__PLAYABLE_MUTED__ = nextMuted;
+      handled = callAdapter('setMuted', nextMuted);
+      if (handled) {
+        return true;
+      }
+      return this.track(nextMuted ? 'mute' : 'unmute');
+    }
+  };
+
   global.PlayableSDK = PlayableSDK;
-})(window);</script>
+
+  if (global.__PLAYABLE_READY_PENDING__) {
+    try {
+      delete global.__PLAYABLE_READY_PENDING__;
+    } catch (error) {
+      global.__PLAYABLE_READY_PENDING__ = false;
+    }
+    setTimeout(function () {
+      PlayableSDK.ready();
+    }, 0);
+  }
+})(window);
+</script>
 
 <script>(function(){
+  function toPromise(value){
+    if (value && typeof value.then === 'function') return value;
+    return Promise.resolve(value);
+  }
+  function waitForPlayableStartGate(){
+    try {
+      const gate = window.__PLAYABLE_START_GATE__;
+      if (typeof gate === 'function') {
+        return toPromise(gate());
+      }
+      return toPromise(gate);
+    } catch (err) {
+      console.error('[pack-single-html] playable start gate failed:', err && err.message ? err.message : err);
+      return Promise.resolve();
+    }
+  }
+  function waitForBootstrap(){
+    const ready = window.__PACK_BOOTSTRAP_READY__;
+    if (ready && typeof ready.then === 'function') {
+      return ready;
+    }
+    return Promise.resolve();
+  }
   function start(){
     System.import('./index.js').catch(function(err) { console.error(err); });
   }
-  const ready = window.__PACK_BOOTSTRAP_READY__;
-  if (ready && typeof ready.then === 'function') {
-    ready.then(start).catch(function(err){
-      console.error('[pack-single-html] bootstrap wait failed:', err && err.message ? err.message : err);
-      start();
-    });
-    return;
-  }
-  start();
+  Promise.all([waitForBootstrap(), waitForPlayableStartGate()]).then(function(){
+    start();
+  }).catch(function(err){
+    console.error('[pack-single-html] startup wait failed:', err && err.message ? err.message : err);
+    start();
+  });
 })();</script>
 
 </body>

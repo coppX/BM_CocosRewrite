@@ -5,6 +5,7 @@ import zlib from 'node:zlib';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import channelSDKs from './channel-sdks.js';
+import { getChannelUploadSpec, shouldEmitStandaloneHtmlFile } from './channel-upload-specs.mjs';
 
 const SCRIPT_FILE = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_FILE);
@@ -53,10 +54,17 @@ const IMAGE_FORMAT_WEBP = 'webp';
 const IMAGE_FORMAT_JPEG = 'jpeg';
 const PYTHON_BIN = process.env.PYTHON || 'python';
 const PY_IMAGE_TRANSCODER = path.join(SCRIPT_DIR, 'transcode-image.py');
+const UPLOAD_BUNDLE_DIRNAME = 'upload-bundles';
+const UPLOAD_HTML_DIRNAME = 'upload-htmls';
+const PROJECT_ORIENTATION_BOTH = 'both';
+const PROJECT_ORIENTATION_PORTRAIT = 'portrait';
+const PROJECT_ORIENTATION_LANDSCAPE = 'landscape';
 
 let pythonImageTranscoderChecked = false;
 let pythonImageTranscoderAvailable = false;
 let pythonImageTranscoderWarning = null;
+let inferredProjectOrientation = null;
+let cachedBuildScreenConfig = null;
 
 function parseBooleanLike(raw, fallback = true) {
   if (raw === undefined || raw === null || raw === '') return fallback;
@@ -124,6 +132,142 @@ function resolveImageMaxDimensionFromArgs(args = process.argv.slice(2)) {
   const n = Number(args[idx + 1]);
   if (!Number.isFinite(n)) return 0;
   return Math.max(0, Math.round(n));
+}
+
+function inferProjectOrientation() {
+  if (inferredProjectOrientation) return inferredProjectOrientation;
+
+  const scenePath = path.join(PROJECT_ROOT, 'assets', 'scenes', 'scene.scene');
+  if (!fs.existsSync(scenePath)) {
+    inferredProjectOrientation = PROJECT_ORIENTATION_BOTH;
+    return inferredProjectOrientation;
+  }
+
+  const sceneText = fs.readFileSync(scenePath, 'utf8');
+  const matches = Array.from(sceneText.matchAll(/"_contentSize"\s*:\s*\{[\s\S]*?"width"\s*:\s*(\d+(?:\.\d+)?)[\s,]*[\s\S]*?"height"\s*:\s*(\d+(?:\.\d+)?)/g));
+  if (!matches.length) {
+    inferredProjectOrientation = PROJECT_ORIENTATION_BOTH;
+    return inferredProjectOrientation;
+  }
+
+  let width = 0;
+  let height = 0;
+  let area = 0;
+  for (const match of matches) {
+    const nextWidth = Number(match[1]);
+    const nextHeight = Number(match[2]);
+    const nextArea = nextWidth * nextHeight;
+    if (!Number.isFinite(nextWidth) || !Number.isFinite(nextHeight) || nextWidth <= 0 || nextHeight <= 0) {
+      continue;
+    }
+    if (nextArea > area) {
+      width = nextWidth;
+      height = nextHeight;
+      area = nextArea;
+    }
+  }
+
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    inferredProjectOrientation = PROJECT_ORIENTATION_BOTH;
+    return inferredProjectOrientation;
+  }
+
+  if (width > height) {
+    inferredProjectOrientation = PROJECT_ORIENTATION_LANDSCAPE;
+  } else if (height > width) {
+    inferredProjectOrientation = PROJECT_ORIENTATION_PORTRAIT;
+  } else {
+    inferredProjectOrientation = PROJECT_ORIENTATION_BOTH;
+  }
+
+  return inferredProjectOrientation;
+}
+
+function readBuildScreenConfig() {
+  if (cachedBuildScreenConfig) return cachedBuildScreenConfig;
+
+  const settingsPath = path.join(BUILD_DIR, 'src', 'settings.json');
+  const fallback = {
+    width: 1280,
+    height: 720,
+    orientation: 'auto',
+  };
+
+  if (!fs.existsSync(settingsPath)) {
+    cachedBuildScreenConfig = fallback;
+    return cachedBuildScreenConfig;
+  }
+
+  try {
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    const designResolution = settings && settings.screen && settings.screen.designResolution;
+    const width = Number(designResolution && designResolution.width);
+    const height = Number(designResolution && designResolution.height);
+    cachedBuildScreenConfig = {
+      width: Number.isFinite(width) && width > 0 ? width : fallback.width,
+      height: Number.isFinite(height) && height > 0 ? height : fallback.height,
+      orientation: settings && settings.screen && settings.screen.orientation ? settings.screen.orientation : fallback.orientation,
+    };
+    return cachedBuildScreenConfig;
+  } catch (error) {
+    cachedBuildScreenConfig = fallback;
+    return cachedBuildScreenConfig;
+  }
+}
+
+function buildUploadBundleConfig(channel, orientation) {
+  switch (channel) {
+    case 'tiktok':
+      return {
+        playable_orientation:
+          orientation === PROJECT_ORIENTATION_PORTRAIT ? 1 :
+            orientation === PROJECT_ORIENTATION_LANDSCAPE ? 2 :
+              0,
+      };
+    case 'snap':
+      return {
+        orientation: 1,
+      };
+    default:
+      return null;
+  }
+}
+
+function extractUploadSnippet(html) {
+  const headMatch = /<head[^>]*>([\s\S]*?)<\/head>/i.exec(html);
+  const bodyMatch = /<body[^>]*>([\s\S]*?)<\/body>/i.exec(html);
+  const headInner = headMatch ? headMatch[1].trim() : '';
+  const bodyInner = bodyMatch ? bodyMatch[1].trim() : '';
+  return [headInner, bodyInner].filter(Boolean).join('\n');
+}
+
+function writeUploadBundle(outDir, channel, html, orientation) {
+  const bundleDir = path.join(outDir, UPLOAD_BUNDLE_DIRNAME, channel);
+  fs.mkdirSync(bundleDir, { recursive: true });
+  fs.writeFileSync(path.join(bundleDir, 'index.html'), html, 'utf8');
+
+  const config = buildUploadBundleConfig(channel, orientation);
+  if (config) {
+    fs.writeFileSync(path.join(bundleDir, 'config.json'), JSON.stringify(config, null, 2), 'utf8');
+  }
+
+  if (channel === 'ironsource') {
+    fs.writeFileSync(path.join(bundleDir, 'snippet.html'), extractUploadSnippet(html), 'utf8');
+  }
+
+  return bundleDir;
+}
+
+function writeSingleHtmlUploadFile(outDir, channel, html) {
+  if (!shouldEmitStandaloneHtmlFile(channel)) return null;
+
+  const htmlDir = path.join(outDir, UPLOAD_HTML_DIRNAME);
+  fs.mkdirSync(htmlDir, { recursive: true });
+  const spec = getChannelUploadSpec(channel);
+  const fileName = spec.htmlUploadFileName || `${channel}.html`;
+  const filePath = path.join(htmlDir, fileName);
+  fs.writeFileSync(filePath, html, 'utf8');
+  return filePath;
 }
 
 function normalizeBlobCompression(raw, fallback = BLOB_COMPRESSION_NONE) {
@@ -1153,22 +1297,42 @@ function makePackBootstrapScript(useBase64, blobCompression) {
 
 function makeSystemImportStartScript() {
   return `<script>(function(){
+  function toPromise(value){
+    if (value && typeof value.then === 'function') return value;
+    return Promise.resolve(value);
+  }
+  function waitForPlayableStartGate(){
+    try {
+      const gate = window.__PLAYABLE_START_GATE__;
+      if (typeof gate === 'function') {
+        return toPromise(gate());
+      }
+      return toPromise(gate);
+    } catch (err) {
+      console.error('[pack-single-html] playable start gate failed:', err && err.message ? err.message : err);
+      return Promise.resolve();
+    }
+  }
+  function waitForBootstrap(){
+    const ready = window.__PACK_BOOTSTRAP_READY__;
+    if (ready && typeof ready.then === 'function') {
+      return ready;
+    }
+    return Promise.resolve();
+  }
   function start(){
     System.import('./index.js').catch(function(err) { console.error(err); });
   }
-  const ready = window.__PACK_BOOTSTRAP_READY__;
-  if (ready && typeof ready.then === 'function') {
-    ready.then(start).catch(function(err){
-      console.error('[pack-single-html] bootstrap wait failed:', err && err.message ? err.message : err);
-      start();
-    });
-    return;
-  }
-  start();
+  Promise.all([waitForBootstrap(), waitForPlayableStartGate()]).then(function(){
+    start();
+  }).catch(function(err){
+    console.error('[pack-single-html] startup wait failed:', err && err.message ? err.message : err);
+    start();
+  });
 })();</script>`;
 }
 
-function inlineHtml(channel, manifest, blob, useBase64, blobCompression) {
+function inlineHtml(channel, manifest, blob, useBase64, blobCompression, buildScreenConfig, projectOrientation) {
   let html = fs.readFileSync(path.join(BUILD_DIR, 'index.html'), 'utf8');
   const manifestJson = JSON.stringify(manifest);
   const blobPayload = useBase64 ? blob.toString('base64') : encodeBase91(blob);
@@ -1190,7 +1354,7 @@ function inlineHtml(channel, manifest, blob, useBase64, blobCompression) {
   html = inlineImportMapAsset(html, 'src/import-map.json');
 
   const injected =
-`<script>window.__CHANNEL__=${JSON.stringify(channel)};</script>
+`<script>window.__CHANNEL__=${JSON.stringify(channel)};window.__PLAYABLE_DESIGN_SIZE__=${JSON.stringify({ width: buildScreenConfig.width, height: buildScreenConfig.height })};window.__PLAYABLE_PROJECT_ORIENTATION__=${JSON.stringify(projectOrientation)};</script>
 ${channelSDK}
 ${manifestTag}
 ${packedChunkTags}
@@ -1238,14 +1402,23 @@ export async function packSingleHtml(options = {}) {
     imageFormat,
     imageMaxDimension
   );
+  const projectOrientation = inferProjectOrientation();
+  const buildScreenConfig = readBuildScreenConfig();
   const blobPack = compressBlobForPayload(blob, requestedBlobCompression);
   const writtenFiles = [];
+  const writtenUploadBundles = [];
+  const writtenUploadHtmlFiles = [];
   for (const ch of CHANNELS) {
-    const out = inlineHtml(ch, manifest, blobPack.blob, useBase64, blobPack.compression);
+    const out = inlineHtml(ch, manifest, blobPack.blob, useBase64, blobPack.compression, buildScreenConfig, projectOrientation);
     const outPath = path.join(outDir, `${ch}.html`);
     fs.writeFileSync(outPath, out, 'utf8');
     console.log('written:', outPath);
     writtenFiles.push(outPath);
+    writtenUploadBundles.push(writeUploadBundle(outDir, ch, out, projectOrientation));
+    const singleHtmlUploadPath = writeSingleHtmlUploadFile(outDir, ch, out);
+    if (singleHtmlUploadPath) {
+      writtenUploadHtmlFiles.push(singleHtmlUploadPath);
+    }
   }
 
   if (requestedBlobCompression !== BLOB_COMPRESSION_NONE) {
@@ -1268,9 +1441,25 @@ export async function packSingleHtml(options = {}) {
     );
   }
 
+  if (writtenUploadBundles.length) {
+    console.log(
+      `[pack-single-html] uploadBundles=${writtenUploadBundles.length} orientation=${projectOrientation} dir=${path.join(outDir, UPLOAD_BUNDLE_DIRNAME)}`
+    );
+  }
+
+  if (writtenUploadHtmlFiles.length) {
+    console.log(
+      `[pack-single-html] uploadHtmlFiles=${writtenUploadHtmlFiles.length} dir=${path.join(outDir, UPLOAD_HTML_DIRNAME)}`
+    );
+  }
+
   return {
     outDir,
     files: writtenFiles,
+    uploadBundleDir: path.join(outDir, UPLOAD_BUNDLE_DIRNAME),
+    uploadHtmlDir: path.join(outDir, UPLOAD_HTML_DIRNAME),
+    uploadHtmlFiles: writtenUploadHtmlFiles,
+    projectOrientation,
     useBase64,
     blobCompression: {
       requested: requestedBlobCompression,
