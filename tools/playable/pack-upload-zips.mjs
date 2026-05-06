@@ -166,15 +166,39 @@ function runPowerShell(command) {
   return (result.stdout || '').trim();
 }
 
-function listBundleEntries(bundleDir) {
+function normalizeBundleEntry(relPath) {
+  return String(relPath || '')
+    .replace(/\\/g, '/')
+    .replace(/^\/+/, '')
+    .replace(/\/+/g, '/')
+    .replace(/\/$/, '');
+}
+
+function listBundleRootEntries(bundleDir) {
   return fs.readdirSync(bundleDir)
-    .filter((name) => fs.statSync(path.join(bundleDir, name)).isFile())
     .sort((a, b) => a.localeCompare(b));
 }
 
+function listBundleFiles(bundleDir) {
+  const out = [];
+  const visit = (currentDir) => {
+    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const absPath = path.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        visit(absPath);
+        continue;
+      }
+      out.push(normalizeBundleEntry(path.relative(bundleDir, absPath)));
+    }
+  };
+  visit(bundleDir);
+  return out.sort((a, b) => a.localeCompare(b));
+}
+
 function writeZipFromBundle(bundleDir, zipPath) {
-  const entries = listBundleEntries(bundleDir);
-  if (!entries.length) {
+  const files = listBundleFiles(bundleDir);
+  if (!files.length) {
     throw new Error(`Upload bundle is empty: ${bundleDir}`);
   }
 
@@ -187,7 +211,7 @@ function writeZipFromBundle(bundleDir, zipPath) {
   const command = `& {
   $bundleDir = '${bundleDirEscaped}'
   $zipPath = '${zipPathEscaped}'
-  $items = Get-ChildItem -LiteralPath $bundleDir -File | Select-Object -ExpandProperty FullName
+  $items = Get-ChildItem -LiteralPath $bundleDir -Force | Select-Object -ExpandProperty FullName
   if (-not $items -or $items.Count -eq 0) { throw 'Upload bundle is empty.' }
   Compress-Archive -LiteralPath $items -DestinationPath $zipPath -CompressionLevel Optimal -Force
 }`;
@@ -229,15 +253,28 @@ function readZipEntries(zipPath) {
   return [String(parsed)];
 }
 
+function readZipFileEntries(zipPath) {
+  return readZipEntries(zipPath)
+    .filter((entry) => {
+      const raw = String(entry || '').replace(/\\/g, '/');
+      return raw && !raw.endsWith('/');
+    })
+    .map((entry) => normalizeBundleEntry(entry))
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
+}
+
 function buildArtifactRecord(artifactId, channel, kind, purpose, zipPath, expectedEntries, extra = {}) {
   const zipStats = fs.statSync(zipPath);
-  const entries = readZipEntries(zipPath);
-  const expected = expectedEntries.slice().sort((a, b) => a.localeCompare(b));
+  const entries = readZipFileEntries(zipPath);
+  const expected = expectedEntries
+    .map((entry) => normalizeBundleEntry(entry))
+    .sort((a, b) => a.localeCompare(b));
   const actual = entries.slice().sort((a, b) => a.localeCompare(b));
   const entryMatch = expected.length === actual.length && expected.every((value, index) => value === actual[index]);
 
   if (!entryMatch) {
-    throw new Error(`Zip root entries mismatch for ${artifactId}. Expected: ${expected.join(', ')}; actual: ${actual.join(', ')}`);
+    throw new Error(`Zip file entries mismatch for ${artifactId}. Expected: ${expected.join(', ')}; actual: ${actual.join(', ')}`);
   }
 
   return {
@@ -248,7 +285,9 @@ function buildArtifactRecord(artifactId, channel, kind, purpose, zipPath, expect
     zipPath,
     zipBytes: zipStats.size,
     zipMB: formatMegabytes(zipStats.size),
-    entries,
+    entries: Array.isArray(extra.rootEntries) ? extra.rootEntries : entries,
+    fileCount: entries.length,
+    zipEntries: entries,
     expectedEntries,
     entryMatch,
     ...extra,
@@ -286,10 +325,12 @@ export function packUploadZips(rawOptions = {}) {
 
     const zipPath = path.join(zipDir, `${channel}.zip`);
     writeZipFromBundle(bundleDir, zipPath);
-    const entries = listBundleEntries(bundleDir);
+    const rootEntries = listBundleRootEntries(bundleDir);
+    const entries = listBundleFiles(bundleDir);
     results.push(
       buildArtifactRecord(channel, channel, 'bundle', 'default-upload-bundle', zipPath, entries, {
         bundleDir,
+        rootEntries,
         officialStatus: uploadSpec.officialStatus,
         note: uploadSpec.zipArtifactNote || null,
       })

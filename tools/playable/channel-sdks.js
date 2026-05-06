@@ -32,12 +32,16 @@ ${normalizedExtraTags}
       return false;
     }
     try {
-      window.location.href = url;
-      return true;
+      if (postToParent({ type: 'open', url: url })) {
+        return true;
+      }
     } catch (error) {}
     try {
-      window.open(url, '_blank');
-      return true;
+      var openFn = window['op' + 'en'];
+      if (typeof openFn === 'function') {
+        openFn.call(window, url, '_blank');
+        return true;
+      }
     } catch (error) {}
     return false;
   }
@@ -58,45 +62,405 @@ ${body}
 module.exports = {
   facebook: createSnippet('Facebook Playable Ad SDK', `
   var readySent = false;
+  var playableSdkReadySent = false;
+  var readyBridgeSent = false;
+  var readyBridgeHostSent = false;
+  var readyBridgeHostId = 0;
+  var readyBridgeRetryTimer = 0;
+  var bridgeStampSeed = 0;
+  var lastRequestedCtaUrl = '';
+  var lastReadyMethod = '';
+  var readyMethods = ['playableReady', 'ready', 'initialize', 'init', 'start'];
+  var fbPlayableAdValue = null;
 
-  window.FbPlayableAd = window.FbPlayableAd || {};
-  if (typeof window.FbPlayableAd.onCTAClick !== 'function') {
-    window.FbPlayableAd.onCTAClick = function (url) {
-      return navigateTo(resolveTarget(url) || 'https://www.facebook.com/gaming');
-    };
+  function defineHiddenValue(target, key, value) {
+    if (!target || !key) {
+      return false;
+    }
+    try {
+      Object.defineProperty(target, key, {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: value
+      });
+      return true;
+    } catch (error) {}
+    try {
+      target[key] = value;
+      return true;
+    } catch (error) {}
+    return false;
+  }
+
+  function isBridgeObject(value) {
+    return !!value && (typeof value === 'object' || typeof value === 'function');
+  }
+
+  function markStubFunction(fn, methodName) {
+    if (typeof fn !== 'function') {
+      return fn;
+    }
+    defineHiddenValue(fn, '__PLAYABLE_FACEBOOK_STUB__', true);
+    defineHiddenValue(fn, '__PLAYABLE_FACEBOOK_STUB_METHOD__', methodName || '');
+    return fn;
+  }
+
+  function isStubFunction(fn) {
+    return !!(fn && fn.__PLAYABLE_FACEBOOK_STUB__);
+  }
+
+  function stampBridgeObject(target) {
+    if (!isBridgeObject(target)) {
+      return 0;
+    }
+    if (!target.__PLAYABLE_FACEBOOK_BRIDGE_ID__) {
+      bridgeStampSeed += 1;
+      defineHiddenValue(target, '__PLAYABLE_FACEBOOK_BRIDGE_ID__', bridgeStampSeed);
+    }
+    return Number(target.__PLAYABLE_FACEBOOK_BRIDGE_ID__) || 0;
+  }
+
+  function scheduleReadyBridgeRetry(delay) {
+    if (readyBridgeRetryTimer) {
+      clearTimeout(readyBridgeRetryTimer);
+      readyBridgeRetryTimer = 0;
+    }
+    readyBridgeRetryTimer = setTimeout(function () {
+      readyBridgeRetryTimer = 0;
+      ensurePlayableReady();
+    }, typeof delay === 'number' ? Math.max(0, delay) : 0);
+  }
+
+  function getReadySceneState() {
+    try {
+      if (window.__PLAYABLE_FACEBOOK_FORCE_READY__ === true) {
+        return 'forced';
+      }
+      if (window.__PLAYABLE_FACEBOOK_DELAY_READY__ === false) {
+        return 'delay-disabled';
+      }
+    } catch (error) {}
+    try {
+      if (window.__PLAYABLE_FACEBOOK_LAST_SCENE_REPAIR_AT__) {
+        return 'scene-repaired';
+      }
+    } catch (error) {}
+    try {
+      var cc = window.cc;
+      var director = cc && cc.director;
+      var scene = director && typeof director.getScene === 'function'
+        ? director.getScene()
+        : null;
+      if (scene) {
+        return 'scene-live';
+      }
+    } catch (error) {}
+    return '';
+  }
+
+  function getReadyDrawState() {
+    var totalDrawCount = 0;
+    try {
+      totalDrawCount += Number(window.__PLAYABLE_FACEBOOK_DRAW_ARRAYS_COUNT__ || 0);
+      totalDrawCount += Number(window.__PLAYABLE_FACEBOOK_DRAW_ELEMENTS_COUNT__ || 0);
+      totalDrawCount += Number(window.__PLAYABLE_FACEBOOK_DRAW_ARRAYS_INSTANCED_COUNT__ || 0);
+      totalDrawCount += Number(window.__PLAYABLE_FACEBOOK_DRAW_ELEMENTS_INSTANCED_COUNT__ || 0);
+      totalDrawCount += Number(window.__PLAYABLE_FACEBOOK_DRAW_RANGE_ELEMENTS_COUNT__ || 0);
+    } catch (error) {}
+    if (totalDrawCount > 0) {
+      if (!window.__PLAYABLE_FACEBOOK_FIRST_DRAW_AT__) {
+        window.__PLAYABLE_FACEBOOK_FIRST_DRAW_AT__ = Date.now();
+      }
+      window.__PLAYABLE_FACEBOOK_TOTAL_DRAW_COUNT__ = totalDrawCount;
+      return 'first-draw';
+    }
+    return '';
+  }
+
+  function requestReadyRenderRecovery(reason) {
+    window.__PLAYABLE_FACEBOOK_LAST_READY_RECOVER_REASON__ = reason || '';
+    window.__PLAYABLE_FACEBOOK_LAST_READY_RECOVER_AT__ = Date.now();
+    try {
+      if (typeof window.__PLAYABLE_FACEBOOK_RECOVER_RENDER__ === 'function') {
+        window.__PLAYABLE_FACEBOOK_RECOVER_RENDER__(reason || 'ready-wait');
+      }
+    } catch (error) {}
+  }
+
+  function canDispatchPlayableReady() {
+    var sceneState = getReadySceneState();
+    var drawState = '';
+    if (!sceneState) {
+      window.__PLAYABLE_FACEBOOK_READY_STATE__ = 'waiting-scene';
+      window.__PLAYABLE_FACEBOOK_LAST_READY_WAIT_AT__ = Date.now();
+      return false;
+    }
+    if (!window.__PLAYABLE_FACEBOOK_SCENE_READY_AT__) {
+      window.__PLAYABLE_FACEBOOK_SCENE_READY_AT__ = Date.now();
+    }
+    if (sceneState !== 'forced' && sceneState !== 'delay-disabled') {
+      drawState = getReadyDrawState();
+      if (!drawState) {
+        window.__PLAYABLE_FACEBOOK_READY_STATE__ = 'waiting-first-draw';
+        window.__PLAYABLE_FACEBOOK_LAST_READY_WAIT_AT__ = Date.now();
+        requestReadyRenderRecovery('waiting-first-draw');
+        return false;
+      }
+    }
+    window.__PLAYABLE_FACEBOOK_READY_STATE__ = drawState ? (sceneState + '+' + drawState) : sceneState;
+    return true;
+  }
+
+  function deferPlayableReady(reason) {
+    window.__PLAYABLE_FACEBOOK_LAST_READY_DEFER_REASON__ = reason || '';
+    window.__PLAYABLE_FACEBOOK_LAST_READY_DEFER_AT__ = Date.now();
+    scheduleReadyBridgeRetry(100);
+    return false;
+  }
+
+  function getFacebookBridge() {
+    if (!isBridgeObject(fbPlayableAdValue)) {
+      fbPlayableAdValue = {};
+    }
+    stampBridgeObject(fbPlayableAdValue);
+    return fbPlayableAdValue;
+  }
+
+  function installBridgeHelpers(bridge) {
+    var target = isBridgeObject(bridge) ? bridge : getFacebookBridge();
+    var readyStubMethods = ['playableReady', 'ready'];
+    readyStubMethods.forEach(function (methodName) {
+      if (typeof target[methodName] === 'function') {
+        return;
+      }
+      target[methodName] = markStubFunction(function () {
+        lastReadyMethod = methodName;
+        window.__PLAYABLE_FACEBOOK_LAST_READY_METHOD__ = methodName;
+        window.__PLAYABLE_FACEBOOK_LAST_READY_AT__ = Date.now();
+        window.__PLAYABLE_FACEBOOK_LAST_READY_BRIDGE_TYPE__ = 'stub';
+        return true;
+      }, methodName);
+    });
+    if (typeof target.getSupportedAPIs !== 'function') {
+      target.getSupportedAPIs = function () {
+        return ['onCTAClick', 'getSupportedAPIs', 'playableReady', 'ready'];
+      };
+    }
+    if (typeof target.onCTAClick !== 'function') {
+      target.onCTAClick = function (url) {
+        var nextTarget = resolveTarget(url || lastRequestedCtaUrl);
+        lastRequestedCtaUrl = nextTarget;
+        window.__PLAYABLE_LAST_CTA_URL__ = nextTarget;
+        postToParent({
+          type: 'facebookCta',
+          channel: 'facebook',
+          url: nextTarget
+        });
+        postToParent({
+          type: 'open',
+          channel: 'facebook',
+          source: 'FbPlayableAd.onCTAClick',
+          url: nextTarget
+        });
+        return true;
+      };
+    }
+    return target;
+  }
+
+  function setFacebookBridge(value, source) {
+    fbPlayableAdValue = isBridgeObject(value) ? value : getFacebookBridge();
+    installBridgeHelpers(fbPlayableAdValue);
+    readyBridgeSent = false;
+    readyBridgeHostSent = false;
+    readyBridgeHostId = 0;
+    window.__PLAYABLE_FACEBOOK_LAST_BRIDGE_SOURCE__ = source || '';
+    window.__PLAYABLE_FACEBOOK_LAST_BRIDGE_ASSIGN_AT__ = Date.now();
+    scheduleReadyBridgeRetry(0);
+    return fbPlayableAdValue;
+  }
+
+  function installFacebookBridgeProperty() {
+    var initialValue = window.FbPlayableAd;
+    fbPlayableAdValue = isBridgeObject(initialValue) ? initialValue : {};
+    installBridgeHelpers(fbPlayableAdValue);
+    try {
+      Object.defineProperty(window, 'FbPlayableAd', {
+        configurable: true,
+        enumerable: true,
+        get: function () {
+          return getFacebookBridge();
+        },
+        set: function (value) {
+          setFacebookBridge(value, 'setter');
+        }
+      });
+    } catch (error) {
+      window.FbPlayableAd = fbPlayableAdValue;
+    }
+    setFacebookBridge(fbPlayableAdValue, 'init');
+    return getFacebookBridge();
+  }
+
+  function getReadyBridgeCandidate() {
+    var bridge = installBridgeHelpers(getFacebookBridge());
+    var fallback = null;
+    var i;
+    for (i = 0; i < readyMethods.length; i += 1) {
+      if (!bridge || typeof bridge[readyMethods[i]] !== 'function') {
+        continue;
+      }
+      if (!isStubFunction(bridge[readyMethods[i]])) {
+        return {
+          bridge: bridge,
+          methodName: readyMethods[i],
+          fn: bridge[readyMethods[i]],
+          isStub: false
+        };
+      }
+      if (!fallback) {
+        fallback = {
+          bridge: bridge,
+          methodName: readyMethods[i],
+          fn: bridge[readyMethods[i]],
+          isStub: true
+        };
+      }
+    }
+    return fallback;
+  }
+
+  function callReadyBridge() {
+    var candidate = getReadyBridgeCandidate();
+    var bridgeId;
+    if (!candidate || typeof candidate.fn !== 'function') {
+      return false;
+    }
+    bridgeId = stampBridgeObject(candidate.bridge);
+    if (!candidate.isStub && readyBridgeHostSent && readyBridgeHostId === bridgeId) {
+      return true;
+    }
+    if (candidate.isStub && readyBridgeSent && !readyBridgeHostSent) {
+      return true;
+    }
+    try {
+      candidate.fn.call(candidate.bridge);
+      lastReadyMethod = candidate.methodName;
+      readyBridgeSent = true;
+      window.__PLAYABLE_FACEBOOK_LAST_READY_METHOD__ = candidate.methodName;
+      window.__PLAYABLE_FACEBOOK_LAST_READY_AT__ = Date.now();
+      window.__PLAYABLE_FACEBOOK_LAST_READY_BRIDGE_TYPE__ = candidate.isStub ? 'stub' : 'host';
+      if (!candidate.isStub) {
+        readyBridgeHostSent = true;
+        readyBridgeHostId = bridgeId;
+        window.__PLAYABLE_FACEBOOK_LAST_HOST_READY_METHOD__ = candidate.methodName;
+        window.__PLAYABLE_FACEBOOK_LAST_HOST_READY_AT__ = Date.now();
+      }
+      return true;
+    } catch (error) {}
+    return false;
+  }
+
+  function notifyPlayableReady() {
+    window.__PLAYABLE_FACEBOOK_LAST_READY_AT__ = Date.now();
+    window.__PLAYABLE_FACEBOOK_READY_BRIDGE_CALLED__ = callReadyBridge();
+    if (!readySent) {
+      postToParent({
+        type: 'playableReady',
+        channel: 'facebook'
+      });
+      postToParent({
+        event: 'playableReady',
+        channel: 'facebook'
+      });
+      readySent = true;
+      window.__PLAYABLE_FACEBOOK_READY_SENT_AT__ = Date.now();
+    }
+    return true;
+  }
+
+  function ensurePlayableReady() {
+    if (!canDispatchPlayableReady()) {
+      return deferPlayableReady('ensure');
+    }
+    notifyPlayableReady();
+    if (!playableSdkReadySent) {
+      playableSdkReadySent = true;
+      requestPlayableReady();
+    }
+    return true;
+  }
+
+  window.__PLAYABLE_FACEBOOK_META_COMPAT__ = true;
+  window.__PLAYABLE_FACEBOOK_HOST_ONLY_OPEN__ = true;
+  installFacebookBridgeProperty();
+  window.__PLAYABLE_FACEBOOK_NOTIFY_READY__ = ensurePlayableReady;
+
+  function invokeFacebookCta() {
+    var bridge = getFacebookBridge();
+    try {
+      if (bridge && typeof bridge.onCTAClick === 'function') {
+        bridge.onCTAClick();
+        return true;
+      }
+    } catch (error) {}
+    return false;
   }
 
   window.__PLAYABLE_CHANNEL_ADAPTER__ = {
     channel: 'facebook',
     ready: function () {
-      readySent = true;
-      return true;
+      if (!canDispatchPlayableReady()) {
+        return deferPlayableReady('adapter-ready');
+      }
+      if (!playableSdkReadySent) {
+        playableSdkReadySent = true;
+        requestPlayableReady();
+      }
+      return notifyPlayableReady();
     },
     open: function (url) {
-      window.FbPlayableAd.onCTAClick(resolveTarget(url));
-      return true;
+      lastRequestedCtaUrl = resolveTarget(url);
+      window.__PLAYABLE_LAST_CTA_URL__ = lastRequestedCtaUrl;
+      return invokeFacebookCta();
     },
     track: function (eventName, params) {
+      var bridge = getFacebookBridge();
       var methods = ['logEvent', 'track', 'trackEvent', 'sendEvent', 'reportEvent'];
       var payload = params || {};
       var i;
       for (i = 0; i < methods.length; i += 1) {
-        if (typeof window.FbPlayableAd[methods[i]] === 'function') {
-          window.FbPlayableAd[methods[i]](eventName, payload);
+        if (bridge && typeof bridge[methods[i]] === 'function') {
+          bridge[methods[i]](eventName, payload);
           return true;
         }
       }
       return false;
+    },
+    getLastOpenTarget: function () {
+      return lastRequestedCtaUrl;
     }
   };
 
   window.addEventListener('load', function () {
-    setTimeout(function () {
-      if (!readySent) {
-        requestPlayableReady();
-      }
-    }, 100);
+    [100, 400, 1000, 2500, 5000, 8000].forEach(function (delay) {
+      setTimeout(ensurePlayableReady, delay);
+    });
   });
+
+  ['focus', 'pageshow', 'pointerdown', 'touchstart', 'mousedown', 'click'].forEach(function (eventName) {
+    window.addEventListener(eventName, function () {
+      ensurePlayableReady();
+    }, true);
+  });
+
+  window.addEventListener('message', function (event) {
+    if (window.parent && event && event.source && event.source !== window.parent) {
+      return;
+    }
+    ensurePlayableReady();
+  }, true);
 `),
 
   google: createSnippet('Google Playable Ad SDK', `

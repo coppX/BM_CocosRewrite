@@ -40,7 +40,7 @@ function createDefaultOptions() {
     compressImages: true,
     imageFormat: 'webp',
     imageQuality: 30,
-    imageMaxDimension: 512,
+    imageMaxDimension: 0,
     sizeLimitBytes: Math.round(DEFAULT_SIZE_LIMIT_MB * 1024 * 1024),
     failOn: 'errors',
     includeIronSourceSnippet: true,
@@ -184,7 +184,7 @@ Defaults:
   --use-base64 false
   --image-format webp
   --image-quality 30
-  --image-max-dimension 512
+  --image-max-dimension 0
   --size-limit-mb ${DEFAULT_SIZE_LIMIT_MB}
 
 Options:
@@ -195,7 +195,7 @@ Options:
   --compress-images <bool>       true | false
   --image-format <mode>          original | webp | jpeg
   --image-quality <n>            1-100
-  --image-max-dimension <n>      Resize large textures before pack. 0 disables.
+  --image-max-dimension <n>      Resize large textures before pack. 0 disables (recommended for Cocos atlas safety).
   --size-limit-mb <n>            HTML size ceiling used by verification.
   --fail-on <mode>               errors | warnings | never
   --no-ironsource-snippet        Skip the extra snippet-only ironSource zip.
@@ -231,21 +231,33 @@ function groupHtmlUploadArtifacts(packResult) {
     const channel = path.basename(filePath, path.extname(filePath)).toLowerCase();
     const uploadSpec = getChannelUploadSpec(channel);
     const stats = fs.statSync(filePath);
+    const overSizeLimit = Number.isFinite(uploadSpec.htmlMaxBytes)
+      && uploadSpec.htmlMaxBytes > 0
+      && stats.size > uploadSpec.htmlMaxBytes;
+    const note = overSizeLimit
+      ? `${uploadSpec.htmlArtifactNote || 'Keep this standalone HTML for preview/debug.'} Current size is ${formatMegabytes(stats.size)} MB, above the configured ${formatMegabytes(uploadSpec.htmlMaxBytes)} MB single-file budget.`
+      : (uploadSpec.htmlArtifactNote || null);
     map.set(channel, {
       channel,
       filePath,
       fileBytes: stats.size,
       fileMB: formatMegabytes(stats.size),
-      purpose: uploadSpec.preferredPrimaryArtifact === 'html' ? 'preferred-upload-html' : 'single-html-upload',
+      purpose: overSizeLimit
+        ? 'oversize-preview-html'
+        : (uploadSpec.preferredPrimaryArtifact === 'html' ? 'preferred-upload-html' : 'single-html-upload'),
       officialStatus: uploadSpec.officialStatus,
-      note: uploadSpec.htmlArtifactNote || null,
+      note,
+      overSizeLimit,
     });
   }
   return map;
 }
 
 function buildPrimaryArtifact(uploadSpec, htmlPath, htmlUploadArtifact, uploadArtifacts) {
-  if (uploadSpec.preferredPrimaryArtifact === 'html' && htmlUploadArtifact) {
+  const preferredZip = uploadArtifacts.find((artifact) => artifact.kind === 'bundle') || uploadArtifacts[0] || null;
+  const htmlOverSizeLimit = Boolean(htmlUploadArtifact && htmlUploadArtifact.overSizeLimit);
+
+  if (uploadSpec.preferredPrimaryArtifact === 'html' && htmlUploadArtifact && !htmlOverSizeLimit) {
     return {
       type: 'html',
       path: htmlUploadArtifact.filePath,
@@ -256,6 +268,26 @@ function buildPrimaryArtifact(uploadSpec, htmlPath, htmlUploadArtifact, uploadAr
   }
 
   if (uploadSpec.preferredPrimaryArtifact === 'html') {
+    if (preferredZip && uploadSpec.acceptedFormats.includes('zip')) {
+      return {
+        type: 'zip',
+        path: preferredZip.zipPath,
+        sizeMB: preferredZip.zipMB,
+        purpose: preferredZip.purpose,
+        note: preferredZip.note || uploadSpec.reportNote || null,
+      };
+    }
+
+    if (htmlUploadArtifact) {
+      return {
+        type: 'html',
+        path: htmlUploadArtifact.filePath,
+        sizeMB: htmlUploadArtifact.fileMB,
+        purpose: htmlUploadArtifact.purpose,
+        note: htmlUploadArtifact.note,
+      };
+    }
+
     return {
       type: 'html',
       path: htmlPath,
@@ -265,7 +297,6 @@ function buildPrimaryArtifact(uploadSpec, htmlPath, htmlUploadArtifact, uploadAr
     };
   }
 
-  const preferredZip = uploadArtifacts.find((artifact) => artifact.kind === 'bundle') || uploadArtifacts[0] || null;
   if (!preferredZip) {
     return {
       type: 'html',

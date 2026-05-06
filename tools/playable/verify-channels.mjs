@@ -9,6 +9,7 @@ const PROJECT_ROOT = path.resolve(SCRIPT_DIR, '..', '..');
 const DEFAULT_DIST_DIR = path.join(PROJECT_ROOT, 'dist-playable');
 const CHANNELS = ['facebook', 'google', 'tiktok', 'mintegral', 'unityads', 'applovin', 'ironsource', 'kwai', 'vungle', 'snap'];
 const DEFAULT_SIZE_LIMIT_MB = 5;
+const FACEBOOK_SINGLE_HTML_LIMIT_BYTES = 2 * 1024 * 1024;
 const UPLOAD_BUNDLE_DIRNAME = 'upload-bundles';
 const PROJECT_ORIENTATION_BOTH = 'both';
 const PROJECT_ORIENTATION_PORTRAIT = 'portrait';
@@ -268,19 +269,45 @@ function inferProjectOrientation() {
   return inferredProjectOrientation;
 }
 
+function listBundleFiles(bundleDir) {
+  if (!fs.existsSync(bundleDir) || !fs.statSync(bundleDir).isDirectory()) {
+    return [];
+  }
+
+  const files = [];
+  const visit = (currentDir) => {
+    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const absPath = path.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        visit(absPath);
+        continue;
+      }
+      files.push(path.relative(bundleDir, absPath).split(path.sep).join('/'));
+    }
+  };
+  visit(bundleDir);
+  return files.sort((a, b) => a.localeCompare(b));
+}
+
 function getUploadBundleInfo(filePath, channel) {
   const bundleDir = path.join(path.dirname(filePath), UPLOAD_BUNDLE_DIRNAME, channel);
   const indexPath = path.join(bundleDir, 'index.html');
   const configPath = path.join(bundleDir, 'config.json');
   const snippetPath = path.join(bundleDir, 'snippet.html');
+  const bundleExists = fs.existsSync(bundleDir) && fs.statSync(bundleDir).isDirectory();
+  const fileEntries = listBundleFiles(bundleDir);
   return {
     bundleDir,
     indexPath,
     configPath,
     snippetPath,
+    bundleExists,
     hasIndex: fs.existsSync(indexPath),
     hasConfig: fs.existsSync(configPath),
     hasSnippet: fs.existsSync(snippetPath),
+    rootEntries: bundleExists ? fs.readdirSync(bundleDir).sort((a, b) => a.localeCompare(b)) : [],
+    fileEntries,
     config: readJson(configPath),
   };
 }
@@ -294,7 +321,7 @@ function extractScriptBodies(html) {
     const body = match[2] || '';
     const typeMatch = /type\s*=\s*['"]([^'"]+)['"]/i.exec(attrs);
     const type = typeMatch ? typeMatch[1] : 'text/javascript';
-    if (type === 'systemjs-importmap' || type === 'application/octet-stream') continue;
+    if (type === 'systemjs-importmap' || type === 'application/octet-stream' || /^text\/x-pack(?:-|$)/i.test(type)) continue;
     if (!body.trim()) continue;
     scriptBodies.push({ type, body });
   }
@@ -586,13 +613,177 @@ function findCommonChecks(channel, html, filePath, fileSize, sizeLimitBytes) {
   return checks;
 }
 
-function verifyFacebook(html) {
+function verifyFacebook(html, filePath) {
   const checks = [];
+  const htmlBytes = Buffer.byteLength(html, 'utf8');
+  const bundleInfo = getUploadBundleInfo(filePath, 'facebook');
+  const bundleFiles = bundleInfo.fileEntries;
+  const ctaBody = extractFunctionBody(
+    html,
+    /window\.FbPlayableAd\s*=\s*window\.FbPlayableAd\s*\|\|\s*\{\};?/,
+    /onCTAClick\s*=\s*function\s*\(url\)\s*\{/
+  );
+  if (htmlBytes > FACEBOOK_SINGLE_HTML_LIMIT_BYTES) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-html-oversize',
+        `Standalone Facebook HTML is ${(htmlBytes / (1024 * 1024)).toFixed(3)} MB, which exceeds the 2 MB single-file Meta HTML budget. Prefer the generated zip upload for Meta.`
+      )
+    );
+  }
+
+  if (
+    /https:\/\/playable\.invalid\//.test(html)
+    || /__PLAYABLE_IMPORTMAP_FALLBACK_SOURCE__\s*=\s*["']src\/import-map\.json["']/.test(html)
+    || /System\.import\((['"])\.\/index\.js\1\)/.test(html)
+  ) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-virtual-inline-refs',
+        'Facebook standalone HTML still exposes virtual module or fallback resource identifiers. Meta upload validation can treat these as non-self-contained references and fail the HTML upload even when the playable runs locally.'
+      )
+    );
+  }
   if (!/window\.FbPlayableAd\s*=/.test(html)) {
     checks.push(createCheck('error', 'facebook-bridge', 'Missing FbPlayableAd bridge object.'));
   }
   if (!/onCTAClick\s*=/.test(html) && !/onCTAClick\s*:/.test(html)) {
     checks.push(createCheck('error', 'facebook-cta', 'Missing FbPlayableAd.onCTAClick CTA handler.'));
+  }
+  if (!/__PLAYABLE_FACEBOOK_META_COMPAT__\s*=\s*true/.test(html)) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-meta-compat',
+        'Missing injected Facebook Meta compatibility guard. Preview can pause when the iframe reports an early hidden or blur state.'
+      )
+    );
+  }
+  if (!/__PLAYABLE_FACEBOOK_RUNTIME_PATCH__\s*=/.test(html)) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-runtime-patch',
+        'Missing injected Facebook runtime patch marker. Preview can still pause if the host delivers blur, pagehide, or visibility events during load.'
+      )
+    );
+  }
+  if (!/__PLAYABLE_FACEBOOK_NOTIFY_READY__\s*=/.test(html)) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-ready-notifier',
+        'Missing global Facebook ready notifier. Meta preview recovery is more reliable when the runtime can re-send ready signals after focus, message, or pageshow events.'
+      )
+    );
+  }
+  if (!bundleInfo.bundleExists || !bundleInfo.hasIndex) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-runtime-bundle-shape',
+        'Facebook upload bundle should contain a root index.html so Meta can ingest the playable as a normal self-contained zip.'
+      )
+    );
+  }
+  if (
+    bundleFiles.includes('pack/manifest.js')
+    || bundleFiles.some((entry) => /^pack\/chunks\/chunk-\d+\.js$/i.test(entry))
+  ) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-external-pack-assets',
+        'Facebook upload bundle still contains external pack manifest/chunk scripts. Meta upload validation has been more reliable when the zip stays self-contained with a root index.html only.'
+      )
+    );
+  }
+  const hasContainerUrlCompat = /canonicalizePackUrl\s*\(/.test(html)
+    || /__PLAYABLE_PACK_BASE_COMPAT__/.test(html)
+    || /__PLAYABLE_IMPORTMAP_FALLBACK_INSTALLED__/.test(html)
+    || /PACK_AVOID_OBJECT_URL\s*=\s*true/.test(html);
+  if (!hasContainerUrlCompat) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-container-url-compat',
+        'Facebook output is missing the srcdoc/blob container URL compatibility patch. Meta-style iframe hosts often rewrite playable URLs to about:srcdoc or blob: URLs.'
+      )
+    );
+  }
+  if (!/PACK_AVOID_OBJECT_URL\s*=\s*true/.test(html)) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-objecturl-avoidance',
+        'Facebook output is missing the object URL avoidance flag. Meta preview containers can reject blob/objectURL-backed resource loads even when the playable works in a normal browser tab.'
+      )
+    );
+  }
+  if (/\bcreateObjectURL\b/.test(html)) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-objecturl-literal',
+        'Facebook output still contains a literal createObjectURL usage. Prefer data URL or inline resource fallbacks for Meta container compatibility.'
+      )
+    );
+  }
+  if (/<script[^>]+type=["']application\/octet-stream["']/i.test(html)) {
+    checks.push(
+      createCheck(
+        'error',
+        'facebook-octet-stream-data-script',
+        'Facebook HTML still embeds data payloads inside application/octet-stream script tags. Meta upload validation can misread these blocks and fail with Invalid JSON.'
+      )
+    );
+  }
+  if (!/patchAddEventListener\(document,\s*\['visibilitychange',\s*'webkitvisibilitychange',\s*'msvisibilitychange',\s*'pagehide'\]/.test(html)) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-document-pagehide-guard',
+        'Facebook runtime patch is not blocking document-level pagehide listeners. Cocos web builds often register pagehide on both window and document.'
+      )
+    );
+  }
+  if (!/pauseByEngine/.test(html)) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-engine-pause-guard',
+        'Facebook output does not appear to guard Cocos pauseByEngine. A host-triggered hide/pagehide can still stop the playable even if direct pause calls are patched.'
+      )
+    );
+  }
+  if (/\bnavigateTo\s*\(/.test(ctaBody) || /window\.location(?:\.href)?\s*=|window\.open\s*\(/.test(ctaBody)) {
+    checks.push(
+      createCheck(
+        'error',
+        'facebook-cta-direct-redirect',
+        'Facebook CTA flow still contains a direct JavaScript redirect fallback. Prefer host-only FbPlayableAd CTA handling.'
+      )
+    );
+  }
+  if (/window\.location(?:\.href)?\s*=|window\.open\s*\(/.test(html)) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-js-redirect-literal',
+        'Facebook output still contains literal JavaScript redirect helpers, which can trigger Meta upload warnings.'
+      )
+    );
+  }
+  if (/\bXMLHttpRequest\b/.test(html)) {
+    checks.push(
+      createCheck(
+        'warn',
+        'facebook-xhr-literal',
+        'Facebook output still contains a literal XMLHttpRequest hook, which can trigger Meta upload warnings.'
+      )
+    );
   }
   return checks;
 }
@@ -804,7 +995,7 @@ function verifyChannel(channel, filePath, options) {
   checks.push(...findCommonChecks(channel, html, filePath, fileSize, options.sizeLimitBytes));
   const verifier = CHANNEL_VERIFIERS[channel];
   if (typeof verifier === 'function') {
-    checks.push(...verifier(html));
+    checks.push(...verifier(html, filePath, channel));
   }
 
   checks.sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || a.code.localeCompare(b.code));

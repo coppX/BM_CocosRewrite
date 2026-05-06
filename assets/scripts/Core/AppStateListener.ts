@@ -8,6 +8,18 @@ const { ccclass } = _decorator;
  */
 @ccclass('AppStateListener')
 export class AppStateListener extends Component {
+    private isPlayableAutoPauseDisabled(): boolean {
+        const globalScope = globalThis as typeof globalThis & {
+            __PLAYABLE_FACEBOOK_META_COMPAT__?: boolean;
+            __PLAYABLE_DISABLE_AUTO_PAUSE__?: boolean;
+        };
+
+        return Boolean(
+            globalScope.__PLAYABLE_FACEBOOK_META_COMPAT__ ||
+            globalScope.__PLAYABLE_DISABLE_AUTO_PAUSE__
+        );
+    }
+
     protected onLoad(): void {
         // 监听游戏显示/隐藏事件
         game.on(game.EVENT_SHOW, this.onGameShow, this);
@@ -28,6 +40,10 @@ export class AppStateListener extends Component {
     }
 
     private onGameHide(): void {
+        if (this.isPlayableAutoPauseDisabled()) {
+            return;
+        }
+
         if (GameManager.Instance && GameManager.Instance.CurrentState === GameState.Playing) {
             // TODO: 暂停背景音乐
             // AudioManager.Instance?.PauseBGM();
