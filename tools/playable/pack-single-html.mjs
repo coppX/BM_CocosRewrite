@@ -6833,9 +6833,9 @@ export async function packSingleHtml(options = {}) {
   const imageMaxDimension = Number.isFinite(options.imageMaxDimension)
     ? Math.max(0, Math.round(options.imageMaxDimension))
     : resolveImageMaxDimensionFromArgs();
-  const facebookImageQuality = 60;
-  const facebookImageFormat = IMAGE_FORMAT_SMART;
-  const facebookImageMaxDimension = 1024;
+  const facebookImageQuality = imageQuality;
+  const facebookImageFormat = imageFormat;
+  const facebookImageMaxDimension = imageMaxDimension;
   fs.mkdirSync(outDir, { recursive: true });
 
   const { manifest, blob, stats } = await buildBinaryPack(
@@ -6905,7 +6905,7 @@ export async function packSingleHtml(options = {}) {
 
   if (facebookPack) {
     console.log(
-      `[pack-single-html] facebook image format=${facebookImageFormat} q=${facebookImageQuality} maxDim=${facebookImageMaxDimension} for opaque-origin compatibility`
+      `[pack-single-html] facebook image format=${facebookImageFormat} q=${facebookImageQuality} maxDim=${facebookImageMaxDimension} aligned-with-default-channel-compression`
     );
   }
 
